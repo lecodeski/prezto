@@ -1,0 +1,457 @@
+# -*- mode: sh; -*-
+#
+# My pure ASCII prompt theme.
+#
+# The theme is optimized for Solarized dark. I use it with Monaco 10pt
+# (non-anti-aliased on non-Retina display, and anti-aliased on Retina display).
+#
+# The code is mostly ripped off the Pure theme by Sindre Sorhus
+# (https://github.com/sindresorhus/pure, MIT license). I originally forked from
+# release 1.1.0 to take advantage of its async feature.
+#
+# #############################################################################
+#
+# Customizations
+#
+# #############################################################################
+#
+# ### Zstyles ###
+#
+# There are two zstyles you can set to customize the behavior of this theme,
+# all under ':prezto:module:prompt:zmwangx:git':
+#
+# * autofetch
+#
+#       Boolean (yes or no); whether to perform fetch from upstream
+#       automatically when calculating relative position with upstream. Default
+#       is 'yes'.
+#
+# * untracked_dirty
+#
+#       Boolean (yes or no); whether to check for untracked files. Default is
+#       'yes'. 'no' is only really useful in huge repos.
+#
+# There is also a style specifically for debugging: 'debug' under
+# ':prezto:module:prompt:zmwangx', which adds a ticker (updated every second)
+# and additional debugging info to the preprompt. Credit to @mafredri for the
+# idea of a ticker; this is pure genius!
+#
+# ### Environment variables ###
+#
+# Environment variables are used to temporarily alter behaviors.
+#
+# * PROMPT_ZMWANGX_NOSHLVL
+#
+#       If set and non-nil, suppress the (sub)shell level segment. Useful for,
+#       e.g., asciinema recordings, where one is expected to work in a
+#       subshell.
+#
+# #############################################################################
+#
+# Authors:
+#   Zhiming Wang <zmwangx@gmail.com>
+#
+
+# terminal codes:
+# \e7   => save cursor position
+# \e[2A => move cursor 2 lines up
+# \e[1G => go to position 1 in terminal
+# \e8   => restore cursor position
+# \e[K  => clears everything after the cursor on the current line
+
+prompt_zmwangx_setup() {
+    setopt localoptions noshwordsplit
+
+    prompt_opts=(cr subst percent)
+
+    zmodload zsh/datetime
+    pmodload git
+    pmodload helper
+    autoload -Uz add-zsh-hook
+
+    # initialize async
+    async
+
+    # hook up
+    add-zsh-hook precmd prompt_zmwangx_precmd
+    add-zsh-hook preexec prompt_zmwangx_preexec
+
+    # hook into compsys
+    comppostfuncs+=(prompt_zmwangx_preprompt_offscreen_guard)
+
+    # let us start on a clean line!
+    PROMPT=''
+
+    # don't let virtualenv ruin the clean prompt (in case the python module isn't loaded)
+    VIRTUAL_ENV_DISABLE_PROMPT=1
+}
+
+prompt_zmwangx_precmd() {
+    # save exit status of last command; %{?.true-text.false-text} does not for
+    # us because the preprompt may be updated asynchronously, and conditional
+    # prompt expansion will pick up status of internal async command
+    prompt_zmwangx_last_cmd_exit_status=$?
+
+    setopt localoptions noshwordsplit
+
+    # do ZLE-related initializations if we haven't yet done so
+    [[ -n $prompt_zmwangx_zle_initialized ]] || prompt_zmwangx_zle_init
+
+    # by making sure that prompt_zmwangx_cmd_timestamp is defined here the
+    # async functions are prevented from interfering with the initial preprompt
+    # rendering
+    prompt_zmwangx_cmd_timestamp=
+
+    # clear number of accumulated buffer lines
+    prompt_zmwangx_accumulated_buffer_lines=0
+
+    # unset various states
+    unset prompt_zmwangx_cursor_position_lines prompt_zmwangx_cursor_position_columns prompt_zmwangx_ps_length prompt_zmwangx_tick
+
+    # preform async git dirty check and fetch
+    prompt_zmwangx_async_tasks
+
+    # print the preprompt
+    prompt_zmwangx_preprompt_render 'precmd'
+
+    # remove the prompt_zmwangx_cmd_timestamp, indicating that precmd has completed
+    unset prompt_zmwangx_cmd_timestamp
+}
+
+prompt_zmwangx_preexec() {
+    setopt localoptions noshwordsplit
+
+    # refresh the preprompt one last time, primarily for the timestamp
+    prompt_zmwangx_preprompt_render 'preexec'
+
+    # flush async jobs if user is trying to fetch or pull in the git repo
+    # (to prevent async fetch locking the repo)
+    [[ $2 =~ git\ .*(pull|fetch) ]] && async_flush_jobs 'prompt_zmwangx'
+
+    prompt_zmwangx_cmd_timestamp=$EPOCHSECONDS
+}
+
+# save the length of the string $1 to a global parameter named $2
+#
+# the string $1 undergoes prompt expansion, and ANSI escapes are stripped
+prompt_zmwangx_prompt_string_length_to_var() {
+    setopt localoptions noshwordsplit
+    local length=${#${(S%%)1//(\%([KF1]|)\{*\}|\%[Bbkf])}}
+    typeset -g $2=$length
+}
+
+prompt_zmwangx_zle_init() {
+    setopt localoptions noshwordsplit zle
+
+    # rebind user customized standard widgets
+    (( $+widgets[zle-line-init] )) && zle -A zle-line-init prompt_zmwangx_user_line_init
+    (( $+widgets[zle-line-finish] )) && zle -A zle-line-finish prompt_zmwangx_user_line_finish
+
+    # register ZLE widgets
+    zle -N prompt_zmwangx_accumulate_buffer_lines
+    zle -N prompt_zmwangx_calculate_cursor_position
+    zle -N zle-line-init prompt_zmwangx_custom_line_init
+    zle -N zle-line-finish prompt_zmwangx_custom_line_finish
+    zle -N clear-screen prompt_zmwangx_custom_clear_screen
+
+    prompt_zmwangx_zle_initialized=true
+}
+
+prompt_zmwangx_accumulate_buffer_lines() {
+    # assumes that PS1 and PS2 aren't long enough to span multiple lines
+    (( prompt_zmwangx_accumulated_buffer_lines += BUFFERLINES ))
+}
+
+prompt_zmwangx_custom_line_init() {
+    local ps1_length=${#${(S%%)PS1//(\%([KF1]|)\{*\}|\%[Bbkf])}}
+    local ps2_length=${#${(S%%)PS2//(\%([KF1]|)\{*\}|\%[Bbkf])}}
+    case $CONTEXT in
+        start) prompt_zmwangx_ps_length=$ps1_length;;
+        cont) prompt_zmwangx_ps_length=$ps2_length;;
+        *) prompt_zmwangx_ps_length=0;;
+    esac
+
+    # be extra careful not to change the parser context
+    (( $+widgets[prompt_zmwangx_user_line_init] )) || return
+    zle prompt_zmwangx_user_line_init
+}
+
+prompt_zmwangx_custom_line_finish() {
+    (( prompt_zmwangx_accumulated_buffer_lines += prompt_zmwangx_ps_length / COLUMNS + BUFFERLINES ))
+
+    # be extra careful not to change the parser context
+    (( $+widgets[prompt_zmwangx_user_line_finish] )) || return
+    zle prompt_zmwangx_user_line_finish
+}
+
+prompt_zmwangx_custom_clear_screen() {
+    # enable output to terminal from ZLE
+    zle -I
+    # clear screen and move to (0, 0)
+    print -n "\e[2J\e[0;0H"
+    # print precmd
+    prompt_zmwangx_preprompt_render precmd
+}
+
+# sets prompt_zmwangx_cursor_position_lines and prompt_zmwangx_cursor_position_columns, which are indexed from one
+prompt_zmwangx_calculate_cursor_position() {
+    setopt localoptions noshwordsplit noksharrays zle
+
+    local line_prefix_length=$prompt_zmwangx_ps_length
+    prompt_zmwangx_cursor_position_lines=$prompt_zmwangx_accumulated_buffer_lines
+    local line="" line_length=line_prefix_length
+    for line in "${(@f)LBUFFER}"; do
+        # expand raw tabs in line to eight spaces
+        line=${line//$'\t'/        }
+        (( line_length = line_prefix_length + $#line ))
+        (( prompt_zmwangx_cursor_position_lines += line_length / COLUMNS + 1 ))
+        # only the first line in lbuffer get the prefix (PS1/PS2)
+        line_prefix_length=0
+    done
+    (( prompt_zmwangx_cursor_position_columns = line_length % COLUMNS ))
+}
+
+# This function is used in comppostfuncs only, and sets the
+# prompt_zmwangx_preprompt_offscreen to true if it decides that the preprompt
+# will probably be pushed offscreen by completion listing.
+#
+# This function auto inserts itself into comppostfuncs.
+prompt_zmwangx_preprompt_offscreen_guard() {
+    setopt localoptions noshwordsplit noksharrays
+
+    # Compare the sum of the following three with the total number of lines available (i.e., LINES):
+    #
+    # * Potential number of lines occupied by preprompt;
+    # * Total number of lines occupied by the current command line (possibly multiline);
+    # * Potential number of lines occupied by completion listing.
+
+    # use prompt_zmwangx_last_preprompt_lines + 1 because occasionally the next preprompt will occupy one more line
+    local preprompt_lines=$(( prompt_zmwangx_last_preprompt_lines + 1 ))
+    local command_line_lines=$(( prompt_zmwangx_accumulated_buffer_lines + prompt_zmwangx_ps_length / COLUMNS + BUFFERLINES ))
+    local completion_lines=$compstate[list_lines]
+
+    (( preprompt_lines + command_line_lines + completion_lines > LINES )) && prompt_zmwangx_preprompt_offscreen=true
+
+    # persist
+    comppostfuncs+=(prompt_zmwangx_preprompt_offscreen_guard)
+}
+
+prompt_zmwangx_preprompt_render() {
+    setopt localoptions noshwordsplit noksharrays zle
+
+    # clear prompt_zmwangx_preprompt flag if running in precmd context
+    [[ $1 == 'precmd' ]] && unset prompt_zmwangx_preprompt_offscreen
+
+    # abort without rendering if prompt_zmwangx_preprompt_offscreen is set
+    [[ $prompt_zmwangx_preprompt_offscreen == true ]] && return
+
+    # check that no command is currently running, the prompt will otherwise be rendered in the wrong place
+    [[ -n ${prompt_zmwangx_cmd_timestamp+x} && $1 != 'precmd' ]] && return
+
+    # set style for git branch/position/commit
+    zstyle ':prezto:module:git:info:branch' format "%F{green}%b%f"
+    zstyle ':prezto:module:git:info:position' format "%F{green}%p%f"
+    zstyle ':prezto:module:git:info:commit' format "%F{green}%.7c%f"
+
+    # other basic git styles
+    zstyle ':prezto:module:git:info:action' format '%F{242}|%f%11F%s%f'
+    zstyle ':prezto:module:git:info:ahead' format '%F{blue}^%f'
+    zstyle ':prezto:module:git:info:behind' format '%F{blue}v%f'
+    zstyle ':prezto:module:git:info:keys' format 'prompt' ' $(coalesce "%b" "%p" "%c")%s%A%B' 'rprompt' ''
+
+    # construct prompt
+    # $prompt_zmwangx_git_dirty is set asynchronously; everything else is cheap and synchronous
+    (( $+functions[git-info] )) && git-info
+    local rootseg='%(!.%B%F{9}ROOT%f%b .)'
+    local hostseg='%B%F{blue}${SSH_CONNECTION:+%M }%f%b'
+
+    local effective_shlvl=$SHLVL
+    # Decrease effective level by one inside tmux
+    (( $+TMUX )) && (( effective_shlvl-- ))
+    if [[ -z $PROMPT_ZMWANGX_NOSHLVL ]] && (( effective_shlvl > 1 )); then
+        [[ -n $prompt_zmwangx_shlvl_roman ]] || {
+            # Use Roman numerals of effective_shlvl - 1 for up to six levels of
+            # nesting (VII is too wide to good look as a normal character)
+            case $effective_shlvl in
+                2) prompt_zmwangx_shlvl_roman=$'\u2160';; # I
+                3) prompt_zmwangx_shlvl_roman=$'\u2161';; # II
+                4) prompt_zmwangx_shlvl_roman=$'\u2162';; # III
+                5) prompt_zmwangx_shlvl_roman=$'\u2163';; # IV
+                6) prompt_zmwangx_shlvl_roman=$'\u2164';; # V
+                7) prompt_zmwangx_shlvl_roman=$'\u2165';; # VI
+                *) (( prompt_zmwangx_shlvl_roman = SHLVL - 1 ));;
+            esac
+        }
+        local levelseg='%13F${prompt_zmwangx_shlvl_roman} %f'
+    else
+        local levelseg=''
+    fi
+
+    local timeseg='%11F%*%f '
+    local pathseg='%B%14F[%~]%b'
+    local gitseg="${git_info:+${(e)git_info[prompt]}}%F{9}${prompt_zmwangx_git_dirty}%f "
+    local pythonseg='%F{magenta}${VIRTUAL_ENV:+py${VIRTUAL_ENV_PYTHON_VERSION}:${VIRTUAL_ENV##*/} }%f'
+    local jobseg='%(1j.%F{blue}(%j)%f .)'
+    if (( prompt_zmwangx_last_cmd_exit_status )); then
+        local promptseg='%9F>>>%f'
+    else
+        local promptseg='%10F>>>%f'
+    fi
+
+    # construct prompt, beginning with path
+    preprompt="$rootseg$hostseg$levelseg$timeseg$pathseg$gitseg$pythonseg$jobseg$promptseg "
+    PROMPT=$preprompt
+
+    # debugging info
+    if zstyle -t ':prezto:module:prompt:zmwangx' debug; then
+        [[ -n $prompt_zmwangx_tick ]] && preprompt+=" $prompt_zmwangx_tick"
+        [[ -n $prompt_zmwangx_cursor_position_lines ]] && preprompt+=" lin:$prompt_zmwangx_cursor_position_lines"
+        [[ -n $prompt_zmwangx_cursor_position_columns ]] && preprompt+=" col:$prompt_zmwangx_cursor_position_columns"
+        [[ -n $prompt_zmwangx_accumulated_buffer_lines ]] && preprompt+=" accumulated:$prompt_zmwangx_accumulated_buffer_lines"
+        [[ -n $prompt_zmwangx_ps_length ]] && preprompt+=" prompt_ps:$prompt_zmwangx_ps_length"
+    fi
+
+    # calculate length and occupied number of lengths of preprompt
+    local preprompt_length
+    prompt_zmwangx_prompt_string_length_to_var $preprompt "preprompt_length"
+    local preprompt_lines=$(( (preprompt_length - 1) / COLUMNS + 1 ))
+
+    # if executing through precmd, do not perform fancy terminal editing except
+    # for clearing the current line, which is necessary for getting rid of
+    # unnecessary spaces introduced by promptsp, which creates a mess when
+    # COLUMNS changes
+    if [[ $1 == 'precmd' ]]; then
+        zle && zle reset-prompt
+    else
+        # only redraw if preexec or prompt has changed
+        [[ $1 == 'preexec' || $prompt_zmwangx_last_preprompt != $preprompt ]] || return
+
+        # disable clearing of line if last char of preprompt is last column of terminal
+        local clr='\e[K'
+        (( COLUMNS * preprompt_lines == preprompt_length )) && clr=''
+
+        # calculate the total of number of lines to move up in order to write the updated preprompt
+        local lines_total=$preprompt_lines
+        if [[ $1 != 'preexec' ]]; then
+            zle prompt_zmwangx_calculate_cursor_position
+            (( lines_total += prompt_zmwangx_cursor_position_lines - 1 ))
+        else
+            (( lines_total += prompt_zmwangx_accumulated_buffer_lines ))
+        fi
+
+        # write preprompt only if we aren't moving off screen
+        (( lines_total < LINES )) && zle && zle reset-prompt
+    fi
+
+    # store previous prompt and the number of lines it occupies
+    prompt_zmwangx_last_preprompt=$preprompt
+    prompt_zmwangx_last_preprompt_lines=$preprompt_lines
+}
+
+prompt_zmwangx_async_tasks() {
+    setopt localoptions noshwordsplit
+
+    # initialize async worker
+    ((!${prompt_zmwangx_async_init:-0})) && {
+        async_start_worker 'prompt_zmwangx' -u -n
+        async_register_callback 'prompt_zmwangx' prompt_zmwangx_async_callback
+        prompt_zmwangx_async_init=1
+    }
+
+    # get the current git working tree, empty if not inside a git directory
+    local working_tree="$(command git rev-parse --show-toplevel 2>/dev/null)"
+
+    # check if the working tree changed (prompt_zmwangx_current_working_tree is prefixed by "x")
+    if [[ "${prompt_zmwangx_current_working_tree:-x}" != "x${working_tree}" ]]; then
+        # stop any running async jobs
+        async_flush_jobs 'prompt_zmwangx'
+
+        # wait 0.1 seconds for the jobs to be fully flushed if we are running a ticker
+        zstyle -t ':prezto:module:prompt:zmwangx' debug && sleep 0.1
+
+        # reset git preprompt variables, switching working tree
+        unset prompt_zmwangx_git_dirty
+
+        # set the new working tree and prefix with "x" to prevent the creation of a named path by AUTO_NAME_DIRS
+        prompt_zmwangx_current_working_tree="x${working_tree}"
+    fi
+
+    # start ticker
+    if zstyle -t ':prezto:module:prompt:zmwangx' debug; then
+        prompt_zmwangx_tick=0
+        async_job 'prompt_zmwangx' prompt_zmwangx_async_ticker
+    fi
+
+    # only perform tasks inside git working tree
+    [[ -n $working_tree ]] || return
+
+    if zstyle -T ':prezto:module:prompt:zmwangx:git' autofetch; then
+        # make sure working tree is not $HOME
+        [[ $working_tree != $HOME ]] &&
+        # tell worker to do a git fetch
+        async_job 'prompt_zmwangx' prompt_zmwangx_async_git_fetch $working_tree
+    fi
+
+    # tell worker to check if working copy is dirty
+    local untracked_dirty
+    zstyle -b ':prezto:module:prompt:zmwangx:git' untracked_dirty untracked_dirty || untracked_dirty=yes
+    async_job 'prompt_zmwangx' prompt_zmwangx_async_git_dirty $untracked_dirty $working_tree
+}
+
+prompt_zmwangx_async_callback() {
+    setopt localoptions noshwordsplit
+
+    local job=$1
+    local output=$3
+    local exec_time=$4
+
+    case $job in
+        prompt_zmwangx_async_git_dirty)
+            prompt_zmwangx_git_dirty=$output
+            prompt_zmwangx_preprompt_render
+            ;;
+        prompt_zmwangx_async_git_fetch)
+            prompt_zmwangx_preprompt_render
+            ;;
+        prompt_zmwangx_async_ticker)
+            (( prompt_zmwangx_tick += output ))
+            prompt_zmwangx_preprompt_render
+            async_job 'prompt_zmwangx' prompt_zmwangx_async_ticker
+            ;;
+    esac
+}
+
+# fastest possible way to check if repo is dirty
+prompt_zmwangx_async_git_dirty() {
+    setopt localoptions noshwordsplit
+
+    local untracked_dirty=$1; shift
+
+    # use cd -q to avoid side effects of changing directory, e.g. chpwd hooks
+    cd -q "$*"
+
+    if [[ $untracked_dirty == no ]]; then
+        command git diff --no-ext-diff --quiet --exit-code 2>/dev/null
+    else
+        test -z "$(command git status --porcelain --untracked-files=normal 2>/dev/null)"
+    fi
+
+    (( $? )) && echo "*"
+}
+
+prompt_zmwangx_async_git_fetch() {
+    setopt localoptions noshwordsplit
+
+    # use cd -q to avoid side effects of changing directory, e.g. chpwd hooks
+    cd -q "$*"
+
+    # set GIT_TERMINAL_PROMPT=0 to disable auth prompting for git fetch (git 2.3+)
+    GIT_TERMINAL_PROMPT=0 command git -c gc.auto=0 fetch
+}
+
+prompt_zmwangx_async_ticker() {
+    sleep 1
+    print 1
+}
+
+prompt_zmwangx_setup "$@"
