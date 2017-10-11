@@ -11,3 +11,25 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customize to your needs...
+
+bindkey "^[[5~" history-beginning-search-backward # Page Up
+bindkey "^[[6~" history-beginning-search-forward  # Page Down
+
+bindkey '^f' vi-forward-word
+bindkey '^b' vi-backward-word
+
+# Aliases
+alias sort=gsort
+alias l='/usr/local/bin/gls -lAh --group-directories-first --color'
+alias .=..
+
+alias f='find . -iname'
+alias fa='sudo find / -iname'
+
+alias du='du -sch .[!.]* * | sort -h'
+alias df='df -H'
+
+alias g=googler
+alias piff="pstorm diff"
+
+alias p='cd ~/Projekte/PHP/Aldi/Preisabfragen'
