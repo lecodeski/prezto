@@ -35,6 +35,7 @@ bindkey '^b' vi-backward-word
 alias sort=gsort
 alias l='/usr/local/bin/gls -lAh --group-directories-first --color'
 alias .=..
+alias __='_ -s'
 
 alias f='find . -iname'
 alias fa='sudo find / -iname'
