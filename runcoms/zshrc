@@ -1,10 +1,3 @@
-#
-# Executes commands at the start of an interactive session.
-#
-# Authors:
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
-#
-
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -12,6 +5,26 @@ fi
 
 # Customize to your needs...
 
+# zsh auto suggestions
+# Widgets that accept the entire suggestion
+ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(
+        end-of-line
+        vi-forward-char
+        vi-end-of-line
+        vi-add-eol
+)
+
+# Widgets that accept the suggestion as far as the cursor moves
+ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=(
+        forward-word
+        forward-char
+        vi-forward-word
+        vi-forward-word-end
+        vi-forward-blank-word
+        vi-forward-blank-word-end
+)
+
+#Key bindings
 bindkey "^[[5~" history-beginning-search-backward # Page Up
 bindkey "^[[6~" history-beginning-search-forward  # Page Down
 
