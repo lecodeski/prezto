@@ -3,4 +3,8 @@ for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
   ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done
 
-chsh -s /bin/zsh
+if [[ -x /usr/local/bin/zsh ]]; then
+  chsh -s /usr/local/bin/zsh
+else
+  chsh -s /bin/zsh
+fi
