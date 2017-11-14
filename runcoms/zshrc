@@ -45,7 +45,7 @@ fi
 alias f='find . -iname'
 alias fa='sudo find / -iname'
 
-alias du='du -sch .[!.]* * | sort -h'
+alias du='du -sch * | sort -h'
 alias df='df -H'
 
 alias g=googler
