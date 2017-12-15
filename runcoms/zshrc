@@ -48,7 +48,8 @@ alias fa='sudo find / -iname'
 alias du='du -sch * | sort -h'
 alias df='df -H'
 
-alias g=googler
+alias g=git
+alias gg=googler
 alias piff="pstorm diff"
 
 alias p='cd ~/Projekte/PHP/Aldi/Preisabfragen'
