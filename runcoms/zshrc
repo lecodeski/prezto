@@ -32,9 +32,17 @@ bindkey '^f' vi-forward-word
 bindkey '^b' vi-backward-word
 
 # Aliases
-alias sort=gsort
 alias .=..
 alias __='_ -s'
+
+alias du='du -sch * | sort -h'
+alias df='df -H'
+
+alias f='find . -iname'
+alias ff='sudo find / -iname'
+
+alias g=git
+alias gg=googler
 
 if [[ -x /usr/local/bin/gls ]]; then
   alias l='/usr/local/bin/gls -lAh --group-directories-first --color'
@@ -42,14 +50,7 @@ else
   alias l='/bin/ls -lAh --group-directories-first --color'
 fi
 
-alias f='find . -iname'
-alias fa='sudo find / -iname'
-
-alias du='du -sch * | sort -h'
-alias df='df -H'
-
-alias g=git
-alias gg=googler
 alias piff="pstorm diff"
-
 alias p='cd ~/Projekte/PHP/Aldi/Preisabfragen'
+alias rr='rm -rf'
+alias sort=gsort
