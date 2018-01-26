@@ -14,8 +14,7 @@ fi
 # Options
 #
 
-# Beep on error in line editor.
-setopt BEEP
+setopt BEEP                     # Beep on error in line editor.
 
 #
 # Variables
