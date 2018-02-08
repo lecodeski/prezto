@@ -65,6 +65,6 @@ else
 fi
 
 alias piff="pstorm diff"
-alias p='cd ~/Projekte/PHP/Aldi/Preisabfragen'
+alias p='cd ~/Projekte/Java/ERGO\ Direkt'
 alias rr='rm -rf'
 alias sort=gsort
