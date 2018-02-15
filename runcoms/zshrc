@@ -3,6 +3,17 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
+# Source specific env specific profile stuff
+if [[ -s "${ZDOTDIR:-$HOME}/.zsh_profile" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zsh_profile"
+fi
+
+if [[ -x /usr/local/bin/gls ]]; then
+  alias l='/usr/local/bin/gls -lAh --group-directories-first --color'
+else
+  alias l='/bin/ls -lAh --group-directories-first --color'
+fi
+
 # Customize to your needs...
 
 # zsh auto suggestions
@@ -58,7 +69,7 @@ alias gsm='git submodule'
 alias gg=googler
 alias iiff='idea diff'
 
-if [[ -x /usr/local/bin/gls ]]; then
+if [[ -s /usr/local/bin/gls ]]; then
   alias l='/usr/local/bin/gls -lAh --group-directories-first --color'
 else
   alias l='/bin/ls -lAh --group-directories-first --color'
