@@ -56,6 +56,7 @@ alias gs='git status'
 alias gsm='git submodule'
 
 alias gg=googler
+alias iiff='idea diff'
 
 if [[ -x /usr/local/bin/gls ]]; then
   alias l='/usr/local/bin/gls -lAh --group-directories-first --color'
@@ -63,7 +64,7 @@ else
   alias l='/bin/ls -lAh --group-directories-first --color'
 fi
 
-alias piff="pstorm diff"
+alias piff='pstorm diff'
 alias p='cd ~/Projekte/Java/ERGO\ Direkt'
 alias rr='rm -rf'
 alias sort=gsort
