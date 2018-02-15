@@ -32,7 +32,6 @@ bindkey '^f' vi-forward-word
 bindkey '^b' vi-backward-word
 
 # Aliases
-alias .=..
 alias __='_ -s'
 
 alias du='du -sch * | sort -h'
