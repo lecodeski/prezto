@@ -46,6 +46,7 @@ bindkey '^b' vi-backward-word
 alias __='_ -s'
 alias 7=7z
 
+alias bu="brew upgrade && brew cask upgrade"
 alias du='du -sch * | sort -h'
 alias df='df -H'
 
