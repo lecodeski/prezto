@@ -44,6 +44,7 @@ bindkey '^b' vi-backward-word
 
 # Aliases
 alias __='_ -s'
+alias 7=7z
 
 alias du='du -sch * | sort -h'
 alias df='df -H'
