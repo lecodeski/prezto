@@ -47,6 +47,7 @@ alias __='_ -s'
 alias 7=7z
 
 alias bu="brew upgrade && brew cask upgrade"
+alias c=cd
 alias du='du -sch * | sort -h'
 alias df='df -H'
 
