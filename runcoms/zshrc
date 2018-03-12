@@ -69,7 +69,7 @@ alias gr='git remote'
 alias gs='git status'
 alias gsm='git submodule'
 
-alias gg=googler
+alias gg='googler --colors Bjdgxy'
 alias iiff='idea diff'
 
 if [[ -s /usr/local/bin/gls ]]; then

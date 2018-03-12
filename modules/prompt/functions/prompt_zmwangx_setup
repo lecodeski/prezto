@@ -65,6 +65,7 @@ prompt_zmwangx_setup() {
     prompt_opts=(cr subst percent)
 
     zmodload zsh/datetime
+    pmodload prompt/external/async
     pmodload git
     pmodload helper
     autoload -Uz add-zsh-hook
@@ -300,7 +301,6 @@ prompt_zmwangx_preprompt_render() {
 
     # construct prompt, beginning with path
     preprompt="$rootseg$hostseg$levelseg$timeseg$pathseg$gitseg$pythonseg$jobseg$promptseg "
-    PROMPT=$preprompt
 
     # debugging info
     if zstyle -t ':prezto:module:prompt:zmwangx' debug; then
@@ -321,17 +321,13 @@ prompt_zmwangx_preprompt_render() {
     # unnecessary spaces introduced by promptsp, which creates a mess when
     # COLUMNS changes
     if [[ $1 == 'precmd' ]]; then
-        zle && zle reset-prompt
+        PROMPT=$preprompt
     else
         # only redraw if preexec or prompt has changed
         [[ $1 == 'preexec' || $prompt_zmwangx_last_preprompt != $preprompt ]] || return
 
-        # disable clearing of line if last char of preprompt is last column of terminal
-        local clr='\e[K'
-        (( COLUMNS * preprompt_lines == preprompt_length )) && clr=''
-
         # calculate the total of number of lines to move up in order to write the updated preprompt
-        local lines_total=$preprompt_lines
+        local lines_total=$(( preprompt_lines - 1 ))
         if [[ $1 != 'preexec' ]]; then
             zle prompt_zmwangx_calculate_cursor_position
             (( lines_total += prompt_zmwangx_cursor_position_lines - 1 ))
@@ -340,7 +336,7 @@ prompt_zmwangx_preprompt_render() {
         fi
 
         # write preprompt only if we aren't moving off screen
-        (( lines_total < LINES )) && zle && zle reset-prompt
+        (( lines_total < LINES )) && print -Pn "\e7\e[${lines_total}A\e[1G${preprompt}\e8"
     fi
 
     # store previous prompt and the number of lines it occupies
