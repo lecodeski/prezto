@@ -337,7 +337,7 @@ prompt_zmwangx_preprompt_render() {
 
         # write preprompt only if we aren't moving off screen
         (( lines_total < LINES )) && print -Pn "\e7\e[${lines_total}A\e[1G${preprompt}\e8"
-        (( $prompt_bla_last_git_dirty_length == 0 & #prompt_zmwangx_git_dirty > 0 )) && print -Pn "\e[${#prompt_zmwangx_git_dirty}C"
+        (( $prompt_bla_last_git_dirty_length == 0 && #prompt_zmwangx_git_dirty > 0 )) && print -Pn "\e[${#prompt_zmwangx_git_dirty}C"
     fi
 
     # store previous prompt and the number of lines it occupies
