@@ -48,7 +48,7 @@ alias 7=7z
 
 alias bu="brew upgrade && brew cask upgrade"
 alias c=cd
-alias du='du -hd1|sort -hr'
+alias du='du -sch .[!.]* * |sort -h'
 alias df='df -H'
 
 alias f='find . -iname'
@@ -82,3 +82,6 @@ alias piff='pstorm diff'
 alias p='cd ~/Projekte/Java/ERGO\ Direkt'
 alias rr='rm -rf'
 alias sort=gsort
+
+# Options
+setopt CSH_NULL_GLOB
