@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # -*- mode: sh; -*-
 #
 # My pure ASCII prompt theme.
@@ -320,9 +321,8 @@ prompt_zmwangx_preprompt_render() {
     # for clearing the current line, which is necessary for getting rid of
     # unnecessary spaces introduced by promptsp, which creates a mess when
     # COLUMNS changes
-    if [[ $1 == 'precmd' ]]; then
-        PROMPT=$preprompt
-    else
+    PROMPT=$preprompt
+    if [[ $1 != 'precmd' ]]; then
         # only redraw if preexec or prompt has changed
         [[ $1 == 'preexec' || $prompt_zmwangx_last_preprompt != $preprompt ]] || return
 
