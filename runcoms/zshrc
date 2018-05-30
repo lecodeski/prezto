@@ -48,7 +48,7 @@ alias 7=7z
 
 alias bu="brew upgrade && brew cask upgrade"
 alias c=cd
-alias du='du -sch .[!.]* * |sort -h'
+alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 alias df='df -H'
 
 alias f='find . -iname'
@@ -88,5 +88,3 @@ if [[ -s /usr/local/bin/gsort ]]; then
 fi
 
 alias x='exa -lah --group-directories-first --git'
-# Options
-setopt CSH_NULL_GLOB
