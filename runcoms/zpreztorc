@@ -35,9 +35,13 @@ zstyle ':prezto:load' pmodule \
   'spectrum' \
   'utility' \
   'completion' \
-  'prompt' \
+  'fasd' \
+  'node' \
+  'archive' \
+  'syntax-highlighting' \
+  'history-substring-search' \
   'autosuggestions' \
-  'fasd'
+  'prompt'
 
 #
 # Autosuggestions
@@ -164,15 +168,17 @@ zstyle ':prezto:module:prompt' theme 'zmwangx'
 # Syntax Highlighting
 #
 
+zstyle ':prezto:module:syntax-highlighting' color 'yes'
+
 # Set syntax highlighters.
 # By default, only the main highlighter is enabled.
-# zstyle ':prezto:module:syntax-highlighting' highlighters \
-#   'main' \
-#   'brackets' \
-#   'pattern' \
-#   'line' \
-#   'cursor' \
-#   'root'
+zstyle ':prezto:module:syntax-highlighting' highlighters \
+  'main' \
+  'brackets' \
+  'pattern' \
+  'line' \
+  'cursor' \
+  'root'
 #
 # Set syntax highlighting styles.
 # zstyle ':prezto:module:syntax-highlighting' styles \
@@ -211,7 +217,7 @@ zstyle ':prezto:module:prompt' theme 'zmwangx'
 # zstyle ':prezto:module:tmux:auto-start' remote 'yes'
 
 # Integrate with iTerm2.
-# zstyle ':prezto:module:tmux:iterm' integrate 'yes'
+zstyle ':prezto:module:tmux:iterm' integrate 'yes'
 
 # Set the default session name:
 # zstyle ':prezto:module:tmux:session' name 'YOUR DEFAULT SESSION NAME'
