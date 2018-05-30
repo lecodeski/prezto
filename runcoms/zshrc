@@ -80,7 +80,7 @@ fi
 
 alias piff='pstorm diff'
 alias p='cd ~/Projekte/Java/ERGO\ Direkt'
-alias rg='ripgrep -p'
+alias rg='rg -p'
 alias rr='rm -rf'
 
 if [[ -s /usr/local/bin/gsort ]]; then
