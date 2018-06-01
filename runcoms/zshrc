@@ -39,8 +39,10 @@ ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=(
 bindkey "^[[5~" history-beginning-search-backward # Page Up
 bindkey "^[[6~" history-beginning-search-forward  # Page Down
 
+
 bindkey '^f' vi-forward-word
 bindkey '^b' vi-backward-word
+bindkey '^x' fzf-cd-widget
 
 # Aliases
 alias __='_ -s'
@@ -48,8 +50,8 @@ alias 7=7z
 
 alias bu="brew upgrade && brew cask upgrade"
 alias c=cd
-alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 alias df='df -H'
+alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
 alias f='find . -iname'
 alias ff='sudo find / -iname'
@@ -59,7 +61,8 @@ alias ga='git add'
 alias gb='git branch'
 alias gc='git commit'
 alias gco='git checkout'
-alias gd='git diff'
+alias gd='git icdiff'
+alias gdg='git difftool -y -x "pstorm diff"'
 alias gf='git fetch'
 alias gl='git log'
 alias gm='git merge'
@@ -78,13 +81,11 @@ else
   alias l='/bin/ls -lAh --group-directories-first --color'
 fi
 
+alias p='cd ~/Projekte/React\ Native/Mayflower/AntipatternApp'
 alias piff='pstorm diff'
-alias p='cd ~/Projekte/Java/ERGO\ Direkt'
 alias rg='rg -p'
 alias rr='rm -rf'
-
-if [[ -s /usr/local/bin/gsort ]]; then
-  alias sort=gsort
-fi
-
+[ -s /usr/local/bin/gsort ] && alias sort=gsort
 alias x='exa -lah --group-directories-first --git'
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
