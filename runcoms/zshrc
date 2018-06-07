@@ -8,12 +8,6 @@ if [[ -s "${ZDOTDIR:-$HOME}/.profile" ]]; then
   source "${ZDOTDIR:-$HOME}/.profile"
 fi
 
-if [[ -x /usr/local/bin/gls ]]; then
-  alias l='/usr/local/bin/gls -lAh --group-directories-first --color'
-else
-  alias l='/bin/ls -lAh --group-directories-first --color'
-fi
-
 # Customize to your needs...
 
 # zsh auto suggestions
@@ -83,8 +77,11 @@ fi
 
 alias p='cd ~/Projekte/React\ Native/Mayflower/AntipatternApp'
 alias piff='pstorm diff'
+alias pip=pip3
+alias python=python3
 alias rg='rg -p'
 alias rr='rm -rf'
+alias sl=subl
 [ -s /usr/local/bin/gsort ] && alias sort=gsort
 alias x='exa -lah --group-directories-first --git'
 
