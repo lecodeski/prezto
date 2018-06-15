@@ -8,6 +8,11 @@ if [[ -s "${ZDOTDIR:-$HOME}/.profile" ]]; then
   source "${ZDOTDIR:-$HOME}/.profile"
 fi
 
+# Source zsh command completions
+if [[ -s "/usr/local/share/zsh/site-functions/aws_zsh_completer.sh" ]]; then
+  source /usr/local/share/zsh/site-functions/aws_zsh_completer.sh
+fi
+
 # Customize to your needs...
 
 # zsh auto suggestions
@@ -85,4 +90,16 @@ alias sl=subl
 [ -s /usr/local/bin/gsort ] && alias sort=gsort
 alias x='exa -lah --group-directories-first --git'
 
+#functions
+function ds() {
+	open "dash://b:$*"
+}
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# tabtab source for serverless package
+# uninstall by removing these lines or running `tabtab uninstall serverless`
+[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh
+# tabtab source for sls package
+# uninstall by removing these lines or running `tabtab uninstall sls`
+[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
