@@ -54,6 +54,7 @@ alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL
 
 alias f='find . -iname'
 alias ff='sudo find / -iname'
+alias fzf='fzf --preview "head -100 {}"'
 
 alias g=git
 alias ga='git add'
