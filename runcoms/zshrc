@@ -47,7 +47,7 @@ bindkey '^x' fzf-cd-widget
 alias __='_ -s'
 alias 7=7z
 
-alias bu="brew upgrade && echo '==> \e[1m🍺 Brew update finished 🍺 Upgrading Casks:\e[0m' && brew cask upgrade"
+alias bu="brew upgrade && echo '🍻  \e[1mBrew update finished 🍻 Upgrading Casks:\e[0m' && brew cask upgrade"
 alias c=cd
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
