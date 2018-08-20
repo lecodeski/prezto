@@ -82,6 +82,15 @@ else
 fi
 
 alias p='cd ~/Projekte/React\ Native/Mayflower/AntipatternApp'
+
+if [[ -s /usr/bin/pbcopy ]]; then
+  alias cpy='/usr/bin/pbcopy'
+fi
+
+if [[ -s /usr/bin/pbpaste ]]; then
+  alias pst='/usr/bin/pbpaste'
+fi
+
 alias piff='pstorm diff'
 alias pip=pip3
 alias python=python3
