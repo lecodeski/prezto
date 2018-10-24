@@ -94,7 +94,7 @@ fi
 alias piff='pstorm diff'
 alias pip=pip3
 alias python=python3
-alias rg='rg -p'
+alias rg='rg -i'
 alias rr='rm -rf'
 alias sl=subl
 [ -s /usr/local/bin/gsort ] && alias sort=gsort
