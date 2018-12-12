@@ -70,6 +70,7 @@ alias gp='git pull'
 alias gpu='git push'
 alias gr='git remote'
 alias gs='git status'
+alias gst='git stash'
 alias gsm='git submodule'
 
 alias gg='googler --colors Bjdgxy'
