@@ -82,7 +82,7 @@ else
   alias l='/bin/ls -lAh --group-directories-first --color'
 fi
 
-alias p='cd ~/Projekte/React\ Native/Mayflower/AntipatternApp'
+alias p='cd ~/Projekte/iOS/H-Hotels'
 
 if [[ -s /usr/bin/pbcopy ]]; then
   alias cpy='/usr/bin/pbcopy'
@@ -118,3 +118,5 @@ function ds() {
 
 eval "`pip completion --zsh`"
 compctl -K _pip_completion pip3
+
+p
