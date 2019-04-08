@@ -52,8 +52,7 @@ alias c=cd
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
-alias f='find . -iname'
-alias ff='sudo find / -iname'
+alias f='fd'
 alias fzf='fzf --preview "head -100 {}"'
 
 alias g=git
@@ -106,6 +105,10 @@ function ds() {
 	open "dash://b:$*"
 }
 
+function ff() {
+	sudo fd $* /
+}
+
 # Additonal external scripts and auto completions
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
@@ -118,5 +121,3 @@ function ds() {
 
 eval "`pip completion --zsh`"
 compctl -K _pip_completion pip3
-
-p
