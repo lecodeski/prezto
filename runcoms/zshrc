@@ -121,5 +121,3 @@ function ff() {
 
 eval "`pip completion --zsh`"
 compctl -K _pip_completion pip3
-
-eval $(thefuck --alias)
