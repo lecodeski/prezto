@@ -119,5 +119,7 @@ function ff() {
 # uninstall by removing these lines or running `tabtab uninstall sls`
 [[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
 
+eval "$(jira --completion-script-zsh)"
+
 eval "`pip completion --zsh`"
 compctl -K _pip_completion pip3
