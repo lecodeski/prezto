@@ -66,10 +66,10 @@ alias mvi="${aliases[mv]:-mv} -i"
 alias cpi="${aliases[cp]:-cp} -i"
 alias lni="${aliases[ln]:-ln} -i"
 if zstyle -T ':prezto:module:utility' safe-ops; then
-  alias rm='rmi'
-  alias mv='mvi'
-  alias cp='cpi'
-  alias ln='lni'
+  alias rm='rm -i'
+  alias mv='mv -i'
+  alias cp='cp -i'
+  alias ln='ln -i'
 fi
 
 # ls
