@@ -142,3 +142,5 @@ eval "$(jira --completion-script-zsh)"
 
 eval "`pip completion --zsh`"
 compctl -K _pip_completion pip3
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"

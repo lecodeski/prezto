@@ -89,11 +89,6 @@ prompt_zmwangx_setup() {
 }
 
 prompt_zmwangx_precmd() {
-    # save exit status of last command; %{?.true-text.false-text} does not for
-    # us because the preprompt may be updated asynchronously, and conditional
-    # prompt expansion will pick up status of internal async command
-    prompt_zmwangx_last_cmd_exit_status=$?
-
     setopt localoptions noshwordsplit
 
     # do ZLE-related initializations if we haven't yet done so
@@ -289,19 +284,14 @@ prompt_zmwangx_preprompt_render() {
         local levelseg=''
     fi
 
-    local timeseg='%11F$(date +%T)%f '
+    local timeseg='%11F$(date +%T)%f'
     local pathseg='%B%14F[%~]%b'
     local gitseg="${git_info:+${(e)git_info[prompt]}}%F{9}${prompt_zmwangx_git_dirty}%f "
     local pythonseg='%F{magenta}${VIRTUAL_ENV:+py${VIRTUAL_ENV_PYTHON_VERSION}:${VIRTUAL_ENV##*/} }%f'
     local jobseg='%(1j.%F{blue}(%j)%f .)'
-    if (( prompt_zmwangx_last_cmd_exit_status )); then
-        local promptseg='%9F>>>%f'
-    else
-        local promptseg='%10F>>>%f'
-    fi
 
     # construct prompt, beginning with path
-    preprompt="$rootseg$hostseg$levelseg$timeseg$pathseg$gitseg$pythonseg$jobseg$promptseg "
+    preprompt=" $rootseg$hostseg$levelseg$timeseg$gitseg$pythonseg$jobseg$pathseg "
 
     # debugging info
     if zstyle -t ':prezto:module:prompt:zmwangx' debug; then
