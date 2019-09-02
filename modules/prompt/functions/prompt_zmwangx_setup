@@ -246,7 +246,7 @@ prompt_zmwangx_preprompt_render() {
     [[ -n ${prompt_zmwangx_cmd_timestamp+x} && $1 != 'precmd' ]] && return
 
     # set style for git branch/position/commit
-    zstyle ':prezto:module:git:info:branch' format "%F{green}%b%f"
+    zstyle ':prezto:module:git:info:branch' format "%F{039}%b%f"
     zstyle ':prezto:module:git:info:position' format "%F{green}%p%f"
     zstyle ':prezto:module:git:info:commit' format "%F{green}%.7c%f"
 
@@ -254,13 +254,13 @@ prompt_zmwangx_preprompt_render() {
     zstyle ':prezto:module:git:info:action' format '%F{242}|%f%11F%s%f'
     zstyle ':prezto:module:git:info:ahead' format '%F{blue}^%f'
     zstyle ':prezto:module:git:info:behind' format '%F{blue}v%f'
-    zstyle ':prezto:module:git:info:keys' format 'prompt' ' $(coalesce "%b" "%p" "%c")%s%A%B' 'rprompt' ''
+    zstyle ':prezto:module:git:info:keys' format 'prompt' '$(coalesce "%b" "%p" "%c")%s%A%B' 'rprompt' ''
 
     # construct prompt
     # $prompt_zmwangx_git_dirty is set asynchronously; everything else is cheap and synchronous
     (( $+functions[git-info] )) && git-info
     local rootseg='%(!.%B%F{9}ROOT%f%b .)'
-    local hostseg='%B%F{blue}${SSH_CONNECTION:+%M }%f%b'
+    local hostseg='%B%F{blue}${SSH_CONNECTION:+%M}%f%b'
 
     local effective_shlvl=$SHLVL
     # Decrease effective level by one inside tmux
@@ -279,19 +279,20 @@ prompt_zmwangx_preprompt_render() {
                 *) (( prompt_zmwangx_shlvl_roman = SHLVL - 1 ));;
             esac
         }
-        local levelseg='%13F${prompt_zmwangx_shlvl_roman} %f'
+        local levelseg='%13F${prompt_zmwangx_shlvl_roman}%f '
     else
         local levelseg=''
     fi
 
     local timeseg='%11F$(date +%T)%f'
-    local pathseg='%B%14F[%~]%b'
-    local gitseg="${git_info:+${(e)git_info[prompt]}}%F{9}${prompt_zmwangx_git_dirty}%f "
+    local pathseg='%B%11F[%~]%b'
+    local gitseg="%B${${(e)git_info[prompt]}}%F{9}${prompt_zmwangx_git_dirty}%f"
     local pythonseg='%F{magenta}${VIRTUAL_ENV:+py${VIRTUAL_ENV_PYTHON_VERSION}:${VIRTUAL_ENV##*/} }%f'
     local jobseg='%(1j.%F{blue}(%j)%f .)'
 
-    # construct prompt, beginning with path
-    preprompt=" $rootseg$hostseg$levelseg$timeseg$gitseg$pythonseg$jobseg$pathseg "
+    # construct prompt
+    [ $git_info ] && gitseg=$gitseg' '
+    preprompt=" $rootseg$hostseg$levelseg$gitseg$pythonseg$jobseg$pathseg "
 
     # debugging info
     if zstyle -t ':prezto:module:prompt:zmwangx' debug; then
