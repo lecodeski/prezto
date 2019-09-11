@@ -105,27 +105,29 @@ function ff {
 }
 
 function jira_timestamp {
-    [ $1 ] && echo "-S$1T00:00:00.000-0000"
+    [ $3 ] && echo "-S$3-$2-$1T00:00:00.000-0000" && return
+    [ $2 ] && echo "-S$(date +%Y-)$2-$1T00:00:00.000-0000" && return
+    [ $1 ] && echo "-S$(date +%Y-%m-)$1T00:00:00.000-0000" && return
 }
 
 function t {
-    jira login && jira worklog add --noedit $1 -T0$2h $(jira_timestamp $3)
+    jira login && jira worklog add --noedit $1 -T0$2h $(jira_timestamp $3 $4 $5)
 }
 
 function th {
-    jira login && jira worklog add --noedit HHOTELS-$1 -T0$2h $(jira_timestamp $3)
+    jira login && jira worklog add --noedit HHOTELS-$1 -T0$2h $(jira_timestamp $3 $4 $5)
 }
 
 function tm {
-    jira login && jira worklog add --noedit HHOTELS-2 -T0$1h $(jira_timestamp $2)
+    jira login && jira worklog add --noedit HHOTELS-2 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function tmd {
-    jira login && jira worklog add --noedit INT-4 -T0$1h $(jira_timestamp $2)
+    jira login && jira worklog add --noedit INT-4 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function ts {
-    jira login && jira worklog add --noedit INT-5 -T0$1h $(jira_timestamp $2)
+    jira login && jira worklog add --noedit INT-5 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 # Additonal external scripts and auto completions
