@@ -104,7 +104,7 @@ zstyle ':prezto:module:editor' key-bindings 'emacs'
 #
 
 # Set the keyword used by `mand` to open man pages in Dash.app
-# zstyle ':prezto:module:osx:man' dash-keyword 'manpages'
+zstyle ':prezto:module:osx:man' dash-keyword 'mp'
 
 #
 # Pacman
