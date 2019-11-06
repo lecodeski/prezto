@@ -124,7 +124,7 @@ function thm {
 }
 
 function ti {
-    jira_stem INT-$1 -T0$2h $(jira_timestamp $3 $4 $5)
+    jira_stem INT-33 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function tm {
@@ -135,8 +135,12 @@ function tmd {
     jira_stem INT-4 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
+function tr {
+    jira_stem INT-2 -T0$1h $(jira_timestamp $2 $3 $4)
+}
+
 function ts {
-    jira_stem INT-5 -T0$1h $(jira_timestamp $2 $3 $4)
+    jira_stem INT-1 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function jira_stem {
