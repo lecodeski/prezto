@@ -101,7 +101,6 @@ alias rg='rg -i'
 alias rr='rm -rf'
 alias sl=subl
 [ -s /usr/local/bin/gsort ] && alias sort=gsort
-alias x='exa -lah --group-directories-first --git'
 
 # Functions
 function ds {
@@ -148,6 +147,10 @@ function jira_timestamp {
     [ $3 ] && echo "-S$3-$2-$1T00:00:00.000-0000" && return
     [ $2 ] && echo "-S$(date +%Y-)$2-$1T00:00:00.000-0000" && return
     [ $1 ] && echo "-S$(date +%Y-%m-)$1T00:00:00.000-0000"
+}
+
+function x {
+    print "\e[1mcount: $(ls -1 $1 | wc -l )\e[0m" && exa -lah --group-directories-first --git $1
 }
 
 # Additonal external scripts and auto completions
