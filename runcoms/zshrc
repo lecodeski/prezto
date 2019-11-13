@@ -123,6 +123,10 @@ function thm {
     jira_stem HHOTELS-2 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
+function thr {
+    jira_stem HHOTELS-37 -T0$1h $(jira_timestamp $2 $3 $4)
+}
+
 function ti {
     jira_stem INT-33 -T0$1h $(jira_timestamp $2 $3 $4)
 }
