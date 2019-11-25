@@ -891,7 +891,7 @@
   #   - always:   Trim down prompt when accepting a command line.
   #   - same-dir: Trim down prompt when accepting a command line unless this is the first command
   #               typed after changing current working directory.
-  typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=same-dir
+  typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=off
 
   # Instant prompt mode.
   #
@@ -908,3 +908,28 @@
 
 (( ${#p10k_config_opts} )) && setopt ${p10k_config_opts[@]}
 'builtin' 'unset' 'p10k_config_opts'
+#function p10k-on-pre-prompt() {
+#  #  echo $_p9k_pwd
+#    echo $_p9k__last_prompt_pwd
+#  if [[ $_p9k_pwd == $_p9k__last_prompt_pwd ]] && p10k display '1/left'=show
+#}
+#
+#function p10k-on-post-prompt() {
+#   # echo $_p9k_pwd
+#    echo $_p9k__last_prompt_pwd
+#  if [[ $_p9k_pwd == $_p9k__last_prompt_pwd ]] && 
+#    p10k display 'empty_line|1/left'=hide
+#}
+
+function p10k-on-pre-prompt() {
+      p10k display '1/left'=show
+}
+
+function p10k-on-post-prompt() {
+    if [[ $_p9k_pwd == $_p9k__last_prompt_pwd ]]; then
+      p10k display '1/left'=hide
+    else
+      p10k display '1/left'=show
+      _p9k__last_prompt_pwd=$_p9k_pwd
+    fi
+}
