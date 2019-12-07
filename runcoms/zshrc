@@ -49,6 +49,7 @@ bindkey "^[[6~" history-beginning-search-forward  # Page Down
 bindkey '^f' vi-forward-word
 bindkey '^b' vi-backward-word
 bindkey '^x' fzf-cd-widget
+bindkey '^z' fancy-ctrl-z
 
 # Aliases
 alias __='_ -s'
@@ -111,6 +112,16 @@ function bu {
     echo '🍻  \e[1mBrew update finished 🍻 Upgrading Casks:\e[0m'
     brew cask upgrade
 }
+
+function fancy-ctrl-z {
+  if [[ $#BUFFER -eq 0 ]]; then
+    bg
+    zle redisplay
+  else
+    zle push-input
+  fi
+}
+zle -N fancy-ctrl-z
 
 function ff {
 	sudo fd $* /
