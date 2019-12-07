@@ -154,7 +154,7 @@ function tmd {
     jira_stem INT-4 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
-function tr {
+function trr {
     jira_stem INT-2 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
