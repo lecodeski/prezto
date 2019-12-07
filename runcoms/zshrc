@@ -111,6 +111,16 @@ function ff {
 	sudo fd $* /
 }
 
+function jira_stem {
+     jira login && jira worklog add --noedit $1 $2 $3
+}
+
+function jira_timestamp {
+    [ $3 ] && echo "-S$3-$2-$1T00:00:00.000-0000" && return
+    [ $2 ] && echo "-S$(date +%Y-)$2-$1T00:00:00.000-0000" && return
+    [ $1 ] && echo "-S$(date +%Y-%m-)$1T00:00:00.000-0000"
+}
+
 function t {
     jira_stem $1 -T0$2h $(jira_timestamp $3 $4 $5)
 }
@@ -145,16 +155,6 @@ function tr {
 
 function ts {
     jira_stem INT-1 -T0$1h $(jira_timestamp $2 $3 $4)
-}
-
-function jira_stem {
-     jira login && jira worklog add --noedit $1 $2 $3
-}
-
-function jira_timestamp {
-    [ $3 ] && echo "-S$3-$2-$1T00:00:00.000-0000" && return
-    [ $2 ] && echo "-S$(date +%Y-)$2-$1T00:00:00.000-0000" && return
-    [ $1 ] && echo "-S$(date +%Y-%m-)$1T00:00:00.000-0000"
 }
 
 function x {
