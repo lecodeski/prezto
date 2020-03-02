@@ -150,7 +150,7 @@ function thm {
 }
 
 function thr {
-    jira_stem HHOTELS-37 -T0$1h $(jira_timestamp $2 $3 $4)
+    jira_stem HHOTELS-13 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function ti {
@@ -167,10 +167,6 @@ function tmd {
 
 function trr {
     jira_stem INT-2 -T0$1h $(jira_timestamp $2 $3 $4)
-}
-
-function ts {
-    jira_stem INT-1 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function x {
