@@ -55,6 +55,7 @@ bindkey '^z' fancy-ctrl-z
 alias __='_ -s'
 alias 7=7z
 
+alias bat='bat --style numbers,changes,snip'
 alias c=cd
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
