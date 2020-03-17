@@ -1554,28 +1554,16 @@
 
 (( ${#p10k_config_opts} )) && setopt ${p10k_config_opts[@]}
 'builtin' 'unset' 'p10k_config_opts'
-#function p10k-on-pre-prompt() {
-#  #  echo $_p9k_pwd
-#    echo $_p9k__last_prompt_pwd
-#  if [[ $_p9k_pwd == $_p9k__last_prompt_pwd ]] && p10k display '1/left'=show
-#}
-#
-#function p10k-on-post-prompt() {
-#   # echo $_p9k_pwd
-#    echo $_p9k__last_prompt_pwd
-#  if [[ $_p9k_pwd == $_p9k__last_prompt_pwd ]] &&
-#    p10k display 'empty_line|1/left'=hide
-#}
 
 function p10k-on-pre-prompt() {
       p10k display '1/left'=show
 }
 
 function p10k-on-post-prompt() {
-    if [[ $_p9k_pwd == $_p9k__last_prompt_pwd ]]; then
+    if [[ $_p9k__cwd == $_p9k__last_prompt_pwd ]]; then
       p10k display '1/left'=hide
     else
       p10k display '1/left'=show
-      _p9k__last_prompt_pwd=$_p9k_pwd
+      _p9k__last_prompt_pwd=$_p9k__cwd
     fi
 }
