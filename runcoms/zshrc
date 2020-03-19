@@ -56,11 +56,16 @@ alias __='_ -s'
 alias 7=7z
 
 alias bat='bat --style numbers,changes,snip'
+
 alias b=brew
+alias bci='brew cask info'
+alias bcin='brew cask install'
+alias bcr='brew cask remove'
 alias bi='brew info'
 alias bin='brew install'
-alias bs='brew search'
 alias br='brew remove'
+alias bs='brew search'
+
 alias c=cd
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
