@@ -70,6 +70,7 @@ alias br='brew remove'
 alias bs='brew search'
 
 alias c=cd
+alias co=covid
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
