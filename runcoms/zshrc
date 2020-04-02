@@ -70,6 +70,7 @@ alias br='brew remove'
 alias bs='brew search'
 
 alias c=cd
+alias cdp='cd ~/Projekte/iOS/H-Hotels'
 alias co=covid
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
@@ -104,14 +105,13 @@ else
   alias l='/bin/ls -lAh --group-directories-first --color'
 fi
 
-alias p='cd ~/Projekte/iOS/H-Hotels'
-
 [ -s /usr/bin/pbcopy ] && alias cpy='/usr/bin/pbcopy'
 [ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
 
 alias piff='pstorm diff'
 alias pip=pip3
 alias python=python3
+
 alias rg='rg -i'
 alias rr='rm -rf'
 alias sl=subl
@@ -147,9 +147,21 @@ function jira_stem {
 }
 
 function jira_timestamp {
-    [ $3 ] && echo "-S$3-$2-$1T00:00:00.000-0000" && return
-    [ $2 ] && echo "-S$(date +%Y-)$2-$1T00:00:00.000-0000" && return
-    [ $1 ] && echo "-S$(date +%Y-%m-)$1T00:00:00.000-0000"
+    echo "-S$(datestamp $1 $2 $3)T00:00:00.000-0000" && return
+}
+
+function p {
+    php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan time:start:book $1 $(datestamp $2 $3 $4)
+}
+
+function pe {
+    php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan time:end:book $1 $(datestamp $2 $3 $4)
+}
+
+function datestamp {
+    [ $3 ] && echo "$3-$2-$1" && return
+    [ $2 ] && echo "$(date +%Y-)$2-$1" && return
+    [ $1 ] && echo "$(date +%Y-%m-)$1"
 }
 
 function t {
