@@ -71,7 +71,6 @@ alias bs='brew search'
 
 alias c=cd
 alias cdp='cd ~/Projekte/iOS/H-Hotels'
-alias co=covid
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
@@ -118,6 +117,10 @@ alias sl=subl
 [ -s /usr/local/bin/gsort ] && alias sort=gsort
 
 # Functions
+function co {
+    http https://covid19.trackercli.com/history/$1
+}
+
 function ds {
 	open "dash://b:$*"
 }
