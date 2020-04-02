@@ -54,7 +54,6 @@ alias b='${(z)BROWSER}'
 alias diffu="diff --unified"
 alias e='${(z)VISUAL:-${(z)EDITOR}}'
 alias mkdir="${aliases[mkdir]:-mkdir} -p"
-alias p='${(z)PAGER}'
 alias po='popd'
 alias pu='pushd'
 alias sa='alias | grep -i'
