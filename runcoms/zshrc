@@ -200,6 +200,39 @@ function trr {
     jira_stem INT-2 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
+# wat - a better and recursive which/whence
+# 13apr2017  +leah+
+# 02jan2018  +leah+  print function code
+wat() {
+  ( # constrain unalias
+  for cmd; do
+    if (( $+aliases[$cmd] )); then
+      printf '%s: aliased to %s\n' $cmd $aliases[$cmd]
+      local -a words=(${${(z)aliases[$cmd]}:#(*=*|rlwrap|noglob|command)})
+      unalias $cmd
+      if [[ $words[1] == '\'* ]]; then
+        words[1]=${words[1]#'\'}
+        unalias $words[1] 2>/dev/null
+      fi
+      wat $words[1]
+    elif (( $+functions[$cmd] )); then
+      whence -v $cmd
+      whence -f $cmd
+    elif (( $+commands[$cmd] )); then
+      wat $commands[$cmd]
+    elif [[ -h $cmd ]]; then
+      file $cmd
+      wat $cmd:A
+    elif [[ -x $cmd ]]; then
+      file $cmd
+    else
+      which $cmd
+    fi
+  done
+  )
+}
+compdef wat=which
+
 function x {
     print "\e[1mcount: $(ls -1 $1 | wc -l )\e[0m" && exa -lah --group-directories-first --git $1
 }
