@@ -145,6 +145,7 @@ function bu {
     brew cask upgrade
 }
 
+unalias e
 function e {
     ctb time:stop $1
 }
