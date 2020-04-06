@@ -70,7 +70,6 @@ alias br='brew remove'
 alias bs='brew search'
 
 alias c=cd
-alias cdp='cd ~/Projekte/iOS/H-Hotels'
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
@@ -108,6 +107,7 @@ fi
 [ -s /usr/bin/pbcopy ] && alias cpy='/usr/bin/pbcopy'
 [ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
 
+alias p='cd ~/Projekte/iOS/H-Hotels'
 alias piff='pstorm diff'
 alias pip=pip3
 alias python=python3
