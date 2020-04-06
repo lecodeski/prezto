@@ -70,6 +70,7 @@ alias br='brew remove'
 alias bs='brew search'
 
 alias c=cd
+alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
@@ -126,10 +127,26 @@ function ds {
 	open "dash://b:$*"
 }
 
+function a {
+    ctb time:start $1
+}
+
+function ba {
+    ctb time:start:book $1 $(datestamp $2 $3 $4)
+}
+
+function be {
+    ctb time:end:book $1 $(datestamp $2 $3 $4)
+}
+
 function bu {
     brew upgrade
     echo '🍻  \e[1mBrew update finished 🍻 Upgrading Casks:\e[0m'
     brew cask upgrade
+}
+
+function e {
+    ctb time:stop $1
 }
 
 function fancy-ctrl-z {
@@ -152,14 +169,6 @@ function jira_stem {
 
 function jira_timestamp {
     echo "-S$(datestamp $1 $2 $3)T00:00:00.000-0000" && return
-}
-
-function p {
-    php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan time:start:book $1 $(datestamp $2 $3 $4)
-}
-
-function pe {
-    php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan time:end:book $1 $(datestamp $2 $3 $4)
 }
 
 function datestamp {
