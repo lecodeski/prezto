@@ -78,6 +78,7 @@ bindkey '^z' fancy-ctrl-z
 alias __='_ -s'
 alias 7=7z
 
+alias a='ctb time:start round'
 alias bat='bat --style numbers,changes,snip'
 
 alias b=brew
@@ -96,6 +97,8 @@ alias c=cd
 alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
+
+alias e='ctb time:stop round'
 
 alias f='fd'
 alias fzf='fzf --preview "head -100 {}"'
@@ -140,37 +143,33 @@ alias rg='rg -i'
 alias rr='rm -rf'
 alias sl=subl
 [ -s /usr/local/bin/gsort ] && alias sort=gsort
+alias ü='ctb time:overview'
 
 # Functions
-function co {
-    http https://covid19.trackercli.com/history/$1
-}
-
-function ds {
-	open "dash://b:$*"
-}
-
-function a {
-    ctb time:start $1
-}
-
 function ba {
-    ctb time:start:book $1 $(datestamp $2 $3 $4)
+  ctb time:start:book $1 $(datestamp $2 $3 $4)
 }
 
 function be {
-    ctb time:end:book $1 $(datestamp $2 $3 $4)
+  ctb time:end:book $1 $(datestamp $2 $3 $4)
 }
 
 function bu {
-    brew upgrade
-    echo '🍻  \e[1mBrew update finished 🍻 Upgrading Casks:\e[0m'
-    brew cask upgrade
+  brew upgrade
+  echo '🍻  \e[1mBrew update finished 🍻 Upgrading Casks:\e[0m'
+  brew cask upgrade
 }
 
-unalias e
-function e {
-    ctb time:stop $1
+function bz {
+  ctb time:book $1 $2 $(datestamp $3 $4 $5)
+}
+
+function co {
+  http https://covid19.trackercli.com/history/$1
+}
+
+function ds {
+  open "dash://b:$*"
 }
 
 function fancy-ctrl-z {
@@ -184,53 +183,53 @@ function fancy-ctrl-z {
 zle -N fancy-ctrl-z
 
 function ff {
-	sudo fd $* /
+  sudo fd $* /
 }
 
 function jira_stem {
-     jira login && jira worklog add --noedit $1 $2 $3
+  jira login && jira worklog add --noedit $1 $2 $3
 }
 
 function jira_timestamp {
-    [ $1 ] && echo "-S$(datestamp $1 $2 $3)T00:00:00.000-0000" && return
+  [ $1 ] && echo "-S$(datestamp $1 $2 $3)T00:00:00.000-0000" && return
 }
 
 function datestamp {
-    [ $3 ] && echo "$3-$2-$1" && return
-    [ $2 ] && echo "$(date +%Y-)$2-$1" && return
-    [ $1 ] && echo "$(date +%Y-%m-)$1"
+  [ $3 ] && echo "$3-$2-$1" && return
+  [ $2 ] && echo "$(date +%Y-)$2-$1" && return
+  [ $1 ] && echo "$(date +%Y-%m-)$1"
 }
 
 function t {
-    jira_stem $1 -T0$2h $(jira_timestamp $3 $4 $5)
+  jira_stem $1 -T0$2h $(jira_timestamp $3 $4 $5)
 }
 
 function th {
-    jira_stem HHOTELS-$1 -T0$2h $(jira_timestamp $3 $4 $5)
+  jira_stem HHOTELS-$1 -T0$2h $(jira_timestamp $3 $4 $5)
 }
 
 function thm {
-    jira_stem HHOTELS-2 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem HHOTELS-2 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function thr {
-    jira_stem HHOTELS-13 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem HHOTELS-13 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function ti {
-    jira_stem INT-33 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem INT-33 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function tm {
-    jira_stem INT-5 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem INT-5 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function tmd {
-    jira_stem INT-4 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem INT-4 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 function trr {
-    jira_stem INT-2 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem INT-2 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
 # wat - a better and recursive which/whence
@@ -267,5 +266,9 @@ wat() {
 compdef wat=which
 
 function x {
-    print "\e[1mcount: $(ls -1 $1 | wc -l )\e[0m" && exa -lah --group-directories-first --git $1
+  print "\e[1mcount: $(ls -1 $1 | wc -l )\e[0m" && exa -lah --group-directories-first --git $1
+}
+
+function z {
+  ctb time:list $(datestamp $1 $2 $3)
 }
