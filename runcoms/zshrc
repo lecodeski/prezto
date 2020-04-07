@@ -169,7 +169,7 @@ function jira_stem {
 }
 
 function jira_timestamp {
-    echo "-S$(datestamp $1 $2 $3)T00:00:00.000-0000" && return
+    [ $1 ] && echo "-S$(datestamp $1 $2 $3)T00:00:00.000-0000" && return
 }
 
 function datestamp {
