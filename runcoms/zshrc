@@ -154,12 +154,6 @@ function be {
   ctb time:end:book $1 $(datestamp $2 $3 $4)
 }
 
-function bu {
-  brew upgrade
-  echo '🍻  \e[1mBrew update finished 🍻 Upgrading Casks:\e[0m'
-  brew cask upgrade
-}
-
 function bz {
   ctb time:book $1 $2 $(datestamp $3 $4 $5)
 }
@@ -230,6 +224,14 @@ function tmd {
 
 function trr {
   jira_stem INT-2 -T0$1h $(jira_timestamp $2 $3 $4)
+}
+
+function u {
+  brew upgrade
+  echo '🍻  \e[1mBrew update finished 🍻 Upgrading Casks:\e[0m'
+  brew cask upgrade
+  echo '🍻  \e[1mBrew Cask upgrades finished 🍻 Updating zprezto:\e[0m'
+  zprezto-update
 }
 
 # wat - a better and recursive which/whence
