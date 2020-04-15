@@ -141,9 +141,12 @@ alias python=python3
 
 alias rg='rg -i'
 alias rr='rm -rf'
+
 alias sl=subl
 [ -s /usr/local/bin/gsort ] && alias sort=gsort
+
 alias ü='ctb time:overview'
+alias zu='g --git-dir ~/.zprezto/.git log'
 
 # Functions
 function ba {
