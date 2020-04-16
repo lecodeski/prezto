@@ -146,7 +146,7 @@ alias sl=subl
 [ -s /usr/local/bin/gsort ] && alias sort=gsort
 
 alias ü='ctb time:overview'
-alias zu='gl --format="%<(30)%C(yellow)%an%<(33)%Cblue%aD%<(16)%Cred%ar%Creset%s"'
+alias zu='git --git-dir ~/.zprezto/.git log --format="%<(30)%C(yellow)%an%<(33)%Cblue%aD%<(16)%Cred%ar%Creset%s"'
 
 # Functions
 function ba {
