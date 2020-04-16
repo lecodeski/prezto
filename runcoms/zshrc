@@ -157,6 +157,10 @@ function be {
   ctb time:end:book $1 $(datestamp $2 $3 $4)
 }
 
+function bp {
+  ctb pause:book $1 $2 $(datestamp $3 $4 $5)
+}
+
 function bz {
   ctb time:book $1 $2 $(datestamp $3 $4 $5)
 }
