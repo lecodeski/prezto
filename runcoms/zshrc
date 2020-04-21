@@ -128,7 +128,7 @@ fi
 [ -s /usr/bin/pbcopy ] && alias cpy='/usr/bin/pbcopy'
 [ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
 
-alias p='cd ~/Projekte/iOS/H-Hotels'
+alias p='cd ~/Projekte/AWS/Bits & Pretzels'
 alias piff='pstorm diff'
 alias pip=pip3
 alias python=python3
