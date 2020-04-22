@@ -72,7 +72,7 @@ bindkey '^z' fancy-ctrl-z
 alias __='_ -s'
 alias 7=7z
 
-alias a='ctb time:start round'
+alias a='ctb time:start rounded'
 alias bat='bat --style numbers,changes,snip'
 
 alias b=brew
@@ -92,7 +92,7 @@ alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
-alias e='ctb time:stop round'
+alias e='ctb time:stop rounded'
 
 alias f='fd'
 alias fzf='fzf --preview "head -100 {}"'
