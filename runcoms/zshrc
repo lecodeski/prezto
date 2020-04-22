@@ -86,6 +86,7 @@ alias bin='brew install'
 alias bl='brew list'
 alias br='brew remove'
 alias bs='brew search'
+alias bv='ctb pause:missed:book rounded'
 
 alias c=cd
 alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
@@ -232,7 +233,7 @@ function u {
   echo '🍻  \e[1mBrew upgrades finished 🍻 Upgrading Casks:\e[0m'
   brew cask upgrade
   echo '🍻  \e[1mBrew Cask upgrades finished 🍻 Upgrading npm:\e[0m'
-  npm -g upgrade
+  yarn global upgrade
   echo '🍻  \e[1mnpm upgrades finished 🍻 Updating zprezto:\e[0m'
   zprezto-update
 }
