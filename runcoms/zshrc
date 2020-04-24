@@ -86,7 +86,7 @@ alias bin='brew install'
 alias bl='brew list'
 alias br='brew remove'
 alias bs='brew search'
-alias bv='ctb pause:missed:book rounded'
+alias bv='ctb missed:pause:book rounded'
 
 alias c=cd
 alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
@@ -145,11 +145,11 @@ alias zu='git --git-dir ~/.zprezto/.git log --format="%<(30)%C(yellow)%an%<(33)%
 
 # Functions
 function ba {
-  ctb time:start:book $1 $(datestamp $2 $3 $4)
+  ctb start:time:book $1 $(datestamp $2 $3 $4)
 }
 
 function be {
-  ctb time:end:book $1 $(datestamp $2 $3 $4)
+  ctb end:time:book $1 $(datestamp $2 $3 $4)
 }
 
 function bp {
