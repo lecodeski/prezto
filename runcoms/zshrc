@@ -139,6 +139,7 @@ alias rr='rm -rf'
 alias sl=subl
 [ -s /usr/local/bin/gsort ] && alias sort=gsort
 
+alias ts='ctb time:task:switch rounded'
 alias ü='ctb time:overview'
 
 alias vp='ctb missed:pause:book rounded'
