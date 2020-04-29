@@ -68,6 +68,9 @@ bindkey '^b' vi-backward-word
 bindkey '^x' fzf-cd-widget
 bindkey '^z' fancy-ctrl-z
 
+# Variables
+git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%C(white)%ar%Cred%d %Creset%s'
+
 # Aliases
 alias __='_ -s'
 alias 7=7z
@@ -105,7 +108,7 @@ alias gco='git checkout'
 alias gd='git difftool'
 alias gdg='git difftool -g'
 alias gf='git fetch'
-alias gl='git log'
+alias gl='git log ${git_log_format}'
 alias gm='git merge'
 alias gp='git pull --rebase'
 alias gpm='git pull --no-rebase'
@@ -146,7 +149,7 @@ alias vp='ctb missed:pause:book rounded'
 alias vz='ctb missed:time:book rounded'
 
 alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
-alias zu='git --git-dir ~/.zprezto/.git log --format="%<(30)%C(yellow)%an%<(33)%Cblue%aD%<(16)%Cred%ar%Creset%s"'
+alias zu='git --git-dir ~/.zprezto/.git log ${git_log_format}'
 
 # Functions
 function ba {
