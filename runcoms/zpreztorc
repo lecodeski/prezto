@@ -47,7 +47,8 @@ zstyle ':prezto:load' pmodule \
   'prompt' \
   'osx' \
   'docker' \
-  'homebrew'
+  'homebrew' \
+  'git'
 
 #
 # Autosuggestions
