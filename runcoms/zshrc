@@ -91,7 +91,9 @@ alias br='brew remove'
 alias bs='brew search'
 
 alias c=cd
+[ -s /usr/bin/pbcopy ] && alias cpy='/usr/bin/pbcopy'
 alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
+
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
@@ -128,12 +130,12 @@ else
   alias l='/bin/ls -lAh --group-directories-first --color'
 fi
 
-[ -s /usr/bin/pbcopy ] && alias cpy='/usr/bin/pbcopy'
-[ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
+alias mtr='sudo mtr'
 
 alias p='cd ~/Projekte/AWS/Bits\ \&\ Pretzels'
 alias piff='pstorm diff'
 alias pip=pip3
+[ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
 alias python=python3
 
 alias rg='rg -i'
