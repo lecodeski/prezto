@@ -226,6 +226,10 @@ function ti {
   jira_stem INT-33 -T0$1h $(jira_timestamp $2 $3 $4)
 }
 
+function tj {
+  jira_stem TS-39 -T0$1h $(jira_timestamp $2 $3 $4)
+}
+
 function tm {
   jira_stem INT-5 -T0$1h $(jira_timestamp $2 $3 $4)
 }
