@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -132,7 +134,7 @@ fi
 
 alias mtr='sudo mtr'
 
-alias p='cd ~/Projekte/AWS/Bits\ \&\ Pretzels'
+alias p='cd ~/Projekte/Java/juris/Produktkonfigurator'
 alias piff='pstorm diff'
 alias pip=pip3
 [ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
