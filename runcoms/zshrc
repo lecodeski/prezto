@@ -78,7 +78,7 @@ alias __='_ -s'
 alias 7=7z
 
 alias a='ctb time:start rounded'
-alias bat='bat --style numbers,changes,snip'
+alias bat='bat --style numbers,changes,snip,header'
 
 alias b=brew
 alias bc='brew cask'
