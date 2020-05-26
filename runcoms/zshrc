@@ -82,6 +82,7 @@ alias bat='bat --style numbers,changes,snip,header'
 
 alias b=brew
 alias bc='brew cask'
+alias bch='brew cask home'
 alias bci='brew cask info'
 alias bcin='brew cask install'
 alias bcl='brew cask list'
