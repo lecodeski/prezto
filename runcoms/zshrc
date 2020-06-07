@@ -95,6 +95,7 @@ alias br='brew remove'
 alias bs='brew search'
 
 alias c=cd
+alias co=covid
 [ -s /usr/bin/pbcopy ] && alias cpy='/usr/bin/pbcopy'
 alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
 
@@ -174,10 +175,6 @@ function bp {
 
 function bz {
   ctb time:book $1 $2 $(datestamp $3 $4 $5)
-}
-
-function co {
-  http https://covid19.trackercli.com/history/$1
 }
 
 function ds {
@@ -298,3 +295,6 @@ function x {
 function z {
   ctb time:list $(datestamp $1 $2 $3)
 }
+
+# To customize prompt, run `p10k configure` or edit ~/.zprezto/runcoms/p10k.zsh.
+[[ ! -f ~/.zprezto/runcoms/p10k.zsh ]] || source ~/.zprezto/runcoms/p10k.zsh
