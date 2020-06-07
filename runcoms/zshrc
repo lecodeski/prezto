@@ -143,7 +143,7 @@ alias pip=pip3
 [ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
 alias python=python3
 
-alias rg='rg -i'
+alias rg='rg -i --hidden'
 alias rr='rm -rf'
 
 alias sl=subl
