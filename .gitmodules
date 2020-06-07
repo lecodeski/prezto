@@ -31,5 +31,6 @@
 	shallow = true
 [submodule "modules/prompt/external/powerlevel10k"]
 	path = modules/prompt/external/powerlevel10k
-	url = https://github.com/romkatv/powerlevel10k.git
+	url = git@github.com:blanorama/powerlevel10k.git
+	branch = master
 	shallow = true
