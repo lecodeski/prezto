@@ -136,6 +136,7 @@ else
 fi
 
 alias mtr='sudo mtr'
+alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
 
 alias p='cd ~/Projekte/Java/juris/Produktkonfigurator'
 alias piff='pstorm diff'
@@ -251,7 +252,7 @@ function u {
   echo '🍻  \e[1mBrew upgrades finished 🍻 Upgrading Casks:\e[0m'
   brew cask upgrade
   echo '🍻  \e[1mBrew Cask upgrades finished 🍻 Upgrading npm:\e[0m'
-  yarn global upgrade
+  npm -g upgrade
   echo '🍻  \e[1mnpm upgrades finished 🍻 Updating zprezto:\e[0m'
   zprezto-update
 }
