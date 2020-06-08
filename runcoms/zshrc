@@ -299,3 +299,6 @@ function z {
 
 # To customize prompt, run `p10k configure` or edit ~/.zprezto/runcoms/p10k.zsh.
 [[ ! -f ~/.zprezto/runcoms/p10k.zsh ]] || source ~/.zprezto/runcoms/p10k.zsh
+
+# Options
+unsetopt nomatch
