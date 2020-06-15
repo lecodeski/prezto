@@ -107,6 +107,8 @@ alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
+unalias e
+
 alias f='fd'
 alias fzf='fzf --preview "head -100 {}"'
 
@@ -166,19 +168,23 @@ alias zup='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git l
 
 # Functions
 function a {
-  ctb start:time:book rounded "$1" "$(datestamp "$2" "$3" "$4")"
+  # shellcheck disable=SC2046
+  ctb start:time:book rounded "$1" $(datestamp "$2" "$3" "$4")
 }
 
 function e {
-  ctb end:time:book rounded "$1" "$(datestamp "$2" "$3" "$4")"
+  # shellcheck disable=SC2046
+  ctb end:time:book rounded "$1" $(datestamp "$2" "$3" "$4")
 }
 
 function p {
-  ctb pause:book rounded "$1" "$2" "$(datestamp "$3" "$4" "$5")"
+  # shellcheck disable=SC2046
+  ctb pause:book rounded "$1" "$2" $(datestamp "$3" "$4" "$5")
 }
 
 function bz {
-  ctb time:book "$1" "$2" "$(datestamp "$3" "$4" "$5")"
+  # shellcheck disable=SC2046
+  ctb time:book "$1" "$2" $(datestamp "$3" "$4" "$5")
 }
 
 function ds {
