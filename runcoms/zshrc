@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  # shellcheck source=init.zsh
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
@@ -10,29 +11,35 @@ fi
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block, everything else may go below.
+# shellcheck disable=SC2154
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  # shellcheck source=p10k-instant-prompt-*.zsh
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Additonal external scripts and auto completions
+# Additional external scripts and auto completions
+# shellcheck source=.fzf.zsh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # tabtab source for packages
 # uninstall by removing these lines
-[[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
+# shellcheck source=__tabtab.zsh
+[[ -f ~/.config/tabtab/__tabtab.zsh ]] && source ~/.config/tabtab/__tabtab.zsh
 
 eval "$(jira --completion-script-zsh)"
 
-eval "`pip3 completion --zsh`"
+eval "$(pip3 completion --zsh)"
 compctl -K _pip_completion pip3
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+# shellcheck source=.p10k.zsh
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
-
+# shellcheck source=.iterm2_shell_integration.zsh
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # Source env specific profile stuff
 if [[ -s "${ZDOTDIR:-$HOME}/.profile" ]]; then
+  # shellcheck source=.profile
   source "${ZDOTDIR:-$HOME}/.profile"
 fi
 
@@ -43,7 +50,7 @@ fi
 
 # zsh auto suggestions
 # Widgets that accept the entire suggestion
-ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(
+export ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(
         end-of-line
         vi-forward-char
         vi-end-of-line
@@ -51,7 +58,7 @@ ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(
 )
 
 # Widgets that accept the suggestion as far as the cursor moves
-ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=(
+export ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=(
         forward-word
         forward-char
         vi-forward-word
@@ -71,15 +78,13 @@ bindkey '^x' fzf-cd-widget
 bindkey '^z' fancy-ctrl-z
 
 # Variables
-git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%C(white)%ar%Cred%d %Creset%s'
+export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%C(white)%ar%Cred%d %Creset%s'
 
 # Aliases
 alias __='_ -s'
 alias 7=7z
 
-alias a='ctb time:start rounded'
 alias bat='bat --style numbers,changes,snip,header'
-
 alias b=brew
 alias bc='brew cask'
 alias bch='brew cask home'
@@ -96,13 +101,11 @@ alias bs='brew search'
 
 alias c=cd
 alias co=covid
-[ -s /usr/bin/pbcopy ] && alias cpy='/usr/bin/pbcopy'
+[[ -s /usr/bin/pbcopy ]] && alias cpy='/usr/bin/pbcopy'
 alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
 
 alias df='df -H'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
-
-alias e='ctb time:stop rounded'
 
 alias f='fd'
 alias fzf='fzf --preview "head -100 {}"'
@@ -138,7 +141,6 @@ fi
 alias mtr='sudo mtr'
 alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
 
-alias p='cd ~/Projekte/Java/juris/Produktkonfigurator'
 alias piff='pstorm diff'
 alias pip=pip3
 [ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
@@ -163,20 +165,20 @@ alias zu='git --git-dir ~/.zprezto/.git log ${git_log_format}'
 alias zup='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log ${git_log_format}'
 
 # Functions
-function ba {
-  ctb start:time:book $1 $(datestamp $2 $3 $4)
+function a {
+  ctb start:time:book rounded "$1" "$(datestamp "$2" "$3" "$4")"
 }
 
-function be {
-  ctb end:time:book $1 $(datestamp $2 $3 $4)
+function e {
+  ctb end:time:book rounded "$1" "$(datestamp "$2" "$3" "$4")"
 }
 
-function bp {
-  ctb pause:book $1 $2 $(datestamp $3 $4 $5)
+function p {
+  ctb pause:book rounded "$1" "$2" "$(datestamp "$3" "$4" "$5")"
 }
 
 function bz {
-  ctb time:book $1 $2 $(datestamp $3 $4 $5)
+  ctb time:book "$1" "$2" "$(datestamp "$3" "$4" "$5")"
 }
 
 function ds {
@@ -194,57 +196,58 @@ function fancy-ctrl-z {
 zle -N fancy-ctrl-z
 
 function ff {
-  sudo fd $* /
+  sudo fd "$*" /
 }
 
 function jira_stem {
+  # shellcheck disable=SC2086
   jira login && jira worklog add --noedit $1 $2 $3
 }
 
 function jira_timestamp {
-  [ $1 ] && echo "-S$(datestamp $1 $2 $3)T00:00:00.000-0000" && return
+  [ "$1" ] && echo "-S$(datestamp "$1" "$2" "$3")T00:00:00.000-0000" && return
 }
 
 function datestamp {
-  [ $3 ] && echo "$3-$2-$1" && return
-  [ $2 ] && echo "$(date +%Y-)$2-$1" && return
-  [ $1 ] && echo "$(date +%Y-%m-)$1"
+  [ "$3" ] && echo "$3-$2-$1" && return
+  [ "$2" ] && echo "$(date +%Y-)$2-$1" && return
+  [ "$1" ] && echo "$(date +%Y-%m-)$1"
 }
 
 function t {
-  jira_stem $1 -T0$2h $(jira_timestamp $3 $4 $5)
+  jira_stem "$1" -T0"$2"h "$(jira_timestamp "$3" "$4" "$5")"
 }
 
 function th {
-  jira_stem HHOTELS-$1 -T0$2h $(jira_timestamp $3 $4 $5)
+  jira_stem HHOTELS-"$1" -T0"$2"h "$(jira_timestamp "$3" "$4" "$5")"
 }
 
 function thm {
-  jira_stem HHOTELS-2 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem HHOTELS-2 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function thr {
-  jira_stem HHOTELS-13 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem HHOTELS-13 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function ti {
-  jira_stem INT-33 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem INT-33 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function tj {
-  jira_stem TS-39 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem TS-39 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function tm {
-  jira_stem INT-5 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem INT-5 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function tmd {
-  jira_stem INT-4 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem INT-4 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function trr {
-  jira_stem INT-2 -T0$1h $(jira_timestamp $2 $3 $4)
+  jira_stem INT-2 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function u {
@@ -263,27 +266,29 @@ function u {
 wat() {
   ( # constrain unalias
   for cmd; do
+    # shellcheck disable=SC2154
+    # shellcheck disable=SC2004
     if (( $+aliases[$cmd] )); then
-      printf '%s: aliased to %s\n' $cmd $aliases[$cmd]
+      printf '%s: aliased to %s\n' "$cmd" "${aliases[$cmd]}"
       local -a words=(${${(z)aliases[$cmd]}:#(*=*|rlwrap|noglob|command)})
-      unalias $cmd
-      if [[ $words[1] == '\'* ]]; then
-        words[1]=${words[1]#'\'}
-        unalias $words[1] 2>/dev/null
+      unalias "$cmd"
+      if [[ ${words[1]} == "\""* ]]; then
+        words[1]=${words[1]#"\""}
+        unalias "${words[1]}" 2>/dev/null
       fi
-      wat $words[1]
+      wat "${words[1]}"
     elif (( $+functions[$cmd] )); then
-      whence -v $cmd
-      whence -f $cmd
+      whence -v "$cmd"
+      whence -f "$cmd"
     elif (( $+commands[$cmd] )); then
-      wat $commands[$cmd]
+      wat "${commands[$cmd]}"
     elif [[ -h $cmd ]]; then
-      file $cmd
-      wat $cmd:A
+      file "$cmd"
+      wat "$cmd":A
     elif [[ -x $cmd ]]; then
-      file $cmd
+      file "$cmd"
     else
-      which $cmd
+      which "$cmd"
     fi
   done
   )
@@ -291,14 +296,16 @@ wat() {
 compdef wat=which
 
 function x {
-  print "\e[1mcount: $(ls -1 $1 | wc -l )\e[0m" && exa -lah --group-directories-first --git $1
+  print "\e[1mcount: $(find . -maxdepth 1 | wc -l )\e[0m" && exa -lah --group-directories-first --git "$1"
 }
 
 function z {
-  ctb time:list $(datestamp $1 $2 $3)
+  # shellcheck disable=SC2046
+  ctb time:list $(datestamp "$1" "$2" "$3")
 }
 
 # To customize prompt, run `p10k configure` or edit ~/.zprezto/runcoms/p10k.zsh.
+# shellcheck source=p10k.zsh
 [[ ! -f ~/.zprezto/runcoms/p10k.zsh ]] || source ~/.zprezto/runcoms/p10k.zsh
 
 # Options
