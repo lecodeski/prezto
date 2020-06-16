@@ -143,6 +143,7 @@ fi
 alias mtr='sudo mtr'
 alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
 
+alias p='cd ~/Projekte/Java/juris/Produktkonfigurator'
 alias piff='pstorm diff'
 alias pip=pip3
 [ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
@@ -169,22 +170,22 @@ alias zup='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git l
 # Functions
 function a {
   # shellcheck disable=SC2046
-  ctb start:time:book rounded "$1" $(datestamp "$2" "$3" "$4")
+  ctb start:time:book rounded $1 $(datestamp "$2" "$3" "$4")
 }
 
 function e {
   # shellcheck disable=SC2046
-  ctb end:time:book rounded "$1" $(datestamp "$2" "$3" "$4")
+  ctb end:time:book rounded $1 $(datestamp "$2" "$3" "$4")
 }
 
-function p {
+function bp {
   # shellcheck disable=SC2046
   ctb pause:book rounded "$1" "$2" $(datestamp "$3" "$4" "$5")
 }
 
 function bz {
   # shellcheck disable=SC2046
-  ctb time:book "$1" "$2" $(datestamp "$3" "$4" "$5")
+  ctb time:book rounded "$1" "$2" $(datestamp "$3" "$4" "$5")
 }
 
 function ds {
