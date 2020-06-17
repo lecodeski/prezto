@@ -303,7 +303,8 @@ wat() {
 compdef wat=which
 
 function x {
-  print "\e[1mcount: $(find . -maxdepth 1 | wc -l )\e[0m" && exa -lah --group-directories-first --git "$1"
+  # shellcheck disable=SC2086
+  print "\e[1mcount: $(find . -maxdepth 1 | wc -l )\e[0m" && exa -lah --group-directories-first --git $1
 }
 
 function z {
