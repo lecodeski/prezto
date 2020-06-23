@@ -169,12 +169,12 @@ alias zup='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git l
 
 # Functions
 function a {
-  # shellcheck disable=SC2046
+  # shellcheck disable=SC2046,SC2086
   ctb start:time:book rounded $1 $(datestamp "$2" "$3" "$4")
 }
 
 function e {
-  # shellcheck disable=SC2046
+  # shellcheck disable=SC2046,SC2086
   ctb end:time:book rounded $1 $(datestamp "$2" "$3" "$4")
 }
 
@@ -273,8 +273,7 @@ function u {
 wat() {
   ( # constrain unalias
   for cmd; do
-    # shellcheck disable=SC2154
-    # shellcheck disable=SC2004
+    # shellcheck disable=SC2154,SC2004
     if (( $+aliases[$cmd] )); then
       printf '%s: aliased to %s\n' "$cmd" "${aliases[$cmd]}"
       local -a words=(${${(z)aliases[$cmd]}:#(*=*|rlwrap|noglob|command)})
@@ -295,6 +294,7 @@ wat() {
     elif [[ -x $cmd ]]; then
       file "$cmd"
     else
+      # shellcheck disable=SC2230
       which "$cmd"
     fi
   done
