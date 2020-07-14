@@ -262,7 +262,7 @@ function trr {
 function u {
   brew upgrade
   echo '🍻  \e[1mBrew upgrades finished 🍻 Upgrading Casks:\e[0m'
-  brew cask upgrade
+  brew cu -ayq
   echo '🍻  \e[1mBrew Cask upgrades finished 🍻 Upgrading npm:\e[0m'
   npm -g upgrade
   echo '🍻  \e[1mnpm upgrades finished 🍻 Updating zprezto:\e[0m'
