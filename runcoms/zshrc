@@ -181,13 +181,13 @@ function e {
 }
 
 function bp {
-  # shellcheck disable=SC2046
-  ctb pause:book "$1" "$2" $(datestamp "$3" "$4" "$5")
+  # shellcheck disable=SC2046,SC2086
+  ctb pause:book $1 $2 $(datestamp "$3" "$4" "$5")
 }
 
 function bz {
-  # shellcheck disable=SC2046
-  ctb time:book "$1" "$2" $(datestamp "$3" "$4" "$5")
+  # shellcheck disable=SC2046,SC2086
+  ctb time:book $1 $2 $(datestamp "$3" "$4" "$5")
 }
 
 function ds {
