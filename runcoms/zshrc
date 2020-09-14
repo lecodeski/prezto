@@ -104,7 +104,9 @@ alias co=covid
 [[ -s /usr/bin/pbcopy ]] && alias cpy='/usr/bin/pbcopy'
 alias ctb='php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
 
+alias d='docker'
 alias df='df -H'
+alias dm='docker-machine'
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
 unalias e
