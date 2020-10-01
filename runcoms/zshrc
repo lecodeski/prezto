@@ -138,6 +138,7 @@ alias gsm='git submodule'
 
 alias gg='googler --colors Bjdgxy'
 alias iiff='idea diff'
+alias k=kubectl
 
 if [[ -s /usr/local/bin/gls ]]; then
   alias l='/usr/local/bin/gls -lAh --group-directories-first --color'
