@@ -245,7 +245,7 @@ function thr {
 }
 
 function ti {
-  jira_stem INT-33 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  jira_stem INT-52 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function tj {
@@ -257,11 +257,11 @@ function tb {
 }
 
 function tm {
-  jira_stem INT-5 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  jira_stem INT-53 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function tmd {
-  jira_stem INT-4 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  jira_stem INT-54 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
 }
 
 function trr {
