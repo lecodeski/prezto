@@ -97,6 +97,7 @@ alias bin='brew install'
 alias bl='brew list'
 alias br='brew remove'
 alias bs='brew search'
+alias bsv='brew services'
 
 alias c=cd
 alias co=covid
