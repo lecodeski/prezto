@@ -31,6 +31,10 @@ eval "$(jira --completion-script-zsh)"
 eval "$(pip3 completion --zsh)"
 compctl -K _pip_completion pip3
 
+if [[ -s "/usr/local/share/zsh/site-functions/aws_zsh_completer.sh" ]]; then
+  source /usr/local/share/zsh/site-functions/aws_zsh_completer.sh
+fi
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 # shellcheck source=.p10k.zsh
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
@@ -41,11 +45,6 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 if [[ -s "${ZDOTDIR:-$HOME}/.profile" ]]; then
   # shellcheck source=.profile
   source "${ZDOTDIR:-$HOME}/.profile"
-fi
-
-# Source zsh command completions
-if [[ -s "/usr/local/share/zsh/site-functions/aws_zsh_completer.sh" ]]; then
-  source /usr/local/share/zsh/site-functions/aws_zsh_completer.sh
 fi
 
 # zsh auto suggestions
