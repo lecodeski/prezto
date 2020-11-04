@@ -138,6 +138,7 @@ alias gsm='git submodule'
 
 alias gg='googler --colors Bjdgxy'
 alias iiff='idea diff'
+unalias j
 alias k=kubectl
 
 if [[ -s /usr/local/bin/gls ]]; then
@@ -211,6 +212,10 @@ zle -N fancy-ctrl-z
 
 function ff {
   sudo fd "$*" /
+}
+
+function j {
+  cd $(fasd -d $@)
 }
 
 function jira_stem {
