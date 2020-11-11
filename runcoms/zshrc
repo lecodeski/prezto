@@ -142,6 +142,7 @@ unalias j
 
 alias k=kubectl
 alias kc=kubectx
+alias kk='k9s --headless'
 
 if [[ -s /usr/local/bin/gls ]]; then
   alias l='/usr/local/bin/gls -lAh --group-directories-first --color'
