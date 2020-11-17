@@ -138,7 +138,9 @@ alias gsm='git submodule'
 
 alias gg='googler --colors Bjdgxy'
 alias iiff='idea diff'
+
 unalias j
+alias jj='fasd_cd -i'
 
 alias k=kubectl
 alias kc=kubectx
