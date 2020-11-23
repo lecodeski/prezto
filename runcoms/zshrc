@@ -77,7 +77,7 @@ bindkey '^x' fzf-cd-widget
 bindkey '^z' fancy-ctrl-z
 
 # Variables
-export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%C(white)%ar%Cred%d %Creset%s'
+export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%C(green)%ar%Cred%d %Creset%s %C(cyan)%h'
 
 # Aliases
 alias __='_ -s'
