@@ -152,7 +152,6 @@ alias mk=minikube
 alias mtr='sudo mtr'
 alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
 
-alias p='cd ~/Projekte/Java/juris/Produktkonfigurator'
 alias piff='pstorm diff'
 alias pip=pip3
 [ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
