@@ -137,7 +137,9 @@ alias gsw='git switch'
 alias gsm='git submodule'
 
 alias gg='googler --colors Bjdgxy'
+
 alias iiff='idea diff'
+alias i=idea
 
 unalias j
 alias jj='fasd_cd -i'
