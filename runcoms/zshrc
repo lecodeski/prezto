@@ -124,7 +124,7 @@ alias gd='git difftool'
 alias gdg='git difftool -g'
 alias gf='git fetch'
 alias gh='git open'
-alias gl='git log ${git_log_format}'
+alias gl='git log ${git_log_format} --all'
 alias gm='git merge'
 alias gp='git pull --rebase'
 alias gpm='git pull --no-rebase'
@@ -174,8 +174,8 @@ alias vp='ctb missed:pause:book rounded'
 alias vz='ctb missed:time:book rounded'
 
 alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
-alias zl='git --git-dir ~/.zprezto/.git log ${git_log_format}'
-alias zup='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log ${git_log_format}'
+alias zl='git --git-dir ~/.zprezto/.git log ${git_log_format} --all'
+alias zlp='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log ${git_log_format} --all'
 
 # Functions
 function a {
