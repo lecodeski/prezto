@@ -175,7 +175,7 @@ alias vz='ctb missed:time:book rounded'
 
 alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
 alias zl='git --git-dir ~/.zprezto/.git log ${git_log_format} --all'
-alias zlp='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log ${git_log_format} --all'
+alias zpl='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log ${git_log_format} --all'
 
 # Functions
 function a {
