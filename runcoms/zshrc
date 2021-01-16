@@ -174,7 +174,7 @@ alias ü='ctb time:overview'
 alias vp='ctb missed:pause:book rounded'
 alias vz='ctb missed:time:book rounded'
 
-alias x='x ..'
+alias xx='x ..'
 alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
 
 alias zl='git --git-dir ~/.zprezto/.git log ${git_log_format} --all'
