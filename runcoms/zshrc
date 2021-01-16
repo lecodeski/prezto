@@ -147,6 +147,7 @@ alias jj='fasd_cd -i'
 alias k=kubectl
 alias kc=kubectx
 alias kk='k9s --headless'
+alias konfigmerge='cp ~/.kube/config ~/.kube/config.bak && export KUBECONFIG=~/.kube/config:~/Downloads/kubeconfig && kubectl config view > config'
 
 alias l=locate
 
