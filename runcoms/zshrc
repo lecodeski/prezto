@@ -82,6 +82,7 @@ export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%
 # Aliases
 alias __='_ -s'
 alias 7=7z
+alias 9='k9s --headless'
 
 alias bat='bat --style numbers,changes,snip,header'
 alias b=brew
@@ -145,7 +146,6 @@ alias jj='fasd_cd -i'
 
 alias k=kubectl
 alias kc='kubectl config use-context'
-alias kk='k9s --headless'
 alias konfigmerge='cp ~/.kube/config ~/.kube/config.yaml.bak && export KUBECONFIG=~/.kube/config.yaml:kubeconfig.yaml && kubectl config view > config'
 
 alias l=locate
