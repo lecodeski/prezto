@@ -146,7 +146,6 @@ alias jj='fasd_cd -i'
 
 alias k=kubectl
 alias kc='kubectl config use-context'
-alias konfigmerge='cp ~/.kube/config ~/.kube/config.yaml.bak && export KUBECONFIG=~/.kube/config.yaml:kubeconfig.yaml && kubectl config view > config'
 
 alias l=locate
 
@@ -221,6 +220,15 @@ function ff {
 
 function j {
   cd $(fasd -d $@)
+}
+
+function konfigmerge {
+  export KUBECONFIG=/Users/eugen/.kube/config:$1
+  cp ~/.kube/config ~/.kube/config.bak
+  kubectl config view --flatten >| ~/.kube/merged
+  cp ~/.kube/merged ~/.kube/config
+  unset KUBECONFIG
+  icdiff ~/.kube/config.bak ~/.kube/config
 }
 
 function jira_stem {
