@@ -37,7 +37,9 @@ fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 # shellcheck source=.p10k.zsh
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+[[ $TERMINAL_INTELLIJ == 'TRUE' && -f ~/.p10k-intellij.zsh ]] && source ~/.p10k-intellij.zsh
+[[ $TERMINAL_INTELLIJ != 'TRUE' && -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+
 # shellcheck source=.iterm2_shell_integration.zsh
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
@@ -338,10 +340,6 @@ function z {
   # shellcheck disable=SC2046
   ctb time:list $(datestamp "$1" "$2" "$3")
 }
-
-# To customize prompt, run `p10k configure` or edit ~/.zprezto/runcoms/p10k.zsh.
-# shellcheck source=p10k.zsh
-[[ ! -f ~/.zprezto/runcoms/p10k.zsh ]] || source ~/.zprezto/runcoms/p10k.zsh
 
 # Options
 unsetopt nomatch
