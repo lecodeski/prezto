@@ -223,7 +223,7 @@ function j {
 }
 
 function konfigmerge {
-  export KUBECONFIG=/Users/eugen/.kube/config:$1
+  export KUBECONFIG=~/.kube/config:$1
   cp ~/.kube/config ~/.kube/config.bak
   kubectl config view --flatten >| ~/.kube/merged
   cp ~/.kube/merged ~/.kube/config
