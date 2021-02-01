@@ -88,12 +88,6 @@ alias 9='k9s --headless'
 
 alias bat='bat --style numbers,changes,snip,header'
 alias b=brew
-alias bc='brew cask'
-alias bch='brew cask home'
-alias bci='brew cask info'
-alias bcin='brew cask install'
-alias bcl='brew cask list'
-alias bcr='brew cask remove'
 alias bh='brew home'
 alias bi='brew info'
 alias bin='brew install'
