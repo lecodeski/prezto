@@ -9,3 +9,4 @@ if [[ -x /usr/local/bin/zsh ]]; then
 else
   chsh -s /bin/zsh
 fi
+exec zsh
