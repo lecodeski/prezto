@@ -104,7 +104,7 @@ alias bsv='brew services'
 
 alias c=cd
 alias co=covid
-[[ -s /usr/bin/pbcopy ]] && alias cpy='/usr/bin/pbcopy'
+[ -s /usr/bin/pbcopy ] && alias cpy='/usr/bin/pbcopy'
 alias ctb='/usr/local/opt/php@7.4/bin/php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
 
 alias d='docker'
