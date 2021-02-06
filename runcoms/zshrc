@@ -165,7 +165,7 @@ alias rg='rg -i --hidden'
 alias rr='rm -rf'
 
 alias sl=subl
-[ -s /usr/local/bin/gsort ] && alias sort=gsort
+[ $commands[gsort] ] && alias sort=gsort
 
 alias ts='ctb time:task:switch rounded'
 alias tracert=traceroute
