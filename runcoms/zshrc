@@ -24,9 +24,9 @@ fi
 # shellcheck source=__tabtab.zsh
 [[ -f ~/.config/tabtab/__tabtab.zsh ]] && source ~/.config/tabtab/__tabtab.zsh
 
-eval "$(jira --completion-script-zsh)"
+[ $commands[jira] ] && eval "$(jira --completion-script-zsh)"
 
-eval "$(pip3 completion --zsh)"
+[ $commands[pip3] ] && eval "$(pip3 completion --zsh)"
 compctl -K _pip_completion pip3
 
 if [[ -s "/usr/local/share/zsh/site-functions/aws_zsh_completer.sh" ]]; then
