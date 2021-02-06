@@ -1,0 +1,40 @@
+[user]
+	name = Eugen Blattner
+	email = eugen.blattner@mayflower.de
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[core]
+	autocrlf = input
+	editor = vim
+	pager = less
+[alias]
+	a = add
+	b = open
+	c = commit
+	co = checkout
+	d = difftool
+	f = fetch
+	l = log
+	m = merge
+	p = pull
+	pu = push
+	r = remote
+	s = status
+	sm = submodule
+	o = open
+[diff]
+	guitool = pstorm
+	tool = icdiff
+[difftool "pstorm"]
+	cmd = pstorm diff "$LOCAL" "$REMOTE"
+[difftool "icdiff"]
+	cmd = icdiff $LOCAL $REMOTE
+[difftool]
+	prompt = false
+[url "ssh://git@github.com/"]
+        insteadOf = https://github.com/
+[pull]
+	rebase = true
