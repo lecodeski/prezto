@@ -1,0 +1,12 @@
+#!/bin/zsh
+source setup
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> /home/eugen.blattner/.profile
+eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+bin exa
+bin fzf
+bin bat
+bin icdiff
+$(brew --prefix)/opt/fzf/install
+echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.zshrc
+exec zsh
