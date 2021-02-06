@@ -17,10 +17,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Additional external scripts and auto completions
-# shellcheck source=.fzf.zsh
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
+### Auto Completions
+####################
 # tabtab source for packages
 # uninstall by removing these lines
 # shellcheck source=__tabtab.zsh
@@ -34,6 +32,11 @@ compctl -K _pip_completion pip3
 if [[ -s "/usr/local/share/zsh/site-functions/aws_zsh_completer.sh" ]]; then
   source /usr/local/share/zsh/site-functions/aws_zsh_completer.sh
 fi
+
+### Additional external scripts
+###############################
+# shellcheck source=.fzf.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 # shellcheck source=.p10k.zsh
@@ -68,7 +71,8 @@ export ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=(
         vi-forward-blank-word-end
 )
 
-# Key bindings
+### Key bindings
+################
 bindkey "^[[5~" history-beginning-search-backward # Page Up
 bindkey "^[[6~" history-beginning-search-forward  # Page Down
 
@@ -78,10 +82,12 @@ bindkey '^b' vi-backward-word
 bindkey '^x' fzf-cd-widget
 bindkey '^z' fancy-ctrl-z
 
-# Variables
+### Variables
+#############
 export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%C(green)%ar%Cred%d %Creset%s %C(cyan)%h'
 
-# Aliases
+### Aliases
+###########
 alias __='_ -s'
 alias 7=7z
 alias 9='k9s --headless'
@@ -175,7 +181,8 @@ alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome 
 alias zl='git --git-dir ~/.zprezto/.git log ${git_log_format} --all'
 alias zpl='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log ${git_log_format} --all'
 
-# Functions
+### Functions
+#############
 function a {
   # shellcheck disable=SC2046,SC2086
   ctb start:time:book rounded $1 $(datestamp "$2" "$3" "$4")
@@ -335,5 +342,6 @@ function z {
   ctb time:list $(datestamp "$1" "$2" "$3")
 }
 
-# Options
+### Options
+###########
 unsetopt nomatch
