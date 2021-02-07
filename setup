@@ -9,4 +9,20 @@ if [[ -x /usr/local/bin/zsh ]]; then
 else
   chsh -s /bin/zsh
 fi
+
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+if [[ "$(uname)" == "Linux" ]]; then
+  eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+  echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> ~/.profile
+  echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.profile
+fi
+
+brew install exa
+brew install bat
+brew install icdiff
+
+brew install fzf
+$(brew --prefix)/opt/fzf/install
+
 exec zsh
