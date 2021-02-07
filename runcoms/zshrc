@@ -22,8 +22,7 @@ fi
 
 [ $commands[jira] ] && eval "$(jira --completion-script-zsh)"
 
-[ $commands[pip3] ] && eval "$(pip3 completion --zsh)"
-compctl -K _pip_completion pip3
+[ $commands[pip3] ] && eval "$(pip3 completion --zsh)" && compctl -K _pip_completion pip3 && alias pip=pip3
 
 if [[ -s "/usr/local/share/zsh/site-functions/aws_zsh_completer.sh" ]]; then
   source /usr/local/share/zsh/site-functions/aws_zsh_completer.sh
@@ -40,9 +39,7 @@ fi
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # Source env specific profile stuff
-if [[ -s "${ZDOTDIR:-$HOME}/.profile" ]]; then
-  source "${ZDOTDIR:-$HOME}/.profile"
-fi
+[ -s "${ZDOTDIR:-$HOME}/.profile" ] && source "${ZDOTDIR:-$HOME}/.profile"
 
 # zsh auto suggestions
 # Widgets that accept the entire suggestion
@@ -81,33 +78,32 @@ export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%
 ### Aliases
 ###########
 alias __='sudo -s'
-alias 7=7z
-alias 9='k9s --headless'
+[ $commands[k9s] ] && alias 9='k9s --headless'
 
-alias bat='bat --style numbers,changes,snip,header'
-alias b=brew
-alias bh='brew home'
-alias bi='brew info'
-alias bin='brew install'
-alias bl='brew list'
-alias br='brew remove'
-alias bs='brew search'
-alias bsv='brew services'
+[ $commands[bat] ] && alias bat='bat --style numbers,changes,snip,header'
+
+if [[ $commands[brew] ]]; then
+  alias b=brew
+  alias bh='brew home'
+  alias bi='brew info'
+  alias bin='brew install'
+  alias bl='brew list'
+  alias br='brew remove'
+  alias bs='brew search'
+  alias bsv='brew services'
+fi
 
 alias c=cd
-alias co=covid
-[ -s /usr/bin/pbcopy ] && alias cpy='/usr/bin/pbcopy'
-alias ctb='/usr/local/opt/php@7.4/bin/php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan'
+[ $commands[covid] ] && alias co=covid
+[ $commands[pbcopy] ] && alias cpy=pbcopy
 
-alias d='docker'
-alias dc='docker-compose'
+[ $commands[docker] ] && alias d=docker
+[ $commands[docker-compose] ] && alias dc=docker-compose
 alias df='df -H'
-alias dm='docker-machine'
+[ $commands[docker-machine] ] && alias dm=docker-machine
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
-unalias e
-
-alias f='fd'
+[ $commands[fd] ] && alias f=fd
 alias fzf='fzf --preview "head -100 {}"'
 
 alias g=git
@@ -130,72 +126,79 @@ alias gsp='git stash pop'
 alias gst='git stash save --include-untracked --keep-index'
 alias gsw='git switch'
 alias gsm='git submodule'
-alias gg='googler --colors Bjdgxy'
+[ $commands[googler] ] && alias gg='googler --colors Bjdgxy'
 
-alias iiff='idea diff'
-alias i=idea
+[ $commands[idea] ] && alias iiff='idea diff' && alias i=idea
 
 unalias j
 alias jj='fasd_cd -i'
 
-alias k=kubectl
-alias kc='kubectl config use-context'
+[ $commands[kubectl] ] && alias k=kubectl &&alias kc='kubectl config use-context'
 
 alias l=locate
 
-alias mk=minikube
-alias mtr='sudo mtr'
+[ $commands[minikube] ] && alias mk=minikube
+[ $commands[mtr] ] && alias mtr='sudo mtr'
 
-alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
+[ $commands[npm] ] && alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
 
-alias piff='pstorm diff'
-alias pip=pip3
-[ -s /usr/bin/pbpaste ] && alias pst='/usr/bin/pbpaste'
-alias python=python3
+[ $commands[pstorm] ] && alias piff='pstorm diff'
+[ $commands[pbpaste] ] && alias pst=pbpaste
+[ $commands[python3] ] && alias python=python3
 
 alias rg='rg -i --hidden'
 alias rr='rm -rf'
 
-alias sl=subl
+[ $commands[subl] ] && alias sl=subl
 [ $commands[gsort] ] && alias sort=gsort
 
-alias ts='ctb time:task:switch rounded'
-alias tracert=traceroute
+[ $commands[traceroute] ] && alias tracert=traceroute
 
-alias ü='ctb time:overview'
-
-alias vp='ctb missed:pause:book rounded'
-alias vz='ctb missed:time:book rounded'
-
-alias xx='x ..'
-alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
+[ $commands[yarn] ] && alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
 
 alias zl='git --git-dir ~/.zprezto/.git log ${git_log_format} --all'
 alias zpl='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log ${git_log_format} --all'
 
 ### Functions
 #############
-function a {
-  ctb start:time:book rounded $1 $(datestamp "$2" "$3" "$4")
-}
+if [[ -x /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan ]]; then
+  unalias e
 
-function e {
-  ctb end:time:book rounded $1 $(datestamp "$2" "$3" "$4")
-}
+  alias ts='ctb time:task:switch rounded'
+  alias ü='ctb time:overview'
+  alias vp='ctb missed:pause:book rounded'
+  alias vz='ctb missed:time:book rounded'
 
-function bp {
-  ctb pause:book $1 $2 $(datestamp "$3" "$4" "$5")
-}
+  ctb () {
+    /usr/local/opt/php@7.4/bin/php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan $*
+  }
 
-function bz {
-  ctb time:book $1 $2 $(datestamp "$3" "$4" "$5")
-}
+  a () {
+    ctb start:time:book rounded $1 $(datestamp "$2" "$3" "$4")
+  }
 
-function ds {
+  function e () {
+    ctb end:time:book rounded $1 $(datestamp "$2" "$3" "$4")
+  }
+
+  bp () {
+    ctb pause:book $1 $2 $(datestamp "$3" "$4" "$5")
+  }
+
+  bz () {
+    ctb time:book $1 $2 $(datestamp "$3" "$4" "$5")
+  }
+
+  z () {
+    ctb time:list $(datestamp "$1" "$2" "$3")
+  }
+fi
+
+[[ -d /Applications/Dash.app ]] && ds () {
   open "dash://b:$*"
 }
 
-function fancy-ctrl-z {
+fancy-ctrl-z () {
   if [[ $#BUFFER -eq 0 ]]; then
     bg
     zle redisplay
@@ -205,15 +208,15 @@ function fancy-ctrl-z {
 }
 zle -N fancy-ctrl-z
 
-function ff {
+[ $commands[fd] ] && ff () {
   sudo fd "$*" /
 }
 
-function j {
+j () {
   cd $(fasd -d $@)
 }
 
-function konfigmerge {
+konfigmerge () {
   export KUBECONFIG=~/.kube/config:$1
   cp ~/.kube/config ~/.kube/config.bak
   kubectl config view --flatten >| ~/.kube/merged
@@ -222,68 +225,69 @@ function konfigmerge {
   icdiff ~/.kube/config.bak ~/.kube/config
 }
 
-function jira_stem {
-  jira login && jira worklog add --noedit $1 $2 $3
+jira_timestamp () {
+  [ $1 ] && echo "-S$(datestamp "$1" "$2" "$3")T00:00:00.000-0000"
 }
 
-function jira_timestamp {
-  [ "$1" ] && echo "-S$(datestamp "$1" "$2" "$3")T00:00:00.000-0000" && return
+datestamp () {
+  [ $3 ] && echo "$3-$2-$1" && return
+  [ $2 ] && echo "$(date +%Y-)$2-$1" && return
+  [ $1 ] && echo "$(date +%Y-%m-)$1"
 }
 
-function datestamp {
-  [ "$3" ] && echo "$3-$2-$1" && return
-  [ "$2" ] && echo "$(date +%Y-)$2-$1" && return
-  [ "$1" ] && echo "$(date +%Y-%m-)$1"
-}
+if [[ $commands[jira] ]]; then
+  jira_stem () {
+    jira login && jira worklog add --noedit $1 $2 $3
+  }
 
-function t {
-  jira_stem "$1" -T0"$2"h "$(jira_timestamp "$3" "$4" "$5")"
-}
+  t () {
+    jira_stem "$1" -T0"$2"h "$(jira_timestamp "$3" "$4" "$5")"
+  }
 
-function th {
-  jira_stem HHOTELS-"$1" -T0"$2"h "$(jira_timestamp "$3" "$4" "$5")"
-}
+  th () {
+    jira_stem HHOTELS-"$1" -T0"$2"h "$(jira_timestamp "$3" "$4" "$5")"
+  }
 
-function thm {
-  jira_stem HHOTELS-2 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
-}
+  thm () {
+    jira_stem HHOTELS-2 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
 
-function thr {
-  jira_stem HHOTELS-13 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
-}
+  thr () {
+    jira_stem HHOTELS-13 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
 
-function ti {
-  jira_stem INT-52 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
-}
+  ti () {
+    jira_stem INT-52 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
 
-function tj {
-  jira_stem TS-39 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
-}
+  tj () {
+    jira_stem TS-39 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
 
-function tb {
-  jira_stem TS-51 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
-}
+  tb () {
+    jira_stem TS-51 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
 
-function tm {
-  jira_stem INT-53 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
-}
+  tm () {
+    jira_stem INT-53 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
 
-function tmd {
-  jira_stem INT-54 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
-}
+  tmd () {
+    jira_stem INT-54 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
 
-function trr {
-  jira_stem INT-2 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
-}
+  trr () {
+    jira_stem INT-2 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
+fi
 
-function u {
-  brew upgrade
-  echo '🍻  \e[1mBrew upgrades finished 🍻 Upgrading npm:\e[0m'
-  npm -g upgrade
-  echo '🍻  \e[1mnpm upgrades finished 🍻 Updating Prezto:\e[0m'
+u () {
+  [ $commands[brew] ] && brew upgrade && echo '🍻  \e[1mBrew upgrades finished 🍻 Upgrading npm:\e[0m'
+  [ $commands[npm] ] && npm -g upgrade && echo '🍻  \e[1mnpm upgrades finished 🍻 Updating Prezto:\e[0m'
   zprezto-update
 }
 
+# by Leah Neukirchen (http://leahneukirchen.org/dotfiles/.zshrc)
 # wat - a better and recursive which/whence
 # 13apr2017  +leah+
 # 02jan2018  +leah+  print function code
@@ -317,13 +321,10 @@ wat() {
 }
 compdef wat=which
 
-function x {
-  print "\e[1mcount: $(find . -maxdepth 1 | wc -l )\e[0m" && exa -lah --group-directories-first --git $1
-}
-
-function z {
-  ctb time:list $(datestamp "$1" "$2" "$3")
-}
+[ $commands[exa] ] && x () {
+  [ $1 ] && target=$1 || target=.
+  print "\e[1mcount: $(find $target -maxdepth 1 | wc -l )\e[0m" && exa -lah --group-directories-first --git $target
+} && alias xx='x ..'
 
 ### Options
 ###########
