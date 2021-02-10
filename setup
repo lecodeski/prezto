@@ -12,7 +12,8 @@ fi
 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-if [[ "$(uname)" == "Linux" ]]; then
+OS=$(uname)
+if [[ $OS == "Linux" ]]; then
   eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
   echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> ~/.profile
   echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.profile
@@ -29,5 +30,10 @@ brew install git-open
 
 brew install fzf
 $(brew --prefix)/opt/fzf/install
+
+if [[ $OS == "Linux" ]]; then
+    echo "FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH" >> ~/.profile
+    rm -f ${ZDOTDIR:-$HOME}/.zcompdump; compinit
+fi
 
 exec zsh
