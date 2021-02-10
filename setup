@@ -22,6 +22,9 @@ brew install exa
 brew install bat
 brew install icdiff
 brew install git-delta
+brew install ncdu
+brew install w3m
+brew install googler
 
 brew install fzf
 $(brew --prefix)/opt/fzf/install
