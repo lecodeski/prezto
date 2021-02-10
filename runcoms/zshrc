@@ -144,6 +144,7 @@ alias l=locate
 
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
 
+[ $commands[prettyping] ] && alias ping=prettyping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
 [ $commands[pbpaste] ] && alias pst=pbpaste
 [ $commands[python3] ] && alias python=python3
