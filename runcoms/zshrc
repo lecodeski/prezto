@@ -24,10 +24,6 @@ fi
 
 [ $commands[pip3] ] && eval "$(pip3 completion --zsh)" && compctl -K _pip_completion pip3 && alias pip=pip3
 
-if [[ -s "/usr/local/share/zsh/site-functions/aws_zsh_completer.sh" ]]; then
-  source /usr/local/share/zsh/site-functions/aws_zsh_completer.sh
-fi
-
 ### Additional external scripts
 ###############################
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
