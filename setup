@@ -21,6 +21,7 @@ fi
 brew install exa
 brew install bat
 brew install icdiff
+brew install git-delta
 
 brew install fzf
 $(brew --prefix)/opt/fzf/install
