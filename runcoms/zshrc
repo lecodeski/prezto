@@ -224,7 +224,7 @@ konfigmerge () {
   kubectl config view --flatten >| ~/.kube/merged
   cp ~/.kube/merged ~/.kube/config
   unset KUBECONFIG
-  icdiff ~/.kube/config.bak ~/.kube/config
+  delta ~/.kube/config.bak ~/.kube/config
 }
 
 jira_timestamp () {
