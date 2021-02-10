@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+# Source env specific profile stuff
+[ -s "${ZDOTDIR:-$HOME}/.profile" ] && source "${ZDOTDIR:-$HOME}/.profile"
+
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -33,9 +36,6 @@ fi
 [[ $TERMINAL_INTELLIJ != 'TRUE' && -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-# Source env specific profile stuff
-[ -s "${ZDOTDIR:-$HOME}/.profile" ] && source "${ZDOTDIR:-$HOME}/.profile"
 
 # zsh auto suggestions
 # Widgets that accept the entire suggestion
