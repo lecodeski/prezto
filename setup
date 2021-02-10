@@ -25,6 +25,7 @@ brew install git-delta
 brew install ncdu
 brew install w3m
 brew install googler
+brew install git-open
 
 brew install fzf
 $(brew --prefix)/opt/fzf/install
