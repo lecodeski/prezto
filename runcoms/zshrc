@@ -124,7 +124,7 @@ alias gsp='git stash pop'
 alias gst='git stash save --include-untracked --keep-index'
 alias gsw='git switch'
 alias gsm='git submodule'
-[ $commands[googler] ] && alias gg='googler --colors Bjdgxy'
+alias gg='DISABLE_URL_EXPANSION=true BROWSER=w3m googler --colors Cjdgxy'
 
 [ $commands[idea] ] && alias iiff='idea diff' && alias i=idea
 
