@@ -82,7 +82,7 @@ alias 3=w3m
 
 if [[ $commands[brew] ]]; then
   alias b=brew
-  alias bh='brew home'
+  alias bh='HOMEBREW_BROWSER=$commands[w3m] brew home'
   alias bi='brew info'
   alias bin='brew install'
   alias bl='brew list'
@@ -112,7 +112,7 @@ alias gco='git checkout'
 alias gd='git difftool'
 alias gdg='git difftool -g'
 alias gf='git fetch'
-alias gh='git open'
+alias gh='BROWSER=$commands[w3m] git open'
 alias gl='git log ${git_log_format} --all'
 alias gm='git merge'
 alias gp='git pull --rebase'
