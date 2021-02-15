@@ -29,44 +29,43 @@ function zprezto-update {
       printf "running\ncd '%s' and then\n'git pull' " "${ZPREZTODIR}"
       printf "to manually pull and possibly merge in changes\n"
     }
-    function restore {
-      if [[ "$1" != "main" ]]; then
-        git switch $1
-        [ $2 ] && git merge main
-      fi
-
-      git stash pop
-    }
     cd -q -- "${ZPREZTODIR}" || return 7
-    local orig_branch="$(git branch --show-current)"
-    git stash
-    if [[ "$orig_branch" != "main" ]]; then
-      git switch main
-    fi
 
     git fetch || return "$?"
-    local UPSTREAM=$(git rev-parse '@{u}')
-    local LOCAL=$(git rev-parse HEAD)
-    local REMOTE=$(git rev-parse "$UPSTREAM")
-    local BASE=$(git merge-base HEAD "$UPSTREAM")
+    local LOCAL=$(git rev-parse main)
+    local REMOTE=$(git rev-parse origin/main)
+    local BASE=$(git merge-base main origin/main)
+
     if [[ $LOCAL == $REMOTE ]]; then
       printf "There are no updates.\n"
-      restore $orig_branch
       return 0
+
     elif [[ $LOCAL == $BASE ]]; then
       printf "There is an update available. Trying to pull.\n\n"
+
+      local orig_branch="$(git branch --show-current)"
+      [[ "$orig_branch" != "main" ]] && local off_main=$orig_branch
+      [[ $(git diff --stat) != '' ]] && local dirty=1
+
+      [ $dirty ] && git stash
+      [ $off_main ] && git switch main
+
       if git pull --ff-only; then
         printf "Syncing submodules\n"
         git submodule update --init --recursive
-        restore $orig_branch merge
+        [ $off_main ] && git switch $orig_branch && git merge main
+        [ $dirty ] && git stash pop
         return $?
+
       else
         cannot-fast-forward
         return 1
       fi
+
     elif [[ $REMOTE == $BASE ]]; then
       cannot-fast-forward "Commits in main that aren't in upstream."
       return 1
+
     else
       cannot-fast-forward "Upstream and local have diverged."
       return 1
