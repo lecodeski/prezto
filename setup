@@ -27,6 +27,7 @@ brew install ncdu
 brew install w3m
 brew install googler
 brew install git-open
+brew install translate-shell
 
 brew install fzf
 $(brew --prefix)/opt/fzf/install
