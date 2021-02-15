@@ -154,6 +154,8 @@ alias rr='rm -rf'
 
 [ $commands[traceroute] ] && alias tracert=traceroute
 
+[ $commands[trans] ] && alias ü=trans
+
 [ $commands[yarn] ] && alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
 
 alias zl='git --git-dir ~/.zprezto/.git log ${git_log_format} --all'
@@ -165,7 +167,7 @@ if [[ -x /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan ]]; then
   unalias e
 
   alias ts='ctb time:task:switch rounded'
-  alias ü='ctb time:overview'
+  alias üs='ctb time:overview'
   alias vp='ctb missed:pause:book rounded'
   alias vz='ctb missed:time:book rounded'
 
