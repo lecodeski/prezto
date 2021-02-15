@@ -75,14 +75,13 @@ export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%
 ###########
 alias ...='cd ../..'
 alias __='sudo -s'
-alias 3=w3m
 [ $commands[k9s] ] && alias 9='k9s --headless'
 
 [ $commands[bat] ] && alias bat='bat --style numbers,changes,snip,header'
 
 if [[ $commands[brew] ]]; then
   alias b=brew
-  alias bh='HOMEBREW_BROWSER=$commands[w3m] brew home'
+  alias bh='HOMEBREW_BROWSER=$commands[links] brew home'
   alias bi='brew info'
   alias bin='brew install'
   alias bl='brew list'
@@ -112,7 +111,7 @@ alias gco='git checkout'
 alias gd='git difftool'
 alias gdg='git difftool -g'
 alias gf='git fetch'
-alias gh='BROWSER=$commands[w3m] git open'
+alias gh='BROWSER=$commands[links] git open'
 alias gl='git log ${git_log_format} --all'
 alias gm='git merge'
 alias gp='git pull --rebase'
@@ -125,7 +124,7 @@ alias gsp='git stash pop'
 alias gst='git stash save --include-untracked --keep-index'
 alias gsw='git switch'
 alias gsm='git submodule'
-alias gg='DISABLE_URL_EXPANSION=true BROWSER=w3m googler --colors Cjdgxy'
+alias gg='DISABLE_URL_EXPANSION=true BROWSER=links googler --colors Cjdgxy'
 
 [ $commands[idea] ] && alias iiff='idea diff' && alias i=idea
 
@@ -154,7 +153,9 @@ alias rr='rm -rf'
 
 [ $commands[traceroute] ] && alias tracert=traceroute
 
-[ $commands[trans] ] && alias ü=trans
+alias ü=trans
+
+alias www=links
 
 [ $commands[yarn] ] && alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
 

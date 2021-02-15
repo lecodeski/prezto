@@ -24,7 +24,7 @@ brew install bat
 brew install icdiff
 brew install git-delta
 brew install ncdu
-brew install w3m
+brew install links
 brew install googler
 brew install git-open
 brew install translate-shell
