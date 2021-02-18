@@ -285,9 +285,10 @@ if [[ $commands[jira] ]]; then
 fi
 
 u () {
-  [ $commands[brew] ] && brew upgrade && echo '🍻  \e[1mBrew upgrades finished 🍻 Upgrading npm:\e[0m'
-  [ $commands[npm] ] && npm -g upgrade && echo '🍻  \e[1mnpm upgrades finished 🍻 Updating Prezto:\e[0m'
-  zprezto-update
+  brew upgrade
+  echo '\e[1mBrew upgrades finished 🍻'
+  [ $commands[npm] ] && echo '🍻 Upgrading npm:\e[0m' && npm -g upgrade && echo '\e[1mnpm upgrades finished 🍻'
+  echo '🍻 Updating Prezto:\e[0m' && zprezto-update
 }
 
 # by Leah Neukirchen (http://leahneukirchen.org/dotfiles/.zshrc)
