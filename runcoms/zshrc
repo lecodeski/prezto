@@ -91,7 +91,6 @@ if [[ $commands[brew] ]]; then
 fi
 
 alias c=cd
-[ $commands[covid] ] && alias co=covid
 [ $commands[pbcopy] ] && alias cpy=pbcopy
 
 [ $commands[docker] ] && alias d=docker
