@@ -326,7 +326,27 @@ compdef wat=which
 [ $commands[exa] ] && x () {
   [ $1 ] && target=$1 || target=.
   print "\e[1mcount: $(find $target -maxdepth 1 | wc -l )\e[0m" && exa -lah --group-directories-first --git $target
-} && alias xx='x ..'
+} && alias x.='x ..'
+
+[ $commands[broot] ] && xx() {
+    f=$(mktemp)
+    (
+	set +e
+	broot -g --outcmd "$f" "$@"
+	code=$?
+	if [ "$code" != 0 ]; then
+	    rm -f "$f"
+	    exit "$code"
+	fi
+    )
+    code=$?
+    if [ "$code" != 0 ]; then
+	return "$code"
+    fi
+    d=$(<"$f")
+    rm -f "$f"
+    eval "$d"
+}
 
 ### Options
 ###########
