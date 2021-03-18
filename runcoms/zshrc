@@ -152,7 +152,7 @@ alias rr='rm -rf'
 
 [ $commands[traceroute] ] && alias tracert=traceroute
 
-alias ü=trans
+alias üs=trans
 
 alias www=links
 
@@ -167,7 +167,7 @@ if [[ -x /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan ]]; then
   unalias e
 
   alias ts='ctb time:task:switch rounded'
-  alias üs='ctb time:overview'
+  alias ü='ctb time:overview'
   alias vp='ctb missed:pause:book rounded'
   alias vz='ctb missed:time:book rounded'
 
