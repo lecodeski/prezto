@@ -17,7 +17,7 @@ version is 4.3.11.
      git clone --recursive [--shallow-submodules] https://github.com/blanorama/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
      ```
 
-  4. Run setup script
+  2. Run setup script
 
      ```console
      ${ZDOTDIR:-$HOME}/.zprezto/setup
