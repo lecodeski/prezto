@@ -6,3 +6,4 @@ else
 end
 set relativenumber
 set ruler
+set clipboard=unnamed
