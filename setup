@@ -19,6 +19,10 @@ if [[ $OS == "Linux" ]]; then
   echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.profile
 fi
 
+brew install git
+# remove automatically installed but inferior completion script
+rm -f $(brew --prefix)/share/zsh/site-functions/_git
+
 brew install exa
 brew install bat
 brew install icdiff
