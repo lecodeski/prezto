@@ -137,6 +137,7 @@ alias l=locate
 [ $commands[minikube] ] && alias mk=minikube
 [ $commands[mtr] ] && alias mtr='sudo mtr'
 
+alias ncdu='_ ncdu -e --color dark'
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
 
 [ $commands[prettyping] ] && alias ping=prettyping
