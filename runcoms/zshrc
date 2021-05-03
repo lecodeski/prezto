@@ -288,6 +288,7 @@ fi
 u () {
   brew upgrade
   echo '\e[1mBrew upgrades finished 🍻'
+  [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update 
   echo '🍻 Updating Prezto:\e[0m' && zprezto-update
 }
 
