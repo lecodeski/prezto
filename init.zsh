@@ -52,6 +52,7 @@ function zprezto-update {
 
       if git pull --ff-only; then
         printf "Syncing submodules\n"
+        git submodule sync --recursive
         git submodule update --init --recursive
         [ $off_main ] && git switch $orig_branch && git merge main
         [ $dirty ] && git stash pop
