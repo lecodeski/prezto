@@ -199,7 +199,7 @@ if [[ -x /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan ]]; then
 fi
 
 [[ -d /Applications/Dash.app ]] && ds () {
-  open "dash://b:$*"
+  open "dash://b%3A$*"
 }
 
 fancy-ctrl-z () {
