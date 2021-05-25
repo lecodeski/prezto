@@ -9,7 +9,7 @@ and prompt themes.
 Prezto will work with any recent release of Zsh, but the minimum required
 version is **4.3.11**.
 
-  01. Clone the repository:
+01. Clone the repository:
 
     ```console
     git clone --recursive [--shallow-submodules] https://github.com/blanorama/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
@@ -39,7 +39,8 @@ version is **4.3.11**.
 
     </details>
 
-  02. Run setup script
+
+02. Run setup script
 
      ```console
      ${ZDOTDIR:-$HOME}/.zprezto/setup
