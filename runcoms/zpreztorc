@@ -35,19 +35,20 @@ zstyle ':prezto:load' pmodule \
   'history' \
   'directory' \
   'spectrum' \
+  'gnu-utility' \
   'utility' \
-  'completion' \
-  'fasd' \
   'node' \
   'archive' \
+  'autosuggestions' \
   'syntax-highlighting' \
   'history-substring-search' \
-  'autosuggestions' \
   'prompt' \
   'osx' \
   'docker' \
   'homebrew' \
-  'git'
+  'git' \
+  'completion' \
+  'fasd'
 
 #
 # Autosuggestions
