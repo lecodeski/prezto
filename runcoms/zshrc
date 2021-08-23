@@ -118,6 +118,7 @@ alias gp='git pull --rebase'
 alias gpm='git pull --no-rebase'
 alias gpu='git push'
 alias gr='git remote'
+unalias grc
 alias gs='git status'
 alias gsm='git submodule'
 alias gsh='git show'
