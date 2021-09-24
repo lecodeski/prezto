@@ -218,7 +218,7 @@ zle -N fancy-ctrl-z
 }
 
 j () {
-  cd $(fasd -d $@)
+  cd "$(fasd -d $@)"
 }
 
 konfigmerge () {
