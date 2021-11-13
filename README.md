@@ -29,7 +29,7 @@ version is **4.3.11**.
         git clone --recursive https://github.com/blanorama/prezto.git "${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}/.zprezto"
         ```
 
-      - Configure `$XDG_CONFIG_HOME` and `$ZDOTDIR` in _`${$HOME}/.zshenv`_:
+      - Configure `$XDG_CONFIG_HOME` and `$ZDOTDIR` in _`$HOME/.zshenv`_:
 
         ```sh
         export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:=$HOME/.config}"
