@@ -1,6 +1,7 @@
 [user]
 	name = Eugen Blattner
 	email = eugen.blattner@mayflower.de
+	signingKey = 78034F570B6C11DB
 
 [core]
 	autocrlf = input
@@ -57,3 +58,5 @@
 [delta "line-numbers"]
     line-numbers-left-style = blue
     line-numbers-right-style = blue
+[commit]
+	gpgSign = true
