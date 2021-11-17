@@ -271,7 +271,7 @@ if [[ $commands[jira] ]]; then
   }
 
   tb () {
-    jira_stem TS-51 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+    jira_stem BELECTRIC-4 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
   }
 
   tm () {
