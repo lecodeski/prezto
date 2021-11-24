@@ -60,3 +60,5 @@
     line-numbers-right-style = blue
 [commit]
 	gpgSign = true
+[init]
+	defaultBranch = main
