@@ -153,7 +153,7 @@ alias rr='rm -rf'
 [ $commands[subl] ] && alias sl=subl
 [ $commands[gsort] ] && alias sort=gsort
 
-[ $commands[glances] ] && alias top='glances -t1'
+[ $commands[btop] ] && alias top='btop'
 [ $commands[traceroute] ] && alias tracert=traceroute
 
 alias üs=trans
