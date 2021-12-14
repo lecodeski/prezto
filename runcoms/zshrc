@@ -25,7 +25,7 @@ fi
 
 [ $commands[jira] ] && eval "$(jira --completion-script-zsh)"
 
-[ $commands[pip3] ] && eval "$(pip3 completion --zsh)" && compctl -K _pip_completion pip3 && alias pip=pip3
+[ $commands[pip3] ] && eval "$(pip3 completion --zsh)" && compctl -K _pip_completion pip3
 
 ### Additional external scripts
 ###############################
@@ -145,7 +145,6 @@ alias ncdu='_ ncdu -e --color dark'
 [ $commands[prettyping] ] && alias ping=prettyping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
 [ $commands[pbpaste] ] && alias pst=pbpaste
-[ $commands[python3] ] && alias python=python3
 
 alias rg='rg -i --hidden'
 alias rr='rm -rf'
