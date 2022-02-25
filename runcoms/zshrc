@@ -58,14 +58,19 @@ export ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=(
 
 ### Key bindings
 ################
+bindkey "^?" backward-kill-word
+bindkey "^[[3~" kill-word
+bindkey "^[^?" kill-whole-line
 bindkey "^[[5~" history-beginning-search-backward # Page Up
 bindkey "^[[6~" history-beginning-search-forward  # Page Down
-
-
 bindkey '^f' vi-forward-word
 bindkey '^b' vi-backward-word
 bindkey '^x' fzf-cd-widget
-bindkey '^z' fancy-ctrl-z
+
+stty susp "^u"
+bindkey '^u' fancy-ctrl-z
+
+bindkey '^z' undo
 
 ### Variables
 #############
