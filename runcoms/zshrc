@@ -103,7 +103,7 @@ alias df='df -H'
 [ $commands[docker-machine] ] && alias dm=docker-machine
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
-[ $commands[fd] ] && alias f=fd
+[ $commands[fd] ] && alias f='fd -HI'
 alias fzf='fzf --preview "head -100 {}"'
 
 alias g=git
