@@ -1,8 +1,5 @@
 #!/bin/zsh
 
-# Source env specific profile stuff
-[ -s "${ZDOTDIR:-$HOME}/.profile" ] && source "${ZDOTDIR:-$HOME}/.profile"
-
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
