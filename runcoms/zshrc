@@ -130,7 +130,6 @@ alias gsw='git switch'
 
 [ $commands[idea] ] && alias iiff='idea diff' && alias i=idea
 
-unalias j
 alias jj='fasd_cd -i'
 
 [ $commands[kubectl] ] && alias k=kubectl &&alias kc='kubectl config use-context'
@@ -218,6 +217,7 @@ zle -N fancy-ctrl-z
   sudo fd "$*" /
 }
 
+unalias j
 j () {
   cd "$(fasd -d $@)"
 }
