@@ -78,8 +78,6 @@ alias ...='cd ../..'
 alias __='sudo -s'
 [ $commands[k9s] ] && alias 9='k9s --headless'
 
-[ $commands[bat] ] && alias bat='bat --style numbers,changes,snip,header'
-
 if [[ $commands[brew] ]]; then
   alias b=brew
   alias bh='HOMEBREW_BROWSER=$commands[links] brew home'
@@ -142,6 +140,7 @@ alias l=locate
 alias ncdu='_ ncdu -e --color dark'
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
 
+[ $commands[bat] ] && alias p='bat --style numbers,changes,snip,header'
 [ $commands[prettyping] ] && alias ping=prettyping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
 [ $commands[pbpaste] ] && alias pst=pbpaste
