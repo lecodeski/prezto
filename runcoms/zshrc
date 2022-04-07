@@ -80,6 +80,8 @@ alias ...='cd ../..'
 alias __='sudo -s'
 [ $commands[k9s] ] && alias 9='k9s --headless'
 
+[ $commands[aws-vault] ] && alias av=aws-vault
+
 if [[ $commands[brew] ]]; then
   alias b=brew
   alias bh='HOMEBREW_BROWSER=$commands[links] brew home'
