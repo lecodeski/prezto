@@ -318,6 +318,7 @@ wat() {
       whence -f "$cmd"
     elif (( $+commands[$cmd] )); then
       wat "${commands[$cmd]}"
+      whatis "$cmd"
     elif [[ -h $cmd ]]; then
       file "$cmd"
       wat "$cmd:A"
