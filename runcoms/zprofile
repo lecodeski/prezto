@@ -23,9 +23,6 @@ fi
 if [[ -z "$VISUAL" ]]; then
   export VISUAL='vim'
 fi
-if [[ -z "$PAGER" ]]; then
-  export PAGER='less'
-fi
 
 #
 # Language
