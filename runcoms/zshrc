@@ -320,7 +320,7 @@ wat() {
       wat "${commands[$cmd]}"
     elif [[ -h $cmd ]]; then
       file "$cmd"
-      wat "$cmd":A
+      wat "$cmd:A"
     elif [[ -x $cmd ]]; then
       file "$cmd"
     else
