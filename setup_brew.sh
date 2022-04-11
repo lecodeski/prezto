@@ -1,23 +1,12 @@
-#!/bin/zsh
-setopt EXTENDED_GLOB
-for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
-  ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
-done
-
-if [[ -x /usr/local/bin/zsh ]]; then
-  chsh -s /usr/local/bin/zsh
-else
-  chsh -s /bin/zsh
-fi
-
+#!/bin/bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-OS=$(uname)
-if [[ $OS == "Linux" ]]; then
+if [[ $(uname) == "Linux" ]]; then
   eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
   echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> ~/.profile
-  echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.profile
 fi
+
+brew install zsh
 
 brew install git
 # remove automatically installed but inferior completion script
@@ -35,12 +24,3 @@ brew install translate-shell
 
 brew install fzf
 $(brew --prefix)/opt/fzf/install
-
-if [[ $OS == "Linux" ]]; then
-    echo "FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH" >> ~/.profile
-    rm -f ${ZDOTDIR:-$HOME}/.zcompdump
-    autoload -Uz compinit
-    compinit
-fi
-
-exec zsh
