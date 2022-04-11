@@ -160,6 +160,8 @@ alias rr='rm -rf'
 
 alias üs=trans
 
+alias v=vim
+
 alias www=links
 
 [ $commands[yarn] ] && alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
