@@ -91,6 +91,7 @@ if [[ $commands[brew] ]]; then
   alias br='brew remove'
   alias bs='brew search'
   alias bsv='brew services'
+  alias bu='brew uses'
 fi
 
 alias c=cd
