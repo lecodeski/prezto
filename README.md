@@ -43,7 +43,7 @@ version is **4.3.11**.
 02. Run setup script
 
      ```console
-     ${ZDOTDIR:-$HOME}/.zprezto/setup
+     ${ZDOTDIR:-$HOME}/.zprezto/setup.sh
      ```
 
 ### Troubleshooting
