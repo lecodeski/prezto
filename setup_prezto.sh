@@ -5,7 +5,7 @@ for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
 done
 
 echo "$(brew --prefix)/bin/zsh" | sudo tee -a /etc/shells
-chsh -s $(brew --prefix)/bin/zsh
+sudo chsh -s $(brew --prefix)/bin/zsh
 
 if [[ $(uname) == "Linux" ]]; then
     echo "FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH" >> ~/.profile
