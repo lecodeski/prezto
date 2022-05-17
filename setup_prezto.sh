@@ -5,14 +5,16 @@ for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
   ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done
 
-echo "$(brew --prefix)/bin/zsh" | sudo tee -a /etc/shells
-chsh -s $(brew --prefix)/bin/zsh
+if [[ $commands[brew] ]]; then
+  echo "$(brew --prefix)/bin/zsh" | sudo tee -a /etc/shells
+  chsh -s $(brew --prefix)/bin/zsh
 
-if [[ $(uname) == "Linux" ]]; then
-    echo "FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH" >> ~/.profile
-    rm -f ${ZDOTDIR:-$HOME}/.zcompdump
-    autoload -Uz compinit
-    compinit
+  if [[ $(uname) == "Linux" ]]; then
+      echo "FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH" >> ~/.profile
+      rm -f ${ZDOTDIR:-$HOME}/.zcompdump
+      autoload -Uz compinit
+      compinit
+  fi
 fi
 
 exec zsh
