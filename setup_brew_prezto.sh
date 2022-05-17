@@ -24,3 +24,5 @@ brew install translate-shell
 
 brew install fzf
 $(brew --prefix)/opt/fzf/install
+
+$(brew --prefix)/bin/zsh "${ZDOTDIR:-$HOME}"/.zprezto/setup_prezto.sh
