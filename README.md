@@ -9,42 +9,53 @@ and prompt themes.
 Prezto will work with any recent release of Zsh, but the minimum required
 version is **4.3.11**.
 
-01. Clone the repository:
+1. Clone the repository:
 
     ```console
     git clone --recursive [--shallow-submodules] https://github.com/blanorama/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
     ```
 
     <details>
-      <summary><em>Optional: Installing in <code>$XDG_CONFIG_HOME</code></em></summary>
+        <summary><em>Optional: Installing in <code>$XDG_CONFIG_HOME</code></em></summary>
 
-      Optionally, if you already have `$XDG_CONFIG_HOME` configured (usually as
-      _`$HOME/.config`_ by default) and intend to install Prezto under
-      _`$XDG_CONFIG_HOME/zsh`_ instead, you can clone the repository there and
-      configure `$ZDOTDIR` separately if not already configured.
+   Optionally, if you already have `$XDG_CONFIG_HOME` configured (usually as
+   _`$HOME/.config`_ by default) and intend to install Prezto under
+   _`$XDG_CONFIG_HOME/zsh`_ instead, you can clone the repository there and
+   configure `$ZDOTDIR` separately if not already configured.
 
-      - Clone the repository:
+    - Clone the repository:
 
-        ```console
-        git clone --recursive https://github.com/blanorama/prezto.git "${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}/.zprezto"
-        ```
+      ```console
+      git clone --recursive https://github.com/blanorama/prezto.git "${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}/.zprezto"
+      ```
 
-      - Configure `$XDG_CONFIG_HOME` and `$ZDOTDIR` in _`$HOME/.zshenv`_:
+    - Configure `$XDG_CONFIG_HOME` and `$ZDOTDIR` in _`$HOME/.zshenv`_:
 
-        ```sh
-        export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:=$HOME/.config}"
-        export ZDOTDIR="${ZDOTDIR:=$XDG_CONFIG_HOME/zsh}"
-        source "$ZDOTDIR/.zshenv"
-        ```
+      ```sh
+      export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:=$HOME/.config}"
+      export ZDOTDIR="${ZDOTDIR:=$XDG_CONFIG_HOME/zsh}"
+      source "$ZDOTDIR/.zshenv"
+      ```
 
     </details>
 
 
-02. Run setup script
-
-     ```console
-     ${ZDOTDIR:-$HOME}/.zprezto/setup.sh
-     ```
+2. Run **one** of two setup scripts
+    1. Either run Homebrew & Prezto setup script:
+        ```console
+        ${ZDOTDIR:-$HOME}/.zprezto/setup_brew_prezto.sh
+        ```
+    2. Or run pure Prezto setup script:
+        ```console
+        ${ZDOTDIR:-$HOME}/.zprezto/setup_prezto.sh
+        ```
+        1. <details><summary><em>Optional: Only in second case, manually set Zsh as your default shell on demand</em></summary>
+       
+           ```console
+           chsh -s /bin/zsh
+           ```
+           
+           </details>
 
 ### Troubleshooting
 
@@ -121,13 +132,23 @@ The [Zsh Reference Card][7] and the [zsh-lovers][8] man page are indispensable.
 This project is licensed under the MIT License.
 
 [1]: https://www.zsh.org
+
 [2]: https://i.imgur.com/nrGV6pg.png "sorin theme"
+
 [3]: https://git-scm.com
+
 [4]: https://github.com
+
 [5]: https://gitimmersion.com
+
 [6]: https://git.github.io/git-reference/
+
 [7]: http://www.bash2zsh.com/zsh_refcard/refcard.pdf
+
 [8]: https://grml.org/zsh/zsh-lovers.html
+
 [9]: modules#readme
+
 [10]: runcoms#readme
+
 [11]: modules/git#readme
