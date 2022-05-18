@@ -12,7 +12,7 @@ version is **4.3.11**.
 1. Clone the repository:
 
     ```console
-    git clone --recursive [--shallow-submodules] https://github.com/blanorama/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
+    git clone --recursive --shallow-submodules https://github.com/blanorama/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
     ```
 
     <details>
