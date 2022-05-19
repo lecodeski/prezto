@@ -77,6 +77,7 @@ export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%
 ### Aliases
 ###########
 alias ...='cd ../..'
+alias _='sudo -E env PATH=$PATH'
 alias __='sudo -s -E'
 [ $commands[k9s] ] && alias 9='k9s --headless'
 
@@ -140,7 +141,7 @@ alias jj='fasd_cd -i'
 alias l=locate
 
 [ $commands[minikube] ] && alias mk=minikube
-[ $commands[mtr] ] && alias mtr='sudo mtr'
+[ $commands[mtr] ] && alias mtr='_ mtr'
 
 alias ncdu='_ ncdu -e --color dark'
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
@@ -220,7 +221,7 @@ fancy-ctrl-z () {
 zle -N fancy-ctrl-z
 
 [ $commands[fd] ] && ff () {
-  sudo fd "$*" /
+  _ fd "$*" /
 }
 
 unalias j
