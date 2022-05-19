@@ -337,7 +337,7 @@ compdef wat=which
 
 [ $commands[exa] ] && x () {
   [ $1 ] && target=$1 || target=.
-  print "\e[1mcount: $(find $target -maxdepth 1 | wc -l )\e[0m" && exa -lah --group-directories-first --git --icons $target
+  print "\e[1mcount: $(find $target -maxdepth 1 | wc -l )\e[0m" && exa -lah -s .name --git --icons $target
 } && alias x.='x ..'
 
 [ $commands[broot] ] && xx() {
