@@ -62,3 +62,6 @@ set ruler
 set clipboard=unnamed
 set nobackup
 set noundofile
+nnoremap d "_d
+nnoremap D "_D
+nnoremap <del> "_x
