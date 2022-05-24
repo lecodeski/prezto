@@ -96,7 +96,7 @@ if [[ $commands[brew] ]]; then
 fi
 
 alias c=cd
-[ $commands[pbcopy] ] && alias cpy=pbcopy
+[ $commands[pbcopy] ] && alias cpy=pbcopy && alias cwd='pwd | cpy'
 
 [ $commands[docker] ] && alias d=docker
 [ $commands[docker-compose] ] && alias dc=docker-compose
@@ -149,7 +149,7 @@ alias ncdu='_ ncdu -e --color dark'
 [ $commands[bat] ] && alias p='bat --style numbers,changes,snip,header'
 [ $commands[prettyping] ] && alias ping=prettyping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
-[ $commands[pbpaste] ] && alias pst=pbpaste
+[ $commands[pbpaste] ] && alias pst=pbpaste && alias pd='cd $(pst)'
 
 alias rg='rg -i --hidden'
 alias rr='rm -rf'
