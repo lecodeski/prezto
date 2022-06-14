@@ -1563,7 +1563,7 @@
 
   #######################[ shell_level: current shell nesting level ]#######################
   # Shell level color.
-  typeset -g POWERLEVEL9K_SHELL_LEVEL_FOREGROUND=3
+  typeset -g POWERLEVEL9K_SHELL_LEVEL_FOREGROUND=214
   typeset -g POWERLEVEL9K_SHELL_LEVEL_BACKGROUND=0
 
   ####################################[ time: current time ]####################################
