@@ -136,7 +136,7 @@ alias gsw='git switch'
 
 alias jj='fasd_cd -i'
 
-[ $commands[kubectl] ] && alias k=kubectl &&alias kc='kubectl config use-context'
+[ $commands[kubectl] ] && alias k=kubectl && alias kc='kubectl config use-context'
 
 alias l=locate
 
