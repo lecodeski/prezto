@@ -20,8 +20,6 @@ fi
 # uninstall by removing these lines
 [[ -f ~/.config/tabtab/__tabtab.zsh ]] && source ~/.config/tabtab/__tabtab.zsh
 
-[ $commands[jira] ] && eval "$(jira --completion-script-zsh)"
-
 [ $commands[aws-vault] ] && eval "$(aws-vault --completion-script-zsh)"
 
 ### Additional external scripts
@@ -295,7 +293,7 @@ fi
 u () {
   brew upgrade
   echo '\e[1mBrew upgrades finished 🍻'
-  [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update 
+  [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update
   echo '🍻 Updating Prezto:\e[0m' && zprezto-update
 }
 
