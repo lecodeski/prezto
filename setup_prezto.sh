@@ -10,7 +10,6 @@ if [[ $commands[brew] ]]; then
   chsh -s $(brew --prefix)/bin/zsh
 
   if [[ $(uname) == "Linux" ]]; then
-      echo "FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH" >> ~/.profile
       rm -f ${ZDOTDIR:-$HOME}/.zcompdump
       autoload -Uz compinit
       compinit
