@@ -13,6 +13,7 @@ brew install git
 rm -f $(brew --prefix)/share/zsh/site-functions/_git
 
 brew install exa
+brew install ripgrep
 brew install bat
 brew install icdiff
 brew install git-delta
