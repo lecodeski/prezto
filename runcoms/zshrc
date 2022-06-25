@@ -77,6 +77,7 @@ alias _='sudo -E env PATH=$PATH '
 alias __='sudo -s -E'
 [ $commands[k9s] ] && alias 9='k9s --headless'
 
+[ $commands[moco] ] && alias a='moco timer start' && alias e='moco timer stop'
 [ $commands[aws-vault] ] && alias av=aws-vault
 
 if [[ $commands[brew] ]]; then
