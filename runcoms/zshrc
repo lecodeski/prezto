@@ -188,6 +188,10 @@ zle -N fancy-ctrl-z
   _ fd "$*" /
 }
 
+unalias j
+j () {
+  cd "$(fasd -d $@)"
+}
 
 konfigmerge () {
   export KUBECONFIG=~/.kube/config:$1
