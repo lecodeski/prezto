@@ -170,6 +170,39 @@ alias zpl='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git l
 
 ### Functions
 #############
+if [[ -x /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan ]]; then
+  unalias e
+
+  alias ts='ctb time:task:switch rounded'
+  alias ü='ctb time:overview'
+  alias vp='ctb missed:pause:book rounded'
+  alias vz='ctb missed:time:book rounded'
+
+  ctb () {
+    /usr/local/opt/php@7.4/bin/php /Users/eugen/Projekte/PHP/OpenSource/CTB/artisan $*
+  }
+
+  a () {
+    ctb start:time:book rounded $1 $(datestamp "$2" "$3" "$4")
+  }
+
+  function e () {
+    ctb end:time:book rounded $1 $(datestamp "$2" "$3" "$4")
+  }
+
+  bp () {
+    ctb pause:book $1 $2 $(datestamp "$3" "$4" "$5")
+  }
+
+  bz () {
+    ctb time:book $1 $2 $(datestamp "$3" "$4" "$5")
+  }
+
+  z () {
+    ctb time:list $(datestamp "$1" "$2" "$3")
+  }
+fi
+
 [[ -d /Applications/Dash.app ]] && ds () {
   open "dash://b%3A$*"
 }
@@ -201,6 +234,62 @@ konfigmerge () {
   unset KUBECONFIG
   delta ~/.kube/config.bak ~/.kube/config
 }
+
+jira_timestamp () {
+  [ $1 ] && echo "-S$(datestamp "$1" "$2" "$3")T00:00:00.000-0000"
+}
+
+datestamp () {
+  [ $3 ] && echo "$3-$2-$1" && return
+  [ $2 ] && echo "$(date +%Y-)$2-$1" && return
+  [ $1 ] && echo "$(date +%Y-%m-)$1"
+}
+
+if [[ $commands[jira] ]]; then
+  jira_stem () {
+    jira login && jira worklog add --noedit $1 $2 $3
+  }
+
+  t () {
+    jira_stem "$1" -T0"$2"h "$(jira_timestamp "$3" "$4" "$5")"
+  }
+
+  th () {
+    jira_stem HHOTELS-"$1" -T0"$2"h "$(jira_timestamp "$3" "$4" "$5")"
+  }
+
+  thm () {
+    jira_stem HHOTELS-2 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
+
+  thr () {
+    jira_stem HHOTELS-13 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
+
+  ti () {
+    jira_stem INT-52 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
+
+  tj () {
+    jira_stem TS-39 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
+
+  tb () {
+    jira_stem BELECTRIC-4 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
+
+  tm () {
+    jira_stem INT-53 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
+
+  tmd () {
+    jira_stem INT-54 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
+
+  trr () {
+    jira_stem INT-2 -T0"$1"h "$(jira_timestamp "$2" "$3" "$4")"
+  }
+fi
 
 u () {
   brew upgrade
