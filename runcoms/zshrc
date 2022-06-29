@@ -212,7 +212,7 @@ if [[ $commands[moco] ]]; then
     moco list --date $(datestamp "$1" "$2" "$3")
   }
 
-  zz () {
+  zd () {
     moco rm --date $(datestamp "$1" "$2" "$3")
   }
 fi
