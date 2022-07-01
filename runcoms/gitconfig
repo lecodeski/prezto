@@ -2,6 +2,7 @@
 	name = Eugen Blattner
 	email = eugen.blattner@mayflower.de
 	signingKey = 78034F570B6C11DB
+	useConfigOnly = true
 
 [core]
 	autocrlf = input
