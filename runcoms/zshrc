@@ -1,3 +1,5 @@
+# Fig pre block. Keep at the top of this file.
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && . "$HOME/.fig/shell/zshrc.pre.zsh"
 #!/bin/zsh
 
 # Source Prezto.
@@ -172,57 +174,63 @@ alias zpl='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git l
 if [[ $commands[moco] ]]; then
   unalias e
 
-  alias s='moco new --hours 0 --date $(date +%Y-%m-%d)'
   alias a='moco timer start'
   alias e='moco timer stop'
-  alias ü='moco '
-  alias zt='moco list --today'
+  alias ü='moco ?'
   alias zw='moco list --week'
   alias zm='moco list --month'
 
+  datestamp () {
+    [ $3 ] && echo "$3-$2-$1" && return
+    [ $2 ] && echo "$(date +%Y-)$2-$1" && return
+    [ $1 ] && echo "$(date +%Y-%m-)$1" && return
+    echo "$(date +%Y-%m-%d)"
+  }
+
+  moco_new () {
+    moco new --hours ${1/,/.} --date $(datestamp $2 $3 $4) --project $5 --task $6
+  }
+
   tb () {
-    moco new --hours $1 --date $(datestamp "$2" "$3" "$4") --project 945873179 --task 12371390
+    $(moco_new "$1" "$2" "$3" "$4" "945873179" "12371390")
   }
 
   tbn () {
-    moco new --hours $1 --date $(datestamp "$2" "$3" "$4") --project 945873179 --task 12371333
+    $(moco_new "$1" "$2" "$3" "$4" "945873179" "12371333")
   }
 
   ti () {
-    moco new --hours $1 --date $(datestamp "$2" "$3" "$4") --project 945824843 --task 12188024
+    $(moco_new "$1" "$2" "$3" "$4" "945824843" "12188024")
   }
 
   tm () {
-    moco new --hours $1 --date $(datestamp "$2" "$3" "$4") --project 945824843 --task 12188022
+    $(moco_new "$1" "$2" "$3" "$4" "945824843" "12188022")
   }
 
   tmd () {
-    moco new --hours $1 --date $(datestamp "$2" "$3" "$4") --project 945824843 --task 11860792
+    $(moco_new "$1" "$2" "$3" "$4" "945824843" "11860792")
   }
 
   tmr () {
-    moco new --hours $1 --date $(datestamp "$2" "$3" "$4") --project 945824843 --task 12157915
+    $(moco_new "$1" "$2" "$3" "$4" "945824843" "12157915")
   }
 
   tmr () {
-    moco new --hours $1 --date $(datestamp "$2" "$3" "$4") --project 945850311 --task 12120234
+    $(moco_new "$1" "$2" "$3" "$4" "945850311" "12120234")
+  }
+
+  s () {
+    moco new --hours 0 --date $(datestamp "$2" "$3" "$4")
   }
 
   z () {
     moco list --date $(datestamp "$1" "$2" "$3")
   }
 
-  zd () {
+  zz () {
     moco rm --date $(datestamp "$1" "$2" "$3")
   }
 fi
-
-datestamp () {
-  [ $3 ] && echo "$3-$2-$1" && return
-  [ $2 ] && echo "$(date +%Y-)$2-$1" && return
-  [ $1 ] && echo "$(date +%Y-%m-)$1" && return
-  echo "$(date +%Y-%m-%d)"
-}
 
 [[ -d /Applications/Dash.app ]] && ds () {
   open "dash://b%3A$*"
@@ -403,3 +411,6 @@ unset -f bind-git-helper
 ### Options
 ###########
 unsetopt nomatch
+
+# Fig post block. Keep at the bottom of this file.
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
