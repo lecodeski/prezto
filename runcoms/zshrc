@@ -177,8 +177,6 @@ if [[ $commands[moco] ]]; then
   alias a='moco timer start'
   alias e='moco timer stop'
   alias ü='moco ?'
-  alias zw='moco list --week'
-  alias zm='moco list --month'
 
   datestamp () {
     [ $3 ] && echo "$3-$2-$1" && return
@@ -187,12 +185,28 @@ if [[ $commands[moco] ]]; then
     echo "$(date +%Y-%m-%d)"
   }
 
+  backward () {
+    [ $1 ] && echo "--backward $1" || echo "--backward 0"
+  }
+
   s () {
     moco new --hours 0 --date $(datestamp "$2" "$3" "$4")
   }
 
   z () {
     moco list --date $(datestamp "$1" "$2" "$3")
+  }
+
+  zd () {
+    moco list $(backward "$1")
+  }
+
+  zw () {
+    moco list --week $(backward "$1")
+  }
+
+  zm () {
+    moco list --month $(backward "$1")
   }
 
   zz () {
