@@ -184,7 +184,7 @@ if [[ $commands[moco] ]]; then
   }
 
   backward () {
-    [ $1 ] && echo "--backward $1" || echo "--backward 0"
+    echo "--backward ${1:-0}"
   }
 
   s () {
