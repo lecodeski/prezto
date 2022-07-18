@@ -175,7 +175,8 @@ if [[ $commands[moco] ]]; then
 
   alias a='moco timer start'
   alias e='moco timer stop'
-  alias ü='moco ?'
+  alias ü='moco overtime'
+  alias üm='ü --monthly'
 
   datestamp () {
     [ $3 ] && echo "$3-$2-$1" && return
