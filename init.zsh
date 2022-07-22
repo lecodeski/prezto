@@ -54,7 +54,7 @@ function zprezto-update {
         printf "Syncing submodules\n"
         git submodule sync --recursive
         git submodule update --init --recursive
-        [ $off_main ] && git switch $orig_branch && git merge main
+        [ $off_main ] && git switch $orig_branch && git rebase main && git push --force-with-lease --force-if-includes
         [ $dirty ] && git stash pop
         return $?
 
