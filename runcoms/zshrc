@@ -53,7 +53,7 @@ export ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=(
 
 ### Key bindings
 ################
-[[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey "^?" backward-kill-word
+[[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey "^H" backward-kill-word
 [[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey "^[^H" kill-whole-line
 bindkey "^[[5~" history-beginning-search-backward # Page Up
 bindkey "^[[6~" history-beginning-search-forward  # Page Down
