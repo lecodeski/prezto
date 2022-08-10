@@ -218,6 +218,34 @@ if [[ $commands[moco] ]]; then
     z "$2" "$3" "$4"
   }
 
+  sb () {
+    tb 0
+  }
+
+  sbn () {
+    tbn 0
+  }
+
+  si () {
+    ti 0
+  }
+
+  sm () {
+    tm 0
+  }
+
+  smd () {
+    tmd 0
+  }
+
+  smr () {
+    tmr 0
+  }
+
+  sr () {
+    tr 0
+  }
+
   tb () {
     moco_new "$1" "$2" "$3" "$4" "945873179" "12371390"
   }
