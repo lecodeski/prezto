@@ -81,7 +81,7 @@ alias __='sudo -s -E'
 
 if [[ $commands[brew] ]]; then
   alias b=brew
-  alias bh='HOMEBREW_BROWSER=$commands[links] brew home'
+  alias bh='brew home'
   alias bi='brew info'
   alias bin='brew install'
   alias bl='brew list'
