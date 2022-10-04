@@ -210,7 +210,7 @@ if [[ $commands[moco] ]]; then
   }
 
   t () {
-    moco new --hours ${1/,/.} --date $(datestamp "$2" "$3" "$4") "$5" "$6" "$7" "$8"
+    moco new --hours ${1/,/.} --date $(datestamp "$2" "$3" "$4") $5 $6 $7 $8
     z "$2" "$3" "$4"
   }
 
