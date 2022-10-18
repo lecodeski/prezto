@@ -75,7 +75,7 @@ export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%
 alias ...='cd ../..'
 alias _='sudo -E env PATH=$PATH '
 alias __='sudo -s -E'
-[ $commands[k9s] ] && alias 9='k9s --headless'
+[ $commands[k9s] ] && alias 9='k9s --headless' && alias 0='cp ~/Library/ApplicationSupport/k9s/config.yml.bak ~/Library/ApplicationSupport/k9s/config.yml'
 
 [ $commands[aws-vault] ] && alias av=aws-vault
 
