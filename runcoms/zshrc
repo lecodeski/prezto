@@ -141,7 +141,7 @@ alias l=locate
 [ $commands[mtr] ] && alias mtr='_ mtr'
 
 alias ncdu='_ ncdu -e --color dark'
-[ $commands[npm] ] && alias n='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome npm'
+[ $commands[npm] ] && alias n='BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium npm'
 
 [ $commands[bat] ] && alias p='bat --style numbers,changes,snip,header --theme=base16-256 --wrap never'
 [ $commands[prettyping] ] && alias ping=prettyping
