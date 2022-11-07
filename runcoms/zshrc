@@ -215,7 +215,7 @@ if [[ $commands[moco] ]]; then
   }
 
   book_task () {
-    t "$1" "$2" "$3" "$4" "--project" "$5" "--task" "$6"
+    t ${1:-0} "$2" "$3" "$4" "--project" "$5" "--task" "$6"
   }
 
   tb () {
@@ -248,38 +248,6 @@ if [[ $commands[moco] ]]; then
 
   tr () {
     book_task "$1" "$2" "$3" "$4" "945850311" "12120234"
-  }
-
-  s () {
-    t 0
-  }
-
-  sb () {
-    tb 0
-  }
-
-  sbn () {
-    tbn 0
-  }
-
-  si () {
-    ti 0
-  }
-
-  sm () {
-    tm 0
-  }
-
-  smd () {
-    tmd 0
-  }
-
-  smr () {
-    tmr 0
-  }
-
-  sr () {
-    tr 0
   }
 fi
 
