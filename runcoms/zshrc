@@ -93,6 +93,7 @@ fi
 
 alias c=cd
 [ $commands[pbcopy] ] && alias cpy=pbcopy && alias cwd='pwd | cpy'
+alias cr='cp -r'
 
 [ $commands[docker] ] && alias d=docker && alias di='docker images'
 [ $commands[docker-compose] ] && alias dc=docker-compose
