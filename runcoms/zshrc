@@ -158,6 +158,8 @@ alias rr='rm -rf'
 [ $commands[btop] ] && alias top='btop'
 [ $commands[traceroute] ] && alias tracert=traceroute
 
+alias um='diskutil unmount'
+
 alias üs=trans
 
 alias v=vim
