@@ -64,3 +64,14 @@ set noundofile
 nnoremap d "_d
 nnoremap D "_D
 nnoremap <del> "_x
+
+:function ToggleWrap()
+: if (&wrap == 1)
+:   set nowrap
+: else
+:   set wrap
+: endif
+:endfunction
+
+map <F9> :call ToggleWrap()<CR>
+map! <F9> ^[:call ToggleWrap()<CR>
