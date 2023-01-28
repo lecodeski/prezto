@@ -51,7 +51,6 @@ if has('syntax') && has('eval')
   packadd! matchit
 endif
 
-set mouse=a
 if has("mouse_sgr")
     set ttymouse=sgr
 else
