@@ -18,10 +18,7 @@ brew install bat
 brew install icdiff
 brew install git-delta
 brew install ncdu
-brew install links
-brew install googler
 brew install git-open
-brew install translate-shell
 
 brew install fzf
 $(brew --prefix)/opt/fzf/install
