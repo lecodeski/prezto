@@ -180,7 +180,6 @@ if [[ $commands[moco] ]]; then
   alias e='moco timer stop'
   alias ü='moco overtime'
   alias üm='ü --monthly'
-  alias ze='moco edit-simple && z'
 
   datestamp () {
     [ $3 ] && echo "$3-$2-$1" && return
@@ -207,6 +206,10 @@ if [[ $commands[moco] ]]; then
 
   zm () {
     moco list --month $(backward "$1")
+  }
+
+  ze () {
+    moco edit-date --date $(datestamp "$1" "$2" "$3")
   }
 
   zz () {
