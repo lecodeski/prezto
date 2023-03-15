@@ -144,7 +144,7 @@ alias l=locate
 alias ncdu='_ ncdu -e --color dark'
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium npm'
 
-[ $commands[bat] ] && alias p='bat --style numbers,changes,snip,header --theme=base16-256 --wrap never'
+[ $commands[bat] ] && alias p='bat --style numbers,changes,snip,header --theme=ansi --wrap never'
 [ $commands[prettyping] ] && alias ping=prettyping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
 [ $commands[pbpaste] ] && alias pst=pbpaste && alias pd='cd $(pst)'
