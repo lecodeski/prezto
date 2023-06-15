@@ -20,8 +20,6 @@ fi
 # uninstall by removing these lines
 [[ -f ~/.config/tabtab/__tabtab.zsh ]] && source ~/.config/tabtab/__tabtab.zsh
 
-[ $commands[aws-vault] ] && eval "$(aws-vault --completion-script-zsh)"
-
 ### Additional external scripts
 ###############################
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
