@@ -81,6 +81,7 @@ alias _='sudo -E env PATH=$PATH '
 alias __='sudo -s -E'
 [ $commands[k9s] ] && alias 9='/bin/cp ~/Library/ApplicationSupport/k9s/config.yml.bak ~/Library/ApplicationSupport/k9s/config.yml && k9s --headless'
 
+alias arc=archive
 [ $commands[aws-vault] ] && alias av=aws-vault
 
 if [[ $commands[brew] ]]; then
@@ -163,6 +164,7 @@ alias rr='rm -rf'
 [ $commands[btop] ] && alias top='btop'
 [ $commands[traceroute] ] && alias tracert=traceroute
 
+alias ua='unarchive'
 alias um='diskutil unmount'
 
 alias üs=trans
