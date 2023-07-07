@@ -345,7 +345,12 @@ compdef wat=which
   print "\e[1mcount: $(find $target -maxdepth 1 -mindepth 1 | wc -l )\e[0m" && exa -lah -s .name --git --icons $target
 } && alias x.='x ..'
 
-[ $commands[broot] ] && xx() {
+[ $commands[exa] ] && xx () {
+  [ $1 ] && target=$1 || target=.
+  print "\e[1mcount: $(find $target -maxdepth 1 -mindepth 1 | wc -l )\e[0m" && exa -lah -s .name --git --icons .*$target.*
+}
+
+[ $commands[broot] ] && xb() {
     f=$(mktemp)
     (
 	set +e
