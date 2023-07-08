@@ -342,12 +342,12 @@ compdef wat=which
 
 [ $commands[exa] ] && x () {
   [ $1 ] && target=$1 || target=.
-  print "\e[1mcount: $(find $target -maxdepth 1 -mindepth 1 | wc -l )\e[0m" && exa -lah -s .name --git --icons $target
+  print "\e[1mcount: $(exa -la $target | wc -l )\e[0m" && exa -lah -s .name --git --icons $target
 } && alias x.='x ..'
 
 [ $commands[exa] ] && xx () {
   [ $1 ] && target=$1 || target=.
-  print "\e[1mcount: $(find $target -maxdepth 1 -mindepth 1 | wc -l )\e[0m" && exa -lah -s .name --git --icons .*$target.*
+  print "\e[1mcount: $(exa -lad *$target* | wc -l )\e[0m" && exa -lahd -s .name --git --icons *$target*
 }
 
 [ $commands[broot] ] && xb() {
@@ -450,4 +450,5 @@ unset -f bind-git-helper
 ### Options
 ###########
 unsetopt nomatch
+setopt globdots
 
