@@ -99,6 +99,7 @@ fi
 
 alias c=cd
 [ $commands[pbcopy] ] && alias cpy=pbcopy && alias cwd='pwd | cpy'
+alias ci='autoload -U compinit && compinit'
 alias cr='cp -r'
 
 [ $commands[docker] ] && alias dk=docker && alias di='docker images'
