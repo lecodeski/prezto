@@ -130,7 +130,7 @@ alias gpu='git push'
 alias gr='git restore'
 [ $commands[grc] ] && unalias grc
 alias grb='git rebase'
-alias grm='git remote'
+alias grm='git remote -v'
 alias gs='git status'
 alias gsm='git submodule'
 alias gsh='git show'
