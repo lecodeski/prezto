@@ -342,14 +342,14 @@ wat() {
 }
 compdef wat=which
 
-[ $commands[exa] ] && x () {
+[ $commands[eza] ] && x () {
   [ $1 ] && target=$1 || target=.
-  print "\e[1mcount: $(exa -la $target | wc -l )\e[0m" && exa -lah -s .name --git --icons $target
+  print "\e[1mcount: $(eza -la $target | wc -l )\e[0m" && eza -lah -s .name --git --icons $target
 } && alias x.='x ..'
 
-[ $commands[exa] ] && xx () {
+[ $commands[eza] ] && xx () {
   [ $1 ] && target=$1 || target=.
-  print "\e[1mcount: $(exa -lad *$target* | wc -l )\e[0m" && exa -lahd -s .name --git --icons *$target*
+  print "\e[1mcount: $(eza -lad *$target* | wc -l )\e[0m" && eza -lahd -s .name --git --icons *$target*
 }
 
 [ $commands[broot] ] && xb() {
