@@ -107,6 +107,7 @@ alias cr='cp -r'
 [ $commands[docker-compose] ] && alias dc=docker-compose
 alias df='df -H'
 [ $commands[docker-machine] ] && alias dm=docker-machine
+[ $commands[doggo] ] && alias dog=doggo
 alias du='setopt CSH_NULL_GLOB && du -sch .[!.]* * |sort -h && unsetopt CSH_NULL_GLOB'
 
 [ $commands[fd] ] && alias f='fd -HI'
