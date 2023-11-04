@@ -114,7 +114,7 @@ alias fzf='fzf --preview "head -100 {}"'
 
 alias g=git
 alias ga='git add'
-alias gb='git branch'
+alias gb='git recent'
 alias gc='git commit'
 alias gco='git checkout'
 alias gd='git diff'
