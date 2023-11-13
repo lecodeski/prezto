@@ -345,12 +345,12 @@ compdef wat=which
 
 [ $commands[eza] ] && x () {
   [ $1 ] && target=$1 || target=.
-  print "\e[1mcount: $(eza -la $target | wc -l )\e[0m" && eza -lah -s .name --git --icons $target
+  [ -d $target ] || target=$target*
+  print "\e[1mcount: $(eza -la $~target | wc -l )\e[0m" && eza -lah -s .name --git --icons $~target
 } && alias x.='x ..'
 
 [ $commands[eza] ] && xx () {
-  [ $1 ] && target=$1 || target=.
-  print "\e[1mcount: $(eza -lad *$target* | wc -l )\e[0m" && eza -lahd -s .name --git --icons *$target*
+  [ $1 ] && print "\e[1mcount: $(eza -lad *$1* | wc -l )\e[0m" && eza -lahd -s .name --git --icons *$1*
 }
 
 [ $commands[broot] ] && xb() {
