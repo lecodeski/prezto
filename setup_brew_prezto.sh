@@ -12,7 +12,7 @@ brew install git
 # remove automatically installed but inferior completion script
 rm -f $(brew --prefix)/share/zsh/site-functions/_git
 
-brew install exa
+brew install eza
 brew install ripgrep
 brew install bat
 brew install icdiff
