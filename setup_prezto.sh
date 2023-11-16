@@ -16,4 +16,7 @@ if [[ $commands[brew] ]]; then
   fi
 fi
 
+sudo sh -c 'echo "AcceptEnv TERMINAL_INTELLIJ" >> /etc/ssh/sshd_config'
+_ systemctl restart sshd
+
 exec zsh
