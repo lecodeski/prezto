@@ -31,7 +31,7 @@ function zprezto-update {
     }
     cd -q -- "${ZPREZTODIR}" || return 7
 
-    git fetch || return "$?"
+    git fetch --all || return "$?"
     local LOCAL=$(git rev-parse main)
     local REMOTE=$(git rev-parse origin/main)
     local BASE=$(git merge-base main origin/main)
