@@ -346,11 +346,14 @@ compdef wat=which
 [ $commands[eza] ] && x () {
   [ $1 ] && target=$1 || target=.
   [ -d $target ] || target=$target*
-  print "\e[1mcount: $(eza -la $~target | wc -l )\e[0m" && eza -lah -s .name --git --icons $~target
-} && alias x.='x ..'
-
-[ $commands[eza] ] && xx () {
-  [ $1 ] && print "\e[1mcount: $(eza -lad *$1* | wc -l )\e[0m" && eza -lahd -s .name --git --icons *$1*
+  [ $2 ] && sort=$2 || sort=.name
+  print "\e[1mcount: $(eza -la $~target | wc -l )\e[0m" && eza -lah -s $sort --git --icons $~target
+} && alias x.='x ..' && xs () {
+  x "$1" "size"
+} && alias xs.='xs ..' && xt () {
+  x "$1" "time"
+} && alias xt.='xt ..' && xx () {
+  [ $1 ] && print "\e[1mcount: $(eza -lad *$1* | wc -l )\e[0m" && eza -lahd -s .name --git --icons *$1* || exit 1
 }
 
 [ $commands[broot] ] && xb() {
