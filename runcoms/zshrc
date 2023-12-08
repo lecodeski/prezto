@@ -62,6 +62,8 @@ bindkey '^x' fzf-cd-widget
 stty susp "^u"
 bindkey '^u' fancy-ctrl-z
 
+bindkey '^v' yank
+bindkey '^y' redo
 bindkey '^z' undo
 
 ### Variables
