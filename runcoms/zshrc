@@ -415,12 +415,21 @@ _gt() {
 }
 
 _gl() {
-  is_in_git_repo || return
-  git log --all --date=short --format="%C(green)%C(bold)%cd %C(auto)%h%d %s (%an)" --graph --color=always |
+  [ $1 ] || is_in_git_repo || return
+  [ $1 ] && repo="--git-dir $1"
+  git $=repo log --all --date=short --format="%C(green)%C(bold)%cd %C(auto)%h%d %s (%an)" --graph --color=always |
   fzf-down --ansi --no-sort --reverse --multi --bind 'ctrl-s:toggle-sort' \
     --header 'Press CTRL-S to toggle sort' \
-    --preview 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git show --color=always' |
+    --preview 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git '$repo' show --color=always' |
   grep -o "[a-f0-9]\{7,\}"
+}
+
+_gz() {
+  _gl $HOME/.zprezto/.git
+}
+
+_gp() {
+  _gl $HOME/.zprezto/modules/prompt/external/powerlevel10k/.git
 }
 
 _gr() {
@@ -452,7 +461,7 @@ bind-git-helper() {
     eval "bindkey '^g^$c' fzf-g$c-widget"
   done
 }
-bind-git-helper f b t r l s
+bind-git-helper f b t r l s z p
 unset -f bind-git-helper
 
 ### Options
