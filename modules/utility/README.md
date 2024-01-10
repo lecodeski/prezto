@@ -91,7 +91,6 @@ zstyle -s ':prezto:module:utility:download' helper '<helper>'
 - `mkdir`
 - `mv`
 - `mysql`
-- `rm`
 
 To disable all spelling corrections, add the following line to
 _`${ZDOTDIR:-$HOME}/.zpreztorc`_:
