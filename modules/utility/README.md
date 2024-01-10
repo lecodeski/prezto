@@ -76,21 +76,14 @@ zstyle -s ':prezto:module:utility:download' helper '<helper>'
 
 ## Aliases
 
-### Disabled Spelling Correction
+### Disable Spelling Correction
 
-- `ack`
-- `cd`
-- `cp`
-- `ebuild`
-- `gcc`
-- `gist`
-- `grep`
-- `heroku`
-- `ln`
-- `man`
-- `mkdir`
-- `mv`
-- `mysql`
+To disable spelling corrections for one specific command, add the following line to
+`init.zsh` at the `Aliases` block:
+
+```sh
+alias [command]='nocorrect [command]'
+```
 
 To disable all spelling corrections, add the following line to
 _`${ZDOTDIR:-$HOME}/.zpreztorc`_:
