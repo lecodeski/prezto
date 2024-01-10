@@ -355,7 +355,7 @@ compdef wat=which
 } && alias xs.='xs ..' && xt () {
   x "$1" "time"
 } && alias xt.='xt ..' && xx () {
-  [ $1 ] && print "\e[1mcount: $(eza -lad *$1* | wc -l )\e[0m" && eza -lahd -s .name --git --icons *$1* || exit 1
+  [ $1 ] && eza -lahd -s .name --git --icons *$1* && print "\e[1mcount: $(eza -lad *$1* | wc -l )\e[0m"
 }
 
 [ $commands[broot] ] && xb() {
