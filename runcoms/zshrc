@@ -347,9 +347,9 @@ compdef wat=which
 
 [ $commands[eza] ] && x () {
   [ $1 ] && target=$1 || target=.
-  [ -d $target ] || target=$target*
+  if ! [ -d $target ]; then target=$target* && dir_only=d; else dir_only='' fi
   [ $2 ] && sort=$2 || sort=.name
-  print "\e[1mcount: $(eza -la $~target | wc -l )\e[0m" && eza -lah -s $sort --git --icons $~target
+  eza -lah$dir_only -s $sort --git --icons $~target && print "\e[1mcount: $(eza -la$dir_only $~target | wc -l )\e[0m"
 } && alias x.='x ..' && xs () {
   x "$1" "size"
 } && alias xs.='xs ..' && xt () {
