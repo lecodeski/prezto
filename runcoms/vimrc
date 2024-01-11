@@ -76,3 +76,6 @@ nnoremap <del> "_x
 
 map <F9> :call ToggleWrap()<CR>
 map! <F9> ^[:call ToggleWrap()<CR>
+
+highlight SignColumn ctermbg=none
+let g:gitgutter_highlight_lines = 1
