@@ -8,6 +8,7 @@
 	autocrlf = input
 	editor = vim
 	pager = delta
+	excludesfile = ~/.gitignore
 
 [alias]
 	a = add
