@@ -62,6 +62,8 @@ set ruler
 set clipboard=unnamed
 set nobackup
 set noundofile
+set ignorecase
+set smartcase
 nnoremap d "_d
 nnoremap D "_D
 nnoremap <del> "_x
