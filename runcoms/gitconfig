@@ -32,14 +32,14 @@
 
 [merge]
 	tool = vimdiff
-        guitool = intellij
+	guitool = intellij
 
 [difftool "intellij"]
-        cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea diff $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\")
+	cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea diff $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\")
 
 [mergetool "intellij"]
-        cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea merge $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\") $(cd $(dirname \"$BASE\") && pwd)/$(basename \"$BASE\") $(cd $(dirname \"$MERGED\") && pwd)/$(basename \"$MERGED\")
-        trustExitCode = true
+	cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea merge $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\") $(cd $(dirname \"$BASE\") && pwd)/$(basename \"$BASE\") $(cd $(dirname \"$MERGED\") && pwd)/$(basename \"$MERGED\")
+	trustExitCode = true
 
 [difftool "icdiff"]
 	cmd = icdiff $LOCAL $REMOTE
@@ -51,16 +51,16 @@
 	rebase = true
 
 [delta]
-    features = side-by-side line-numbers decorations
-    syntax-theme = Dracula
+	features = side-by-side line-numbers decorations
+	syntax-theme = Dracula
 
 [delta "decorations"]
-    file-style = bold yellow ul
-    hunk-header-decoration-style = blue ul
+	file-style = bold yellow ul
+	hunk-header-decoration-style = blue ul
 
 [delta "line-numbers"]
-    line-numbers-left-style = blue
-    line-numbers-right-style = blue
+	line-numbers-left-style = blue
+	line-numbers-right-style = blue
 [commit]
 	gpgSign = true
 [init]
