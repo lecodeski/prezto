@@ -27,10 +27,11 @@
 	o = open
 
 [diff]
-	guitool = intellij
 	tool = icdiff
+	guitool = intellij
 
 [merge]
+	tool = vimdiff
         guitool = intellij
 
 [difftool "intellij"]
