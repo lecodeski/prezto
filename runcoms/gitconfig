@@ -17,7 +17,7 @@
 	co = checkout
 	d = difftool
 	f = fetch
-	l = log
+	l = log --all --graph --date-order
 	m = merge
 	p = pull
 	pu = push
