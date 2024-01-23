@@ -66,10 +66,6 @@ bindkey '^v' yank
 bindkey '^y' redo
 bindkey '^z' undo
 
-### Variables
-#############
-export git_log_format='--format=%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%C(green)%ar%C(auto)%d %s %C(cyan)%h'
-
 ### Aliases
 ###########
 alias ...='cd ../..'
@@ -133,7 +129,7 @@ alias gd='git diff'
 alias gdg='git difftool -g'
 alias gf='git fetch'
 alias gg='DISABLE_URL_EXPANSION=true BROWSER=links googler --colors Cjdgxy'
-alias gl='git log ${git_log_format} --all'
+alias gl='git log --all'
 alias gm='git merge'
 alias gmg='git mergetool -g'
 alias gp='git pull --rebase'
@@ -145,7 +141,7 @@ alias gw='git open'
 alias grb='git rebase'
 alias grm='git remote -v'
 alias gs='git status'
-alias gsh='git show'
+alias gsh='git show --format=fuller'
 alias gsm='git submodule'
 alias gsp='git stash pop'
 alias gst='git stash save --include-untracked --keep-index'
@@ -191,8 +187,8 @@ alias www=links
 
 [ $commands[yarn] ] && alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
 
-alias zl='git --git-dir ~/.zprezto/.git log ${git_log_format} --all'
-alias zpl='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log ${git_log_format} --all'
+alias zl='git --git-dir ~/.zprezto/.git log --all'
+alias zpl='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log --all'
 
 ### Functions
 #############
@@ -422,7 +418,7 @@ _gt() {
   is_in_git_repo || return
   git tag --sort -version:refname |
   fzf-down --multi --preview-window right:70% \
-    --preview 'git show --color=always {}'
+    --preview 'git show --format=fuller --color=always {}'
 }
 
 _gl() {
@@ -431,7 +427,7 @@ _gl() {
   git $=repo log --all --date=short --format="%C(green)%C(bold)%cd%C(auto)%d %s %C(yellow)%an %C(cyan)%h" --graph --color=always |
   fzf-down --ansi --no-sort --reverse --multi --bind 'ctrl-s:toggle-sort' \
     --header 'Press CTRL-S to toggle sort' \
-    --preview 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git '$repo' show --color=always' |
+    --preview 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git '$repo' show --format=fuller --color=always' |
   grep -o "[a-f0-9]\{7,\}"
 }
 
@@ -453,7 +449,7 @@ _gr() {
 
 _gs() {
   is_in_git_repo || return
-  git stash list | fzf-down --reverse -d: --preview 'git show --color=always {1}' |
+  git stash list | fzf-down --reverse -d: --preview 'git show --format=fuller --color=always {1}' |
   cut -d: -f1
 }
 
