@@ -187,8 +187,8 @@ alias www=links
 
 [ $commands[yarn] ] && alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
 
-alias zl='git --git-dir ~/.zprezto/.git log --all'
-alias zpl='git --git-dir ~/.zprezto/modules/prompt/external/powerlevel10k/.git log --all'
+alias zl='git --git-dir ${ZDOTDIR:-$HOME}/.zprezto/.git log --all'
+alias zpl='git --git-dir ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k/.git log --all'
 
 ### Functions
 #############
@@ -432,11 +432,11 @@ _gl() {
 }
 
 _gz() {
-  _gl $HOME/.zprezto/.git
+  _gl ${ZDOTDIR:-$HOME}/.zprezto/.git
 }
 
 _gp() {
-  _gl $HOME/.zprezto/modules/prompt/external/powerlevel10k/.git
+  _gl ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k/.git
 }
 
 _gr() {
