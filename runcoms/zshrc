@@ -312,9 +312,9 @@ konfigmerge () {
 u () {
   brew upgrade
   rm -f "$(brew --prefix)/share/zsh/site-functions/_git"
-  echo '\e[1mBrew upgrades finished 🍻'
+  echo '$FX[bold]Brew upgrades finished 🍻'
   [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update
-  echo '🍻 Updating Prezto:\e[0m' && zprezto-update
+  echo '🍻 Updating Prezto:$FX[off]' && zprezto-update
 }
 
 # by Leah Neukirchen (http://leahneukirchen.org/dotfiles/.zshrc)
@@ -356,13 +356,13 @@ compdef wat=which
   [ $1 ] && target=$1 || target=.
   if ! [ -d $target ]; then target=$target* && dir_only=d; else dir_only='' fi
   [ $2 ] && sort=$2 || sort=.name
-  eza -lah$dir_only -s $sort --git --icons $~target && print "\e[1mcount: $(eza -la$dir_only $~target | wc -l )\e[0m"
+  eza -lah$dir_only -s $sort --git --icons $~target && print "$FX[bold]count: $(eza -la$dir_only $~target | wc -l )$FX[off]"
 } && alias x.='x ..' && xs () {
   x "$1" "size"
 } && alias xs.='xs ..' && xt () {
   x "$1" "time"
 } && alias xt.='xt ..' && xx () {
-  [ $1 ] && eza -lahd -s .name --git --icons *$1* && print "\e[1mcount: $(eza -lad *$1* | wc -l )\e[0m"
+  [ $1 ] && eza -lahd -s .name --git --icons *$1* && print "$FX[bold]count: $(eza -lad *$1* | wc -l )$FX[off]"
 }
 
 [ $commands[broot] ] && xb() {
