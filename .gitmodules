@@ -27,8 +27,7 @@
 	url = https://github.com/mafredri/zsh-async.git
 [submodule "modules/prompt/external/powerlevel10k"]
 	path = modules/prompt/external/powerlevel10k
-	url = https://github.com/blanorama/powerlevel10k.git
-	branch = master
+	url = https://github.com/lecodeski/powerlevel10k.git
 	shallow = true
 [submodule "modules/fzf-git/external"]
 	path = modules/fzf-git/external
