@@ -31,6 +31,7 @@ zstyle ':prezto:*:*' color 'yes'
 # The order matters.
 zstyle ':prezto:load' pmodule \
   'environment' \
+  'command-not-found' \
   'editor' \
   'history' \
   'directory' \
@@ -47,6 +48,7 @@ zstyle ':prezto:load' pmodule \
   'docker' \
   'homebrew' \
   'git' \
+  'spectrum' \
   'completion' \
   'fasd'
 
