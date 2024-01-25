@@ -186,8 +186,8 @@ alias www=links
 
 [ $commands[yarn] ] && alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
 
-alias zl='git --git-dir ${ZDOTDIR:-$HOME}/.zprezto/.git l --all'
-alias zpl='git --git-dir ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k/.git l --all'
+alias zl='git -C ${ZDOTDIR:-$HOME}/.zprezto l'
+alias zpl='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k l'
 
 ### Functions
 #############
