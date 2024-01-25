@@ -17,5 +17,17 @@ if [ $commands[fzf] ]; then
   # Key Bindings
   #
 
-  export FZF_DEFAULT_OPTS="--bind 'ctrl-f:up,ctrl-v:down,ctrl-g:page-up,ctrl-b:page-down,up:preview-up,down:preview-down,page-up:preview-page-up,page-down:preview-page-down'"
+  export FZF_DEFAULT_OPTS="
+  --bind 'ctrl-f:up'
+  --bind 'ctrl-v:down'
+  --bind 'ctrl-g:page-up'
+  --bind 'ctrl-b:page-down'
+  --bind 'ctrl-a:top'
+  --bind 'ctrl-e:last'
+  --bind 'up:preview-up'
+  --bind 'down:preview-down'
+  --bind 'page-up:preview-page-up'
+  --bind 'page-down:preview-page-down'
+  --bind 'home:preview-top'
+  --bind 'end:preview-bottom'"
 fi
