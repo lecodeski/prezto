@@ -311,9 +311,9 @@ konfigmerge () {
 u () {
   brew upgrade
   rm -f "$(brew --prefix)/share/zsh/site-functions/_git"
-  echo '$FX[bold]Brew upgrades finished 🍻'
+  echo $FX[bold]'Brew upgrades finished 🍻'
   [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update
-  echo '🍻 Updating Prezto:$FX[off]' && zprezto-update
+  echo '🍻 Updating Prezto:'$FX[off] && zprezto-update
 }
 
 # by Leah Neukirchen (http://leahneukirchen.org/dotfiles/.zshrc)
