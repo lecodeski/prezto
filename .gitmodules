@@ -30,3 +30,6 @@
 	url = https://github.com/blanorama/powerlevel10k.git
 	branch = master
 	shallow = true
+[submodule "modules/fzf-git/external"]
+	path = modules/fzf-git/external
+	url = https://github.com/lecodeski/fzf-git.sh.git
