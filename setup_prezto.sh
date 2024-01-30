@@ -13,10 +13,10 @@ if [[ $commands[brew] ]]; then
       rm -f ${ZDOTDIR:-$HOME}/.zcompdump
       autoload -Uz compinit
       compinit
+
+      sudo sh -c 'echo "AcceptEnv TERMINAL_INTELLIJ" >> /etc/ssh/sshd_config'
+      sudo systemctl restart sshd
   fi
 fi
-
-sudo sh -c 'echo "AcceptEnv TERMINAL_INTELLIJ" >> /etc/ssh/sshd_config'
-_ systemctl restart sshd
 
 exec zsh
