@@ -172,7 +172,7 @@ alias ncdu='_ ncdu -e --color dark'
 [ $commands[pstorm] ] && alias piff='pstorm diff'
 [ $commands[pbpaste] ] && alias pst=pbpaste && alias pd='cd $(pst)'
 
-alias rg='rg -i --hidden'
+alias rg='rg -i --hidden --no-ignore'
 alias rr='rm -rf'
 
 [ $commands[subl] ] && alias sl=subl
