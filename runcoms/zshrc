@@ -360,7 +360,7 @@ compdef wat=which
 
 [ $commands[eza] ] && x () {
   [ $1 ] && target=$1 || target=.
-  if ! [ -d $target ]; then target=$target* && dir_only=d; else dir_only='' fi
+  if ! [[ -a $target ]]; then target=$target* && dir_only=d; else dir_only='' fi
   [ $2 ] && sort=$2 || sort=.name
   eza -lah$dir_only -s $sort --git --icons $~target && print "$FX[bold]count: $(eza -la$dir_only $~target | wc -l )$FX[off]"
 } && alias x.='x ..' && xs () {
