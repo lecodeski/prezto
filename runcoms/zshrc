@@ -92,6 +92,7 @@ alias __='sudo -s -E'
 
 alias arc=archive
 [ $commands[aws-vault] ] && alias av=aws-vault
+[ $commands[assume] ] && alias assume=". assume" && alias asm=". assume"
 
 if [[ $commands[brew] ]]; then
   alias b=brew
