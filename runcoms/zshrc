@@ -332,6 +332,7 @@ u () {
 # wat - a better and recursive which/whence
 # 13apr2017  +leah+
 # 02jan2018  +leah+  print function code
+# 09mar2024  +lecodeski+  improve whatis and file output
 wat() {
   ( # constrain unalias
   for cmd; do
@@ -349,9 +350,9 @@ wat() {
       whence -f "$cmd"
     elif (( $+commands[$cmd] )); then
       wat "${commands[$cmd]}"
-      whatis "$cmd"
+      whatis "$cmd" | grep "^$cmd(" --color=never | sort | uniq
     elif [[ -h $cmd ]]; then
-      file "$cmd"
+      file "$cmd" -h
       wat "$cmd:A"
     elif [[ -x $cmd ]]; then
       file "$cmd"
