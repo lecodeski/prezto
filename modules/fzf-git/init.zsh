@@ -26,6 +26,7 @@ if [ $commands[fzf] ]; then
   --bind 'ctrl-e:last'
   --bind 'up:preview-up'
   --bind 'down:preview-down'
+  --bind 'ctrl-w:toggle-preview-wrap'
   --bind 'page-up:preview-page-up'
   --bind 'page-down:preview-page-down'
   --bind 'home:preview-top'
