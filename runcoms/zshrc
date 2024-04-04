@@ -337,6 +337,7 @@ u () {
 # 13apr2017  +leah+
 # 02jan2018  +leah+  print function code
 # 09mar2024  +lecodeski+  improve whatis and file output
+# 04apr2024  +lecodeski+  add whatis in function case
 wat() {
   ( # constrain unalias
   for cmd; do
@@ -352,6 +353,7 @@ wat() {
     elif (( $+functions[$cmd] )); then
       whence -v "$cmd"
       whence -f "$cmd"
+      whatis "$cmd" | grep "^$cmd(" --color=never | sort | uniq
     elif (( $+commands[$cmd] )); then
       wat "${commands[$cmd]}"
       whatis "$cmd" | grep "^$cmd(" --color=never | sort | uniq
