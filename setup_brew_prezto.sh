@@ -19,6 +19,7 @@ brew install icdiff
 brew install git-delta
 brew install ncdu
 brew install git-open
+brew install tree
 
 brew install fzf
 $(brew --prefix)/opt/fzf/install
