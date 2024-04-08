@@ -51,7 +51,7 @@ zstyle ':prezto:load' pmodule \
   'spectrum' \
   'completion' \
   'fasd' \
-  'fzf-git'
+  'fzf'
 
 #
 # Autosuggestions

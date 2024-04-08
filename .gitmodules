@@ -29,6 +29,6 @@
 	path = modules/prompt/external/powerlevel10k
 	url = https://github.com/lecodeski/powerlevel10k.git
 	shallow = true
-[submodule "modules/fzf-git/external"]
-	path = modules/fzf-git/external
+[submodule "modules/fzf/external"]
+	path = modules/fzf/external
 	url = https://github.com/lecodeski/fzf-git.sh.git
