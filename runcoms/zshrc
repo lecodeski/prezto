@@ -317,7 +317,7 @@ j () {
 }
 
 konfigmerge () {
-  export KUBECONFIG=~/.kube/config:$1
+  KUBECONFIG=~/.kube/config:$1
   cp ~/.kube/config ~/.kube/config.bak
   kubectl config view --flatten >| ~/.kube/merged
   cp ~/.kube/merged ~/.kube/config
