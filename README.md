@@ -59,14 +59,6 @@ version is **4.3.11**.
            
            </details>
 
-### [Fig](https://fig.io)
-
-Fig adds apps, shortcuts, and autocomplete to your existing terminal.
-
-Install `prezto` in just one click.
-
-<a href="https://fig.io/plugins/other/prezto" target="_blank"><img src="https://fig.io/badges/install-with-fig.svg" /></a>
-
 ### Troubleshooting
 
 If you are not able to find certain commands after switching to Prezto, modify
