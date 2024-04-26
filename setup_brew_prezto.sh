@@ -15,6 +15,7 @@ rm -f $(brew --prefix)/share/zsh/site-functions/_git
 brew install eza
 brew install ripgrep
 brew install bat
+brew install eth-p/software/bat-extras-batgrep
 brew install icdiff
 brew install git-delta
 brew install ncdu
