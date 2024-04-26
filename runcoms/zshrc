@@ -5,7 +5,9 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Customize to your needs...
+### Environment Variables
+#########################
+export BAT_CONFIG_PATH=~/.batrc
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -173,7 +175,7 @@ alias l=locate
 alias ncdu='_ ncdu -e --color dark'
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium npm'
 
-[ $commands[bat] ] && alias p='bat --style numbers,changes,snip,header --theme=ansi --wrap never'
+[ $commands[bat] ] && alias p=bat
 [ $commands[prettyping] ] && alias ping=prettyping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
 [ $commands[pbpaste] ] && alias pst=pbpaste && alias pd='cd $(pst)'
