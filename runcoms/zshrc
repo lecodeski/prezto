@@ -168,6 +168,8 @@ alias jj='fasd_cd -i'
 [ -x ~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh ] && alias kkc=~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh
 
 alias l=locate
+alias lz='git -C ${ZDOTDIR:-$HOME}/.zprezto l'
+alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k l'
 
 [ $commands[minikube] ] && alias mk=minikube
 [ $commands[mtr] ] && alias mtr='_ mtr'
@@ -201,9 +203,6 @@ alias www=links
 
 [ $commands[yarn] ] && alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
 
-alias zl='git -C ${ZDOTDIR:-$HOME}/.zprezto l'
-alias zpl='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k l'
-
 ### Functions
 #############
 if [[ $commands[moco] ]]; then
@@ -229,7 +228,7 @@ if [[ $commands[moco] ]]; then
     moco list --date $(datestamp "$1" "$2" "$3")
   }
 
-  zd () {
+  zt () {
     moco list $(backward "$1")
   }
 
@@ -245,7 +244,7 @@ if [[ $commands[moco] ]]; then
     moco edit-date --date $(datestamp "$1" "$2" "$3")
   }
 
-  zz () {
+  zl () {
     moco rm --date $(datestamp "$1" "$2" "$3")
   }
 
