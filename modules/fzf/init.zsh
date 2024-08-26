@@ -37,6 +37,9 @@ if [ $commands[fzf] ]; then
     --walker-skip .git,node_modules,target
     --preview 'tree -C {}'"
 
+  # Avoid using delta for preview (as per git config for side-by-side view)
+  export FZF_GIT_PAGER=cat
+
   #
   # Key Bindings
   #
