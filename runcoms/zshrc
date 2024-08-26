@@ -292,6 +292,10 @@ if [[ $commands[moco] ]]; then
   zbr () {
     book_task "$1" "$2" "$3" "$4" "945850311" "12120234"
   }
+
+  zbz () {
+    book_task "$1" "$2" "$3" "$4" "946919274" "22863646"
+  }
 fi
 
 [[ -d /Applications/Dash.app ]] && ds () {
@@ -409,4 +413,3 @@ compdef wat=which
 ###########
 unsetopt nomatch
 setopt globdots
-
