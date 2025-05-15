@@ -181,6 +181,7 @@ alias ncdu='_ ncdu -e --color dark'
 [ $commands[prettyping] ] && alias ping=prettyping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
 [ $commands[pbpaste] ] && alias pst=pbpaste && alias pd='cd $(pst)'
+alias python=python3
 
 alias rg='batgrep -i --hidden --no-ignore'
 alias rr='rm -rf'
