@@ -21,6 +21,7 @@ fi
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
 compdef _gnu_generic delta
+[ $commands[kind] ] && source <(kind completion zsh)
 
 # zsh auto suggestions
 # Widgets that accept the entire suggestion
