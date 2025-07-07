@@ -99,6 +99,7 @@ alias arc=archive
 
 if [[ $commands[brew] ]]; then
   alias b=brew
+  alias bd='brew doctor'
   alias bh='brew home'
   alias bi='brew info'
   alias bin='brew install'
