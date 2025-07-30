@@ -29,7 +29,7 @@ function zprezto-update {
       printf "running\ncd '%s' and then\n'git pull' " "${ZPREZTODIR}"
       printf "to manually pull and possibly merge in changes\n"
     }
-    cd -q -- "${ZPREZTODIR}" || return 7
+    builtin cd -q -- "${ZPREZTODIR}" || return 7
 
     git fetch --all -q || return "$?"
     local LOCAL=$(git rev-parse main)
