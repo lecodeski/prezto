@@ -350,7 +350,7 @@ u () {
 # 09mar2024  +lecodeski+  improve whatis and file output
 # 04apr2024  +lecodeski+  add whatis in function case
 # 28jul2025  +lecodeski+  add tldr in command case
-# 30jul2025  +lecodeski+  add another recursion after unalias
+# 31jul2025  +lecodeski+  add another recursion after unalias
 wat() {
   ( # constrain unalias
   for cmd; do
@@ -363,13 +363,15 @@ wat() {
         unalias "${words[1]}" 2>/dev/null
       fi
       wat "${words[1]}"
+
       [ $words[1] != $cmd ] && \
-      print "================================================================================\n" && \
-      wat "$cmd"
+        captioned-delimiter "looking up unaliased command [$cmd]" && \
+        wat "$cmd"
     elif (( $+functions[$cmd] )); then
       whence -v "$cmd"
       whence -f "$cmd"
       whatis "$cmd" | grep "^$cmd(" --color=never | sort | uniq
+      echo ""
     elif (( $+commands[$cmd] )); then
       wat "${commands[$cmd]}"
       whatis "$cmd" | grep "^$cmd(" --color=never | sort | uniq
@@ -381,9 +383,16 @@ wat() {
       file "$cmd"
     else
       which "$cmd"
+      echo ""
     fi
   done
   )
+
+  captioned-delimiter() {
+    termwidth="$(tput cols)"
+    padding="$(printf '%0.1s' ={1..500})"
+    printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
+  }
 }
 compdef wat=which
 
