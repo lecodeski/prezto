@@ -1,3 +1,4 @@
 --style="auto"
 --theme="ansi"
 --wrap="never"
+--pager="less -j.5"
