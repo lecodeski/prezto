@@ -161,7 +161,7 @@ alias gst='git stash save --include-untracked --keep-index'
 alias gstf='git stash --'
 alias gsw='git switch'
 
-[ $commands[idea] ] && alias iiff='idea diff' && alias i=idea
+[ $commands[idea] ] && alias iiff='idea diff' && alias i='idea --temp-project' && alias io=idea
 
 alias jj='fasd_cd -i'
 
