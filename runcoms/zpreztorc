@@ -40,9 +40,9 @@ zstyle ':prezto:load' pmodule \
   'utility' \
   'node' \
   'archive' \
-  'autosuggestions' \
   'syntax-highlighting' \
   'history-substring-search' \
+  'autosuggestions' \
   'prompt' \
   'osx' \
   'docker' \
