@@ -1,4 +1,4 @@
 --style="auto"
---theme="ansi"
+--theme="Catppuccin Mocha"
 --wrap="never"
 --pager="less -j.5"
