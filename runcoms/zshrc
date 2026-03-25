@@ -415,3 +415,7 @@ compdef wat=which
 ###########
 unsetopt nomatch
 setopt globdots
+
+if [ -n "${INTELLIJ_ENVIRONMENT_READER:-}" ]; then
+    unsetopt NO_CLOBBER
+fi
