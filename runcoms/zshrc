@@ -173,6 +173,7 @@ alias l=locate
 alias lz='git -C ${ZDOTDIR:-$HOME}/.zprezto l'
 alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k l'
 
+[ $commands[batman] ] && alias man=batman
 [ $commands[minikube] ] && alias mk=minikube
 [ $commands[mtr] ] && alias mtr='_ mtr'
 
