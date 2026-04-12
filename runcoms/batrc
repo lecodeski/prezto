@@ -1,4 +1,3 @@
 --style="auto"
 --theme="Catppuccin Mocha"
 --wrap="never"
---pager="less -j.5"
