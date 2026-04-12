@@ -315,6 +315,14 @@ konfigmerge () {
   delta ~/.kube/config.bak ~/.kube/config
 }
 
+[[ $commands[glow] ]] && [[ $commands[bat] ]] && unalias p && 'p' () {
+  if [[ $1 == *.md || $1 == *.markdown || -z $1 ]]; then
+    glow --pager --width 120 --line-numbers --all $1
+  else
+    bat "$1"
+  fi
+}
+
 u () {
   brew upgrade
   rm -f "$(brew --prefix)/share/zsh/site-functions/_git"
