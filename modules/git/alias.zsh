@@ -203,7 +203,7 @@ if ! zstyle -t ':prezto:module:git:alias' skip; then
 
   # Push (p)
   alias gp='git push'
-  alias gpf='git push --force-with-lease --force-if-includes'
+  alias gpf='git push --force-with-lease'
   alias gpF='git push --force'
   alias gpa='git push --all'
   alias gpA='git push --all && git push --tags'
