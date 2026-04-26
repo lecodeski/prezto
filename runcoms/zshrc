@@ -145,6 +145,7 @@ alias gl='git l'
 alias gm='git merge'
 alias gmg='git mergetool -g'
 alias gp='git pull --rebase'
+alias gpf="${aliases[gpf]} --force-if-includes"
 alias gpm='git pull --no-rebase'
 alias gpu='git push'
 alias gr='git restore'
