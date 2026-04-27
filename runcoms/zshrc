@@ -196,6 +196,7 @@ alias ncdu='_ ncdu -e --color dark'
 alias pd='cd $(pst)'
 [ !$commands[pst] ] && alias pst=pbpaste
 alias python=python3
+alias py=python3
 
 alias rg='batgrep -i --hidden --no-ignore'
 alias rr='rm -rf'
