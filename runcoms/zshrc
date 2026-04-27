@@ -196,6 +196,7 @@ alias python=python3
 alias rg='batgrep -i --hidden --no-ignore'
 alias rr='rm -rf'
 
+alias scr='scp -r'
 [ $commands[subl] ] && alias sl=subl
 
 [ $commands[terraform] ] && alias tf='terraform'
