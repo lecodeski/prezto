@@ -336,7 +336,7 @@ u () {
   brew upgrade
   rm -f "$(brew --prefix)/share/zsh/site-functions/_git"
   echo $FX[bold]'Brew upgrades finished 🍻'
-  b cu --include-mas --no-brew-update -a -q -y
+  [[ $(uname) == "Darwin" ]] && b cu --include-mas --no-brew-update -a -q -y
   echo $FX[bold]'Brew cask upgrades finished 🍻'
   [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update
   echo '🍻 Updating Prezto:'$FX[off] && zprezto-update
