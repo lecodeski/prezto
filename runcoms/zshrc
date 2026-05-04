@@ -165,8 +165,8 @@ alias gs='git status'
 alias gsh='git show'
 alias gsm='git submodule'
 alias gsp='git stash pop'
-alias gst='git stash save --include-untracked --keep-index'
-alias gstf='git stash --'
+alias gst='git stash push --include-untracked'
+alias gsT='git stash push --patch'
 alias gsw='git switch'
 
 [ $commands[idea] ] && alias iiff='idea diff' && alias i='idea --temp-project' && alias io=idea
