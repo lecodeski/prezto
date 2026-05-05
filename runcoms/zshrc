@@ -348,12 +348,12 @@ u () {
 
 # by Leah Neukirchen (http://leahneukirchen.org/dotfiles/.zshrc)
 # wat - a better and recursive which/whence
-# 13apr2017  +leah+
-# 02jan2018  +leah+  print function code
-# 09mar2024  +lecodeski+  improve whatis and file output
-# 04apr2024  +lecodeski+  add whatis in function case
-# 28jul2025  +lecodeski+  add tldr in command case
-# 31jul2025  +lecodeski+  add another recursion after unalias
+# 2017-04-13 +leah+
+# 2018-01-02 +leah+       print function code
+# 2024-03-09 +lecodeski+  improve whatis and file output
+# 2024-04-04 +lecodeski+  add whatis in function case
+# 2025-07-28 +lecodeski+  add tldr in command case
+# 2025-07-31 +lecodeski+  add another recursion after unalias
 wat() {
   ( # constrain unalias
   for cmd; do
