@@ -354,48 +354,38 @@ u () {
 # 2024-04-04 +lecodeski+  add whatis in function case
 # 2025-07-28 +lecodeski+  add tldr in command case
 # 2025-07-31 +lecodeski+  add another recursion after unalias
+# 2026-05-06 +lecodeski+  massively improve wat function with type
 wat() {
-  ( # constrain unalias
-  for cmd; do
-    if (( $+aliases[$cmd] )); then
-      printf '%s: aliased to %s\n' "$cmd" "${aliases[$cmd]}"
-      local -a words=(${${(z)aliases[$cmd]}:#(*=*|rlwrap|noglob|command)})
-      unalias "$cmd"
-      if [[ ${words[1]} == "\""* ]]; then
-        words[1]=${words[1]#"\""}
-        unalias "${words[1]}" 2>/dev/null
-      fi
-      wat "${words[1]}"
-
-      [ $words[1] != $cmd ] && \
-        captioned-delimiter "looking up unaliased command [$cmd]" && \
-        wat "$cmd"
-    elif (( $+functions[$cmd] )); then
-      whence -v "$cmd"
-      whence -f "$cmd"
-      whatis "$cmd" | grep "^$cmd(" --color=never | sort | uniq
-      echo ""
-    elif (( $+commands[$cmd] )); then
-      wat "${commands[$cmd]}"
-      whatis "$cmd" | grep "^$cmd(" --color=never | sort | uniq
-      [ $commands[tldr] ] && tldr $cmd --short-options
-    elif [[ -h $cmd ]]; then
-      file "$cmd" -h
-      wat "$cmd:A"
-    elif [[ -x $cmd ]]; then
-      file "$cmd"
-    else
-      which "$cmd"
-      echo ""
-    fi
-  done
-  )
+  ( # subshell to constrain unalias side-effects
 
   captioned-delimiter() {
     termwidth="$(tput cols)"
     padding="$(printf '%0.1s' ={1..500})"
     printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
   }
+
+  for cmd; do
+    type -S "$cmd"
+    if (( $+aliases[$cmd] )); then
+      local -a words=(${${(z)aliases[$cmd]}:#(*=*|rlwrap|noglob|command)})
+      unalias "$cmd"
+      if [[ ${words[1]} == \"* ]]; then
+        words[1]=${words[1]#\"}
+        unalias "${words[1]}" 2>/dev/null
+      fi
+      [[ ${words[1]} != "$cmd" ]] && wat "${words[1]}" && captioned-delimiter "looking up unaliased command [$cmd]" && wat "$cmd"
+    elif (( $+functions[$cmd] )); then
+      whence -f "$cmd"
+      (( $+commands[$cmd] )) && captioned-delimiter "shadowed command [$cmd]"
+    fi
+
+    if (( $+commands[$cmd] )); then
+      file "${commands[$cmd]}"
+      whatis "$cmd" | grep "^${cmd}(" | sort -u
+      (( $+commands[tldr] )) && tldr "$cmd" --short-options
+    fi
+  done
+  )
 }
 compdef wat=which
 
