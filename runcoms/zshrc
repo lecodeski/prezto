@@ -138,6 +138,7 @@ alias g=git
 alias ga='git add'
 alias gaa='git add -A'
 alias gb="gbV"
+alias gbX="gpu --delete"
 alias gc='git commit'
 alias gca='git commit -a'
 alias gcma='git commit -a --message'
