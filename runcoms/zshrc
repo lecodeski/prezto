@@ -54,12 +54,14 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 ### Key bindings
 ################
-[[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey "^H" backward-kill-word
+[[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey "^H" backward-delete-word
 [[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey "^[^H" kill-whole-line
-bindkey "^[[5~" history-beginning-search-backward # Page Up
-bindkey "^[[6~" history-beginning-search-forward  # Page Down
+bindkey '^[d' delete-word
 bindkey '^f' vi-forward-word
 bindkey '^b' vi-backward-word
+
+bindkey "^[[5~" history-beginning-search-backward # Page Up
+bindkey "^[[6~" history-beginning-search-forward  # Page Down
 bindkey '^x' fzf-cd-widget
 
 stty susp "^u"
