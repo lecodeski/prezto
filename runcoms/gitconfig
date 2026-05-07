@@ -12,7 +12,7 @@
 
 [alias]
 	a = add
-	b = open
+	b = branch
 	c = commit
 	co = checkout
 	d = difftool
