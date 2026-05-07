@@ -54,17 +54,17 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 ### Key bindings
 ################
-[[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey "^H" backward-delete-word
-[[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey "^[^H" kill-whole-line
+[[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey '^H' backward-delete-word
+[[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey '^[^H' kill-whole-line
 bindkey '^[d' delete-word
 bindkey '^f' vi-forward-word
 bindkey '^b' vi-backward-word
 
-bindkey "^[[5~" history-beginning-search-backward # Page Up
-bindkey "^[[6~" history-beginning-search-forward  # Page Down
+bindkey '^[[5~' history-beginning-search-backward # Page Up
+bindkey '^[[6~' history-beginning-search-forward  # Page Down
 bindkey '^x' fzf-cd-widget
 
-stty susp "^u"
+stty susp '^u'
 bindkey '^u' fancy-ctrl-z
 
 bindkey '^v' yank
@@ -99,7 +99,7 @@ alias a=alias
 alias ap='export AWS_PROFILE=$(sed -n "s/\[profile \(.*\)\]/\1/gp" ~/.aws/config | fzf)'
 alias arc=archive
 [ $commands[aws-vault] ] && alias av=aws-vault
-[ $commands[assume] ] && alias assume=". assume" && alias asm=". assume"
+[ $commands[assume] ] && alias assume='. assume' && alias asm='. assume'
 
 if [[ $commands[brew] ]]; then
   alias b=brew
@@ -182,7 +182,7 @@ alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel1
 [ $commands[batman] ] && alias man=batman
 [ $commands[minikube] ] && alias mk=minikube
 [ $commands[mtr] ] && alias mtr='_ mtr'
-alias mv="/bin/mv -i -v"
+alias mv='/bin/mv -i -v'
 
 alias ncdu='_ ncdu -e --color dark'
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium npm'
@@ -266,35 +266,35 @@ if [[ $commands[moco] ]]; then
   }
 
   book_task () {
-    zb ${1:-0} "$2" "$3" "$4" "--project" "$5" "--task" "$6"
+    zb ${1:-0} "$2" "$3" "$4" '--project' "$5" '--task' "$6"
   }
 
   zbbc () {
-    book_task "$1" "$2" "$3" "$4" "947103029" "24819463"
+    book_task "$1" "$2" "$3" "$4" '947103029' '24819463'
   }
 
   zbi () {
-    book_task "$1" "$2" "$3" "$4" "945824843" "12188024"
+    book_task "$1" "$2" "$3" "$4" '945824843' '12188024'
   }
 
   zbm () {
-    book_task "$1" "$2" "$3" "$4" "945824843" "26593282"
+    book_task "$1" "$2" "$3" "$4" '945824843' '26593282'
   }
 
   zbmr () {
-    book_task "$1" "$2" "$3" "$4" "945824843" "12157915"
+    book_task "$1" "$2" "$3" "$4" '945824843' '12157915'
   }
 
   zbmt () {
-    book_task "$1" "$2" "$3" "$4" "945850311" "12120194"
+    book_task "$1" "$2" "$3" "$4" '945850311' '12120194'
   }
 
   zbr () {
-    book_task "$1" "$2" "$3" "$4" "945850311" "12120234"
+    book_task "$1" "$2" "$3" "$4" '945850311' '12120234'
   }
 
   zbz () {
-    book_task "$1" "$2" "$3" "$4" "946919274" "22863646"
+    book_task "$1" "$2" "$3" "$4" '946919274' '22863646'
   }
 fi
 
@@ -337,7 +337,7 @@ u () {
   brew upgrade
   rm -f "$(brew --prefix)/share/zsh/site-functions/_git"
   echo $FX[bold]'Brew upgrades finished 🍻'
-  [[ $(uname) == "Darwin" ]] && b cu --include-mas --no-brew-update -a -q -y
+  [[ $(uname) == 'Darwin' ]] && b cu --include-mas --no-brew-update -a -q -y
   echo $FX[bold]'Brew cask upgrades finished 🍻'
   [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update
   echo '🍻 Updating Prezto:'$FX[off] && zprezto-update
@@ -392,9 +392,9 @@ compdef wat=which
   [ $2 ] && sort=$2 || sort=.name
   eza -lah$dir_only -s $sort --git --icons $~target && print "$FX[bold]count: $(eza -la$dir_only $~target | wc -l )$FX[off]"
 } && alias x.='x ..' && xs () {
-  x "$1" "size"
+  x "$1" 'size'
 } && alias xs.='xs ..' && xt () {
-  x "$1" "time"
+  x "$1" 'time'
 } && alias xt.='xt ..' && xx () {
   [ $1 ] && eza -lahd -s .name --git --icons *$1* && print "$FX[bold]count: $(eza -lad *$1* | wc -l )$FX[off]"
 }
