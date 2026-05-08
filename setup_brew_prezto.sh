@@ -19,6 +19,7 @@ brew install bat
 brew install eth-p/software/bat-extras-batgrep
 brew install icdiff
 brew install git-delta
+brew install dua-cli
 brew install ncdu
 brew install git-open
 brew install tree
