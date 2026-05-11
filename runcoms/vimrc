@@ -41,15 +41,19 @@ augroup vimrcEx
   autocmd FileType text setlocal textwidth=78
 augroup END
 
+" DEPRECATED: Old, manual package manager
+" 
 " Add optional packages.
 "
 " The matchit plugin makes the % command work better, but it is not backwards
 " compatible.
 " The ! means the package won't be loaded right away but when plugins are
 " loaded during initialization.
-if has('syntax') && has('eval')
-  packadd! matchit
-endif
+" if has('syntax') && has('eval')
+"   packadd! matchit
+" endif
+
+set termguicolors
 
 if has("mouse_sgr")
     set ttymouse=sgr
@@ -81,5 +85,19 @@ nnoremap <del> "_x
 map <F9> :call ToggleWrap()<CR>
 map! <F9> ^[:call ToggleWrap()<CR>
 
-highlight SignColumn ctermbg=none
+call plug#begin()
+" List your plugins here
+Plug 'tpope/vim-sensible'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+Plug 'airblade/vim-gitgutter'
+Plug 'andymass/vim-matchup'
+call plug#end()
+
+:colorscheme catppuccin
+:highlight Normal NONE
+:highlight LineNr guifg=green
+:highlight LineNrAbove guifg=#f9e2af
+:highlight LineNrBelow guifg=#a6e3a1
+
+":highlight SignColumn ctermbg=none
 let g:gitgutter_highlight_lines = 1

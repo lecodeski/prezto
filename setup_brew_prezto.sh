@@ -29,4 +29,7 @@ brew install fd
 brew install fzf
 $(brew --prefix)/opt/fzf/install
 
+# Install vim plugin manager vim-plug
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
 $(brew --prefix)/bin/zsh "${ZDOTDIR:-$HOME}"/.zprezto/setup_prezto.sh
