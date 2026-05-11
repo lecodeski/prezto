@@ -16,7 +16,7 @@ brew install vim
 brew install eza
 brew install ripgrep
 brew install bat
-brew install eth-p/software/bat-extras-batgrep
+brew install bat-extras
 brew install icdiff
 brew install git-delta
 brew install dua-cli
