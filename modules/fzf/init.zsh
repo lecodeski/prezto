@@ -16,6 +16,9 @@ if [ $commands[fzf] ]; then
   #
   # Options
   #
+  export FZF_DEFAULT_COMMAND='fd --hidden --no-ignore-vcs --no-ignore-parent'
+  export FZF_CTRL_T_COMMAND='fd --hidden --no-ignore-parent'
+  export FZF_ALT_C_COMMAND='fd --type=d --hidden --no-ignore-parent'
 
   # CTRL-/ to toggle small preview window to see the full command
   # CTRL-Y to copy the command into clipboard using pbcopy
@@ -28,13 +31,10 @@ if [ $commands[fzf] ]; then
 
   # Preview file content using bat (https://github.com/sharkdp/bat)
   export FZF_CTRL_T_OPTS="
-    --walker-skip .git,node_modules,target
-    --preview 'bat -n --color=always {}'
-    --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+    --preview 'bat --color=always {}'"
 
   # Print tree structure in the preview window
   export FZF_ALT_C_OPTS="
-    --walker-skip .git,node_modules,target
     --preview 'tree -C {}'"
 
   # Avoid using delta for preview (as per git config for side-by-side view)
@@ -45,17 +45,18 @@ if [ $commands[fzf] ]; then
   #
 
   export FZF_DEFAULT_OPTS="
-  --bind 'ctrl-f:up'
-  --bind 'ctrl-v:down'
-  --bind 'ctrl-g:page-up'
-  --bind 'ctrl-b:page-down'
-  --bind 'ctrl-a:top'
-  --bind 'ctrl-e:last'
-  --bind 'up:preview-up'
-  --bind 'down:preview-down'
-  --bind 'ctrl-w:toggle-preview-wrap'
-  --bind 'page-up:preview-page-up'
-  --bind 'page-down:preview-page-down'
-  --bind 'home:preview-top'
-  --bind 'end:preview-bottom'"
+    --bind 'ctrl-d:change-preview-window(down|hidden|)'
+    --bind 'ctrl-f:up'
+    --bind 'ctrl-v:down'
+    --bind 'ctrl-g:page-up'
+    --bind 'ctrl-b:page-down'
+    --bind 'ctrl-a:top'
+    --bind 'ctrl-e:last'
+    --bind 'up:preview-up'
+    --bind 'down:preview-down'
+    --bind 'ctrl-w:toggle-preview-wrap'
+    --bind 'page-up:preview-page-up'
+    --bind 'page-down:preview-page-down'
+    --bind 'home:preview-top'
+    --bind 'end:preview-bottom'"
 fi
