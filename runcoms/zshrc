@@ -91,9 +91,9 @@ alias .7='cd ../../../../../../..'
 alias .8='cd ../../../../../../../..'
 alias .9='cd ../../../../../../../../..'
 
-alias _='sudo -E env PATH=$PATH '
-alias __='sudo -s -E'
-[ $commands[k9s] ] && alias 0='k9s -c po' && alias ß='k9s -c deploy --context prod-plutos'
+alias _='sudo --preserve-env env PATH=$PATH '
+alias __='sudo --shell --preserve-env'
+[ $commands[k9s] ] && alias 0='k9s --command po' && alias ß='k9s --command deploy --context prod-plutos'
 
 alias a=alias
 alias ap='export AWS_PROFILE=$(sed -n "s/\[profile \(.*\)\]/\1/gp" ~/.aws/config | fzf)'
@@ -121,20 +121,20 @@ alias c=cd
 
 alias ci='autoload -U compinit && compinit'
 [ !$commands[cpy] ] && alias cpy=pbcopy
-alias cr='cp -r'
+alias cr='cp --recursive'
 alias cwd='echo \"$(pwd)\" | cpy'
 
 [ $commands[docker] ] && alias dk=docker && alias di='docker images'
 [ $commands[docker-compose] ] && alias dc=docker-compose
-alias df='df -H'
+alias df='df -h'
 [ $commands[docker-machine] ] && alias dm=docker-machine
 [ $commands[doggo] ] && alias dog=doggo
 alias du=dua
 
-alias eh="vim + ${ZDOTDIR:-$HOME}/.zsh_history && \
-  /bin/cp ${ZDOTDIR:-$HOME}/.zsh_history ${ZDOTDIR:-$HOME}/.zsh_history.bak"
+alias eh="vim + ${ZDOTDIR:-$HOME}/.zsh_history \
+  && /bin/cp ${ZDOTDIR:-$HOME}/.zsh_history ${ZDOTDIR:-$HOME}/.zsh_history.bak"
 
-[ $commands[fd] ] && alias f='fd -HI'
+[ $commands[fd] ] && alias f='fd --hidden --no-ignore'
 alias fzf='fzf --preview "head -100 {}"'
 
 alias g=git
@@ -187,7 +187,7 @@ alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel1
 [ $commands[mtr] ] && alias mtr='_ mtr'
 alias mv='/bin/mv -i -v'
 
-alias ncdu='_ ncdu -e --color dark'
+alias ncdu='_ ncdu --extended --color dark'
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium npm'
 
 [ $commands[bat] ] && alias p=bat
@@ -197,7 +197,7 @@ alias psd='cd -P -- ${(Q)"$(pst)"}'
 [ !$commands[pst] ] && alias pst=pbpaste
 alias py=python3
 
-alias rg='batgrep -i --hidden --no-ignore'
+alias rg='batgrep --ignore-case --hidden --no-ignore'
 alias rr='rm -rf'
 
 alias scr='scp -r'
@@ -341,7 +341,7 @@ u () {
   brew upgrade
   rm -f "$(brew --prefix)/share/zsh/site-functions/_git"
   echo $FX[bold]'Brew upgrades finished 🍻'
-  [[ $(uname) == 'Darwin' ]] && b cu --include-mas --no-brew-update -a -q -y
+  [[ $(uname) == 'Darwin' ]] && b cu --include-mas --no-brew-update --all --quiet --yes
   echo $FX[bold]'Brew cask upgrades finished 🍻'
   [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update
   echo '🍻 Updating Prezto:'$FX[off] && zprezto-update
@@ -382,7 +382,7 @@ wat() {
 
     if (( $+commands[$cmd] )); then
       file "${commands[$cmd]}"
-      whatis "$cmd" | grep "^${cmd}(" | sort -u
+      whatis "$cmd" | grep "^${cmd}(" | sort --unique
       (( $+commands[tldr] )) && tldr "$cmd" --short-options
     fi
   done
@@ -392,22 +392,24 @@ compdef wat=which
 
 [ $commands[eza] ] && x () {
   [ $1 ] && target=$1 || target=.
-  if ! [[ -a $target ]]; then target=$target* && dir_only=d; else dir_only='' fi
+  if ! [[ -a $target ]]; then target=$target* && dir_only='--treat-dirs-as-files'; else dir_only='' fi
   [ $2 ] && sort=$2 || sort=.name
-  eza -lah$dir_only -s $sort --git --icons $~target && print "$FX[bold]count: $(eza -la$dir_only $~target | wc -l )$FX[off]"
+  eza --long --all --header $dir_only --sort $sort --git --icons $~target \
+    && print "$FX[bold]count: $(eza --long --all $dir_only $~target | wc --lines )$FX[off]"
 } && alias x.='x ..' && xs () {
   x "$1" 'size'
 } && alias xs.='xs ..' && xt () {
   x "$1" 'time'
 } && alias xt.='xt ..' && xx () {
-  [ $1 ] && eza -lahd -s .name --git --icons *$1* && print "$FX[bold]count: $(eza -lad *$1* | wc -l )$FX[off]"
+  [ $1 ] && eza --long --all --header --treat-dirs-as-files --sort .name --git --icons *$1* \
+    && print "$FX[bold]count: $(eza --long --all --treat-dirs-as-files *$1* | wc --lines )$FX[off]"
 }
 
 [ $commands[broot] ] && xb() {
     f=$(mktemp)
     (
 	set +e
-	broot -g --outcmd "$f" "$@"
+	broot --show-git-info --outcmd "$f" "$@"
 	code=$?
 	if [ "$code" != 0 ]; then
 	    rm -f "$f"
