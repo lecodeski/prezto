@@ -1,8 +1,5 @@
 #
-# Integrates zsh-autosuggestions into Prezto.
-#
-# Authors:
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
+# Integrates fzf and fzf-git into Prezto.
 #
 
 # Source module files.
@@ -16,6 +13,8 @@ if [ $commands[fzf] ]; then
   #
   # Options
   #
+
+  # Use fd (Rust) as directory waker instead internal default (Go)
   export FZF_DEFAULT_COMMAND='fd --hidden --no-ignore-vcs --no-ignore-parent'
   export FZF_CTRL_T_COMMAND='fd --hidden --no-ignore-parent'
   export FZF_ALT_C_COMMAND='fd --type=d --hidden --no-ignore-parent'
@@ -29,10 +28,6 @@ if [ $commands[fzf] ]; then
     --color header:italic
     --header 'Press CTRL-Y to copy command into clipboard'"
 
-  # Preview file content using bat (https://github.com/sharkdp/bat)
-  export FZF_CTRL_T_OPTS="
-    --preview 'bat --color=always {}'"
-
   # Print tree structure in the preview window
   export FZF_ALT_C_OPTS="
     --preview 'tree -C {}'"
@@ -40,11 +35,10 @@ if [ $commands[fzf] ]; then
   # Avoid using delta for preview (as per git config for side-by-side view)
   export FZF_GIT_PAGER=cat
 
-  #
+  # Preview file content using bat (https://github.com/sharkdp/bat)
   # Key Bindings
-  #
-
   export FZF_DEFAULT_OPTS="
+    --preview 'bat --style header-filesize --color=always {}'
     --bind 'ctrl-d:change-preview-window(down|hidden|)'
     --bind 'ctrl-f:up'
     --bind 'ctrl-v:down'
