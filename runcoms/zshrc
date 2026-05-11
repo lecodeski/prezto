@@ -425,6 +425,16 @@ compdef wat=which
     eval "$d"
 }
 
+zshaddhistory() {
+  # Always save variable assignments (e.g., FOO=bar)
+  [[ "$1" =~ '^[A-Za-z_][A-Za-z0-9_]*=' ]] && return 0
+
+  # Run the command through zsh syntax check; reject if invalid
+  whence ${${(z)1}[1]} >| /dev/null 2>&1 || return 1
+
+  return 0
+}
+
 ### Options
 ###########
 unsetopt nomatch
