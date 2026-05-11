@@ -62,7 +62,6 @@ bindkey '^b' vi-backward-word
 
 bindkey '^[[5~' history-beginning-search-backward # Page Up
 bindkey '^[[6~' history-beginning-search-forward  # Page Down
-bindkey '^x' fzf-cd-widget
 
 stty susp '^u'
 bindkey '^u' fancy-ctrl-z

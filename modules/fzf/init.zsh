@@ -28,7 +28,8 @@ if [ $commands[fzf] ]; then
     --color header:italic
     --header 'Press CTRL-Y to copy command into clipboard'"
 
-  # Print tree structure in the preview window
+  # fzf-cd-widget (default ALT+C): Print tree structure in the preview window
+  bindkey '^x' fzf-cd-widget
   export FZF_ALT_C_OPTS="
     --preview 'tree -C {}'"
 
@@ -39,13 +40,25 @@ if [ $commands[fzf] ]; then
   # Key Bindings
   export FZF_DEFAULT_OPTS="
     --preview 'bat --style header-filesize --color=always {}'
-    --bind 'ctrl-d:change-preview-window(down|hidden|)'
+    --style=full
+
+    --bind 'alt-a:select-all,alt-x:deselect-all' \
+    --bind 'ctrl-p:change-preview-window(down|hidden|)'
+
+    --bind 'alt-f:forward-subword'
+    --bind 'alt-b:backward-subword'
+    --bind 'ctrl-backspace:backward-kill-subword'
+    --bind 'alt-d:kill-subword'
+    --bind 'alt-right:end-of-line'
+    --bind 'alt-left:beginning-of-line'
+
     --bind 'ctrl-f:up'
     --bind 'ctrl-v:down'
     --bind 'ctrl-g:page-up'
     --bind 'ctrl-b:page-down'
     --bind 'ctrl-a:top'
     --bind 'ctrl-e:last'
+
     --bind 'up:preview-up'
     --bind 'down:preview-down'
     --bind 'ctrl-w:toggle-preview-wrap'
