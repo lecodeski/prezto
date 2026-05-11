@@ -315,8 +315,8 @@ fancy-ctrl-z () {
 }
 zle -N fancy-ctrl-z
 
-[ $commands[fd] ] && ff () {
-  _ fd "$*" /
+[ $commands[fd] ] && fr () {
+  _ f "$*" /
 }
 
 konfigmerge () {
