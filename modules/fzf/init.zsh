@@ -66,4 +66,23 @@ if [ $commands[fzf] ]; then
     --bind 'page-down:preview-page-down'
     --bind 'home:preview-top'
     --bind 'end:preview-bottom'"
+
+  # ripgrep->fzf->vim [QUERY]
+  fts() {
+    RELOAD='reload:rg --hidden --no-ignore-parent --column --color=always --colors=path:fg:blue --colors=line:fg:yellow --smart-case {q} || :'
+    OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
+              vim {1} +{2}     # No selection. Open the current line in Vim.
+            else
+              vim +cw -q {+f}  # Build quickfix list for the selected items.
+            fi'
+    fzf --disabled --ansi --multi \
+        --bind "start:$RELOAD" --bind "change:$RELOAD" \
+        --bind "enter:become:$OPENER" \
+        --bind "ctrl-o:execute:$OPENER" \
+        --bind 'ctrl-p:toggle-preview' \
+        --delimiter : \
+        --preview 'bat --style=numbers,header-filesize --color=always --highlight-line {2} {1}' \
+        --preview-window '~1,+{2}/3,<80(up)' \
+        --query "$*"
+  }
 fi
