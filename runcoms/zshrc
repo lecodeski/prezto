@@ -311,12 +311,11 @@ fancy-ctrl-z () {
   else
     zle push-input
   fi
-}
-zle -N fancy-ctrl-z
+} && zle -N fancy-ctrl-z
 
 [ $commands[fd] ] && fr () {
   _ f "$*" /
-}
+} && compdef fr=fd
 
 konfigmerge () {
   export KUBECONFIG=~/.kube/config:$(realpath $1)
@@ -333,7 +332,7 @@ konfigmerge () {
   else
     bat "$@"
   fi
-}
+} && compdef p=bat
 
 u () {
   brew upgrade
@@ -385,8 +384,7 @@ wat() {
     fi
   done
   )
-}
-compdef wat=which
+} && compdef wat=which
 
 [ $commands[eza] ] && x () {
   [ $1 ] && target=$1 || target=.
@@ -421,7 +419,7 @@ compdef wat=which
     d=$(<"$f")
     rm -f "$f"
     eval "$d"
-}
+} && compdef xb=broot
 
 zshaddhistory() {
   # Always save variable assignments (e.g., FOO=bar)
