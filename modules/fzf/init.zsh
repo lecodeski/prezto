@@ -4,11 +4,7 @@
 
 # Source module files.
 if [ $commands[fzf] ]; then
-  __path=${0:h}
-  wrapperfunction() {
-      source "$__path/external/fzf-git.sh" || return 1
-  }
-  wrapperfunction
+  source "${0:h}/external/fzf-git.sh"
 
   #
   # Options
