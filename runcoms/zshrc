@@ -7,6 +7,7 @@ fi
 
 ### Environment Variables
 #########################
+export ZLE_RPROMPT_INDENT=0
 export BAT_CONFIG_PATH=~/.batrc
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
