@@ -101,3 +101,4 @@ call plug#end()
 
 ":highlight SignColumn ctermbg=none
 let g:gitgutter_highlight_lines = 1
+let g:mapleader=" "
