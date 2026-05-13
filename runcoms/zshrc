@@ -19,7 +19,7 @@ fi
 ### Auto Completions
 ####################
 autoload -U +X bashcompinit && bashcompinit
-compdef _gnu_generic fzf dive choose ncdu batgrep
+compdef _gnu_generic fzf dive choose ncdu batgrep ldapsearch
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
 [ $commands[kind] ] && source <(kind completion zsh)
 
