@@ -46,12 +46,12 @@ zstyle ':prezto:load' pmodule \
   'homebrew' \
   'git' \
   'spectrum' \
-  'fasd' \
   'osx' \
   'completion' \
   'fzf' \
   'autosuggestions' \
-  'prompt'
+  'prompt' \
+  'fasd'
 
 #
 # Autosuggestions
