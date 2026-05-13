@@ -42,16 +42,16 @@ zstyle ':prezto:load' pmodule \
   'archive' \
   'syntax-highlighting' \
   'history-substring-search' \
-  'autosuggestions' \
-  'prompt' \
-  'osx' \
   'docker' \
   'homebrew' \
   'git' \
   'spectrum' \
-  'completion' \
   'fasd' \
-  'fzf'
+  'osx' \
+  'completion' \
+  'fzf' \
+  'autosuggestions' \
+  'prompt'
 
 #
 # Autosuggestions

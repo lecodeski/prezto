@@ -32,3 +32,6 @@
 [submodule "modules/fzf/external/fzf-git"]
 	path = modules/fzf/external/fzf-git
 	url = ../fzf-git.sh.git
+[submodule "modules/fzf/external/fzf-tab"]
+	path = modules/fzf/external/fzf-tab
+	url = https://github.com/Aloxaf/fzf-tab

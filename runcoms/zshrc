@@ -134,6 +134,7 @@ alias eh="vim + ${ZDOTDIR:-$HOME}/.zsh_history \
   && /bin/cp ${ZDOTDIR:-$HOME}/.zsh_history ${ZDOTDIR:-$HOME}/.zsh_history.bak"
 
 [ $commands[fd] ] && alias f='fd --hidden --no-ignore'
+alias fzp="fzf $FZF_DEFAULT_PREVIEW_OPTS"
 
 alias g=git
 alias ga='git add'

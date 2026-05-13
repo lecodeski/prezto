@@ -4,11 +4,46 @@
 
 # Source module files.
 if [ $commands[fzf] ]; then
-  source "${0:h}/external/fzf-git.sh"
+  #
+  # fzf-git for fancy git widgets powered by fzf
+  #
+  source "${0:h}/external/fzf-git/fzf-git.sh" 
+
+  #
+  # fzf-tab for fancy completions powered by fzf
+  #
+  # disable sort when completing 
+  zstyle ':completion:*' sort false
+  # set descriptions format to enable group support
+  # NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
+  zstyle ':completion:*' format '[%d]'
+  zstyle ':completion:*:descriptions' format '[%d]'
+  zstyle ':completion:*:messages' format '[%d]'
+  zstyle ':completion:*:warnings' format '[%d]'
+  zstyle ':completion:*:corrections' format '[%d]'
+  # set list-colors to enable filename colorizing
+  zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+  # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+  zstyle ':completion:*' menu no
+
+  source "${0:h}/external/fzf-tab/fzf-tab.plugin.zsh"
+
+  # preview directory's content with eza when completing cd
+  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --long --all --header --git --icons --color=always $realpath'
+  # To make fzf-tab follow FZF_DEFAULT_OPTS.
+  # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
+  zstyle ':fzf-tab:*' use-fzf-default-opts yes
+  # custom fzf flags
+  ### lets the completion panel auto calculate it's height: needed vs up to the defined percentage of terminal's height
+  ### the redundant binding below is a workaround - the one from defaults is not working for some reason
+  zstyle ':fzf-tab:*' fzf-flags --height=~75% --bind 'ctrl-backspace:backward-kill-subword'
 
   #
   # Options
   #
+  export FZF_DEFAULT_PREVIEW_OPTS="
+    --preview 'bat --style header-filesize --color=always {}'
+    --preview-window '~1'"
 
   # Use fd (Rust) as directory waker instead internal default (Go)
   export FZF_DEFAULT_COMMAND='fd --hidden --no-ignore-vcs --no-ignore-parent'
@@ -24,10 +59,12 @@ if [ $commands[fzf] ]; then
     --color header:italic
     --header 'Press CTRL-Y to copy command into clipboard'"
 
+  # fzf-file-widget options
+  export FZF_CTRL_T_OPTS=$FZF_DEFAULT_PREVIEW_OPTS
+
   # fzf-cd-widget (default ALT+C): Print tree structure in the preview window
   bindkey '^x' fzf-cd-widget
-  export FZF_ALT_C_OPTS="
-    --preview 'tree -C {}'"
+  export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
 
   # Avoid using delta for preview (as per git config for side-by-side view)
   export FZF_GIT_PAGER=cat
@@ -35,7 +72,6 @@ if [ $commands[fzf] ]; then
   # Preview file content using bat (https://github.com/sharkdp/bat)
   # Key Bindings
   export FZF_DEFAULT_OPTS="
-    --preview 'bat --style header-filesize --color=always {}'
     --style=full
 
     --bind 'alt-a:select-all,alt-x:deselect-all' \
