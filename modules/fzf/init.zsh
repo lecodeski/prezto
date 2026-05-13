@@ -30,6 +30,8 @@ if [ $commands[fzf] ]; then
 
   # preview directory's content with eza when completing cd
   zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --long --all --header --git --icons --color=always $realpath'
+  # switch group using `>` and `<`
+  zstyle ':fzf-tab:*' switch-group '>' '<'
   # To make fzf-tab follow FZF_DEFAULT_OPTS.
   # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
   zstyle ':fzf-tab:*' use-fzf-default-opts yes
