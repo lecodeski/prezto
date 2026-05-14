@@ -148,7 +148,6 @@ alias gcfa="${aliases[gcf]} --all"
 alias gd='git diff'
 alias gdg='git difftool --gui'
 alias gds='git diff --staged'
-alias gf='git fetch --all'
 alias gl='git l'
 alias gmg="${aliases[gm]} --gui"
 alias gp='git pull --rebase'

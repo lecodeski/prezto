@@ -70,3 +70,5 @@
 
 [init]
 	defaultBranch = main
+[fetch]
+	all = true
