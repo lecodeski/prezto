@@ -70,6 +70,8 @@ set nobackup
 set noundofile
 set ignorecase
 set smartcase
+
+" Mappings
 nnoremap d "_d
 nnoremap D "_D
 nnoremap <del> "_x
@@ -84,6 +86,12 @@ nnoremap <del> "_x
 
 map <F9> :call ToggleWrap()<CR>
 map! <F9> ^[:call ToggleWrap()<CR>
+
+" In insert or command mode, move normally by using Ctrl
+noremap! <C-h> <Left>
+noremap! <C-j> <Down>
+noremap! <C-k> <Up>
+noremap! <C-l> <Right>
 
 call plug#begin()
 " List your plugins here
