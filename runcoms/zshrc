@@ -130,7 +130,7 @@ alias df='df -h'
 [ $commands[doggo] ] && alias dog=doggo
 alias du=dua
 
-alias eh="vim + ${ZDOTDIR:-$HOME}/.zsh_history \
+alias äh="vim + ${ZDOTDIR:-$HOME}/.zsh_history \
   && /bin/cp ${ZDOTDIR:-$HOME}/.zsh_history ${ZDOTDIR:-$HOME}/.zsh_history.bak"
 
 [ $commands[fd] ] && alias f='fd --hidden --no-ignore'
