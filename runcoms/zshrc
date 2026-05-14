@@ -96,7 +96,6 @@ alias __='sudo --shell --preserve-env'
 [ $commands[k9s] ] && alias 0='k9s --command po' && alias ß='k9s --command deploy --context prod-plutos'
 
 alias a=alias
-alias ap='export AWS_PROFILE=$(sed -n "s/\[profile \(.*\)\]/\1/gp" ~/.aws/config | fzf)'
 alias arc=archive
 [ $commands[aws-vault] ] && alias av=aws-vault
 [ $commands[assume] ] && alias assume='. assume' && alias asm='. assume'
@@ -135,7 +134,6 @@ alias eh="vim + ${ZDOTDIR:-$HOME}/.zsh_history \
   && /bin/cp ${ZDOTDIR:-$HOME}/.zsh_history ${ZDOTDIR:-$HOME}/.zsh_history.bak"
 
 [ $commands[fd] ] && alias f='fd --hidden --no-ignore'
-alias fzp="fzf $FZF_DEFAULT_PREVIEW_OPTS"
 
 alias g=git
 alias ga='git add'

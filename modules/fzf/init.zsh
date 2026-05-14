@@ -119,4 +119,7 @@ if [ $commands[fzf] ]; then
         --preview-window '~1,+{2}/3,<80(up)' \
         --query "$*"
   }
+
+  alias fzp="fzf $FZF_DEFAULT_PREVIEW_OPTS"
+  alias ap='export AWS_PROFILE=$(sed -n "s/\[profile \(.*\)\]/\1/gp" ~/.aws/config | fzf)'
 fi
