@@ -75,6 +75,7 @@ if [ $commands[fzf] ]; then
   # Key Bindings
   export FZF_DEFAULT_OPTS="
     --style=full
+    --multi
 
     --bind 'alt-a:select-all,alt-q:deselect-all'
     --bind 'ctrl-p:change-preview-window(down|hidden|)'
