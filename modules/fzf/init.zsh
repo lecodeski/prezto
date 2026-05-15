@@ -76,7 +76,7 @@ if [ $commands[fzf] ]; then
   export FZF_DEFAULT_OPTS="
     --style=full
 
-    --bind 'alt-a:select-all,alt-x:deselect-all' \
+    --bind 'alt-a:select-all,alt-q:deselect-all'
     --bind 'ctrl-p:change-preview-window(down|hidden|)'
 
     --bind 'alt-f:forward-subword'
