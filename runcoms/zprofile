@@ -57,10 +57,23 @@ path=(
 #
 
 # Set the default Less options.
-# Mouse-wheel scrolling has been disabled by -X (disable screen clearing).
-# Remove -X to enable it.
-if [[ -z "$LESS" ]]; then
-  export LESS='-g -i -M -R -S -w -X -z-4 --status-line --use-color -DWkw -DSkY -DEgr -j.5'
+# Mouse-wheel scrolling has been disabled by --no-init (disable screen clearing).
+# Remove --no-init to enable it.
+if [[ -z "$LESS" ]]; then export LESS=" \
+  --chop-long-lines \
+  --use-color \
+  --color=E+gr \
+  --color=S+kY \
+  --color=W+kg \
+  --hilite-search \
+  --hilite-unread \
+  --ignore-case \
+  --jump-target=.5 \
+  --LONG-PROMPT \
+  --no-init \
+  --RAW-CONTROL-CHARS \
+  --status-line \
+  --window=-4"
 fi
 
 # Set the Less input preprocessor.
