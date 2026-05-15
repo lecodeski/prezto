@@ -27,7 +27,8 @@ compdef _gnu_generic \
   dive \
   fzf \
   ldapsearch \
-  ncdu
+  ncdu \
+  unar
 
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
 [ $commands[kind] ] && source <(kind completion zsh)
