@@ -93,6 +93,8 @@ if [ $commands[fzf] ]; then
     --bind 'ctrl-b:page-down'
     --bind 'ctrl-a:top'
     --bind 'ctrl-e:last'
+    --bind 'ctrl-j:down-selected'
+    --bind 'ctrl-k:up-selected'
 
     --bind 'up:preview-up'
     --bind 'down:preview-down'
