@@ -106,7 +106,19 @@ if [ $commands[fzf] ]; then
 
   # ripgrep->fzf->vim [QUERY]
   fts() {
-    RELOAD='reload:rg --hidden --no-ignore-parent --column --color=always --colors=path:fg:blue --colors=line:fg:yellow --smart-case {q} || :'
+    rg_args=("${@:2}")
+
+    RELOAD="reload:rg \
+      --hidden \
+      --no-ignore-parent \
+      --column \
+      --color=always \
+      --colors=path:fg:blue \
+      --colors=line:fg:yellow \
+      --smart-case \
+      ${rg_args} \
+      {q} || :"
+
     OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
               vim {1} +{2}     # No selection. Open the current line in Vim.
             else
@@ -120,8 +132,9 @@ if [ $commands[fzf] ]; then
         --delimiter : \
         --preview 'bat --style=numbers,header-filesize --color=always --highlight-line {2} {1}' \
         --preview-window '~1,+{2}/3,<80(up)' \
-        --query "$*"
+        --query "$1"
   }
+  compdef fts=rg
 
   alias fzp="fzf $FZF_DEFAULT_PREVIEW_OPTS"
   alias ap='export AWS_PROFILE=$(sed -n "s/\[profile \(.*\)\]/\1/gp" ~/.aws/config | fzf)'
