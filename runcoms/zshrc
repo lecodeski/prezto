@@ -194,7 +194,7 @@ alias psd='cd -P -- ${(Q)"$(pst)"}'
 [ !$commands[pst] ] && alias pst=pbpaste
 alias py=python3
 
-alias rg='batgrep --smart-case --hidden --no-ignore --terminal-width=$(tput cols)'
+alias rg='batgrep --terminal-width=$(tput cols) --smart-case --hidden --no-ignore'
 alias rr='rm -rf'
 
 alias scr='scp -r'
