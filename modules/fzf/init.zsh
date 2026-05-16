@@ -30,6 +30,21 @@ if [ $commands[fzf] ]; then
 
   # preview directory's content with eza when completing cd
   zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --long --all --header --git --icons --color=always $realpath'
+  # preview generic arguments-rest with bat (for files) and eza (for directories)
+  zstyle ':fzf-tab:complete:*:argument-rest' fzf-preview '
+    if [[ -d $realpath ]]; then
+      eza --long --all --header --git --icons --color=always $realpath
+    elif [[ -f $realpath ]]; then
+      echo "$(ls -lh $realpath | awk "{print \$5}") — $(file -b $realpath)"
+      echo
+      bat --color=always --style=plain --line-range :100 $realpath 2>/dev/null
+    fi'
+
+  # Workaround: exclude above preview for certain command as there is no exact 'files only' context qualifier
+  # hopefully this list won't get too long
+  zstyle ':fzf-tab:complete:alias:argument-rest' fzf-preview ''
+  zstyle ':fzf-tab:complete:git-checkout:argument-rest' fzf-preview ''
+
   # switch group using `>` and `<`
   zstyle ':fzf-tab:*' switch-group '>' '<'
   # To make fzf-tab follow FZF_DEFAULT_OPTS.
