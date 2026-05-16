@@ -146,13 +146,13 @@ alias äh="vim + ${ZDOTDIR:-$HOME}/.zsh_history \
 [ $commands[fd] ] && alias f='fd --hidden --no-ignore'
 
 alias g=git
-alias ga='git add'
 alias gA='git add --patch'
+alias ga='git add'
 alias gaa='git add --all'
 alias gb="${aliases[gbV]}"
 alias gbX='git push --delete'
-alias gcn='git commit --no-edit'
 alias gcfa="${aliases[gcf]} --all"
+alias gcn='git commit --no-edit'
 alias gd='git diff'
 alias gdg='git difftool --gui'
 alias gds='git diff --staged'
@@ -161,21 +161,21 @@ alias gmg="${aliases[gm]} --gui"
 alias gp='git pull --rebase'
 alias gpm='git pull --no-rebase'
 alias gpu='git push'
-alias gr='git restore'
 alias gR='git restore --patch'
+alias gr='git restore'
 alias gra='git restore :/'
 alias grb='git rebase'
+[ $commands[grc] ] && unalias grc && [[ -s "$(brew --prefix)/etc/grc.zsh" ]] && source $(brew --prefix)/etc/grc.zsh
 alias grm="${aliases[gRl]}"
 alias grs='git restore --staged'
 alias grsa='git restore --staged :/'
-alias gw='git-open'
-[ $commands[grc] ] && unalias grc && [[ -s "$(brew --prefix)/etc/grc.zsh" ]] && source $(brew --prefix)/etc/grc.zsh
 alias gs='git status'
 alias gsh="${aliases[gcs]}"
 alias gsm='git submodule'
 alias gst='git stash push --include-untracked'
 alias gsT='git stash push --patch'
 alias gsw='git switch'
+alias gw='git-open'
 
 [ $commands[idea] ] && alias iiff='idea diff' && alias i='idea --temp-project' && alias io=idea
 
