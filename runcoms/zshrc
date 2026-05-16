@@ -167,6 +167,7 @@ alias gra='git restore :/'
 alias grb='git rebase'
 [ $commands[grc] ] && unalias grc && [[ -s "$(brew --prefix)/etc/grc.zsh" ]] && source $(brew --prefix)/etc/grc.zsh
 alias grm="${aliases[gRl]}"
+alias gRs='git restore --staged --patch'
 alias grs='git restore --staged'
 alias grsa='git restore --staged :/'
 alias gs='git status'
