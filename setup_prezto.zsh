@@ -1,9 +1,5 @@
 #!zsh
-setopt EXTENDED_GLOB
-rm "${ZDOTDIR:-$HOME}/.zshrc"
-for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
-  ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
-done
+$(brew --prefix)/bin/zsh "${ZDOTDIR:-$HOME}"/.zprezto/setup_links_runcoms.zsh
 
 if [[ $commands[brew] ]]; then
   echo "$(brew --prefix)/bin/zsh" | sudo tee -a /etc/shells
