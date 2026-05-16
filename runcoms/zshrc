@@ -25,6 +25,7 @@ compdef _gnu_generic \
   batgrep \
   choose \
   dive \
+  file \
   fzf \
   ldapsearch \
   ncdu \
