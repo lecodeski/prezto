@@ -65,7 +65,6 @@ if [ $commands[fzf] ]; then
   export FZF_CTRL_T_OPTS=$FZF_DEFAULT_PREVIEW_OPTS
 
   # fzf-cd-widget (default ALT+C): Print tree structure in the preview window
-  bindkey '^x' fzf-cd-widget
   export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
 
   # Avoid using delta for preview (as per git config for side-by-side view)
