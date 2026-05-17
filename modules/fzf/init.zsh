@@ -39,11 +39,11 @@ if [ $commands[fzf] ]; then
       echo
       bat --color=always --style=plain --line-range :100 $realpath 2>/dev/null
     fi'
-
+  # Git commits / refs preview
+  zstyle ':fzf-tab:complete:git-(diff|show|checkout|switch|reset|rebase|cherry-pick|revert):*' fzf-preview 'git show --color=always ${word%% *} 2>/dev/null | DELTA_FEATURES=+ delta --paging=never'
   # Workaround: exclude above preview for certain command as there is no exact 'files only' context qualifier
   # hopefully this list won't get too long
   zstyle ':fzf-tab:complete:alias:argument-rest' fzf-preview ''
-  zstyle ':fzf-tab:complete:git-checkout:argument-rest' fzf-preview ''
 
   # switch group using `>` and `<`
   zstyle ':fzf-tab:*' switch-group '>' '<'
