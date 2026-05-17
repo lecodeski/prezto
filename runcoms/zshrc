@@ -400,11 +400,15 @@ wat() {
 } && compdef wat=which
 
 [ $commands[eza] ] && x() {
-  [ $1 ] && target=$1 || target=.
-  if ! [[ -a $target ]]; then target=$target* && dir_only='--treat-dirs-as-files'; else dir_only='' fi
-  [ $2 ] && sort=$2 || sort=.name
-  eza --long --all --header $dir_only --sort $sort --git --icons $~target \
-    && print "$FX[bold]count: $(eza --long --all $dir_only $~target | wc --lines )$FX[off]"
+  local target=${1:-.}
+  local sort=${2:-.name}
+  local dir_only=()
+  if [[ ! -a $target ]]; then
+      target=( $target* )
+      dir_only=(--treat-dirs-as-files)
+  fi
+  eza --long --all --header $dir_only --sort $sort --git --icons -- $target \
+    && print "$FX[bold]count: $(eza --long --all $dir_only -- $target | wc --lines)$FX[off]"
 } && alias x.='x ..' && xs() {
   x "$1" 'size'
 } && alias xs.='xs ..' && xt() {
