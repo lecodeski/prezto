@@ -208,7 +208,7 @@ alias py=python3
 
 alias rd='rmdir -v'
 alias rg='batgrep --terminal-width=$(tput cols)'
-alias rr='rm -rfv'
+alias rr='rm -rIv'
 
 alias scr='scp -r'
 [ $commands[subl] ] && alias sl=subl
