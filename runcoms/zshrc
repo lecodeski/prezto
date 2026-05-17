@@ -207,7 +207,7 @@ alias psd='cd -P -- ${(Q)"$(pst)"}'
 alias py=python3
 
 alias rg='batgrep --terminal-width=$(tput cols)'
-alias rr='rm -rf'
+alias rr='rm -rfv'
 
 alias scr='scp -r'
 [ $commands[subl] ] && alias sl=subl
