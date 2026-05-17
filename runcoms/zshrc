@@ -23,7 +23,6 @@ fi
 autoload -U +X bashcompinit && bashcompinit
 
 compdef _gnu_generic \
-  batgrep \
   choose \
   dive \
   file \
@@ -207,9 +206,12 @@ alias psd='cd -P -- ${(Q)"$(pst)"}'
 alias py=python3
 
 alias rd='rmdir -v'
+
+# Add this compdef workaround because the gnu generic completion breaks when providing
+# a terminal width. Hopefully only a *temporary* solution.
+alias rg='batgrep --terminal-width=$(tput cols)' && compdef batgrep=rg
 alias rga='rga --line-number'
 alias rgp="${commands[rg]}"
-alias rg='batgrep --terminal-width=$(tput cols)'
 alias rr='rm -rIv'
 
 alias scr='scp -r'
