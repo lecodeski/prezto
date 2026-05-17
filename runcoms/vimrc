@@ -107,6 +107,8 @@ call plug#end()
 :highlight LineNrAbove guifg=#f9e2af
 :highlight LineNrBelow guifg=#a6e3a1
 
+" gitgutter settings
 ":highlight SignColumn ctermbg=none
+set updatetime=100
 let g:gitgutter_highlight_lines = 1
 let g:mapleader=" "
