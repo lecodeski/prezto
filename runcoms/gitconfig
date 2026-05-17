@@ -51,19 +51,17 @@
 	rebase = true
 
 [delta]
-	features = side-by-side line-numbers decorations
 	syntax-theme = Catppuccin Mocha
-
-[delta "decorations"]
 	file-style = bold yellow ul
 	hunk-header-decoration-style = blue ul
 	hunk-header-line-number-style = brightblue
-
-[delta "line-numbers"]
-	line-numbers-left-format = │{nm:^1}│
-	line-numbers-right-format = │{np:^1}│
         line-numbers-minus-style='brightred'
         line-numbers-plus-style='brightwhite'
+	line-numbers-left-format = {nm:^1}│
+	line-numbers-right-format = {np:^1}│
+
+[delta "side-by-side"]
+	features = line-numbers side-by-side 
 
 [commit]
 	gpgSign = true

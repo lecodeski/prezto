@@ -8,6 +8,7 @@ fi
 ### Environment Variables
 #########################
 export ZLE_RPROMPT_INDENT=0
+export DELTA_FEATURES=+side-by-side
 export BAT_CONFIG_PATH="${ZDOTDIR:-$HOME}/.batrc"
 export RIPGREP_CONFIG_PATH="${ZDOTDIR:-$HOME}/.ripgreprc"
 
