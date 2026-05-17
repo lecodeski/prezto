@@ -240,84 +240,84 @@ if [[ $commands[moco] ]]; then
   alias ü='moco overtime'
   alias üm='ü --monthly'
 
-  datestamp () {
+  datestamp() {
     [ $3 ] && echo "$3-$2-$1" && return
     [ $2 ] && echo "$(date +%Y-)$2-$1" && return
     [ $1 ] && echo "$(date +%Y-%m-)$1" && return
     echo "$(date +%Y-%m-%d)"
   }
 
-  backward () {
+  backward() {
     echo "--backward ${1:-0}"
   }
 
-  z () {
+  z() {
     moco list --date $(datestamp "$1" "$2" "$3")
   }
 
-  zt () {
+  zt() {
     moco list $(backward "$1")
   }
 
-  zw () {
+  zw() {
     moco list --week $(backward "$1")
   }
 
-  zm () {
+  zm() {
     moco list --month $(backward "$1")
   }
 
-  ze () {
+  ze() {
     moco edit-date --date $(datestamp "$1" "$2" "$3")
   }
 
-  zl () {
+  zl() {
     moco rm --date $(datestamp "$1" "$2" "$3")
   }
 
-  zb () {
+  zb() {
     moco new --hours ${1/,/.} --date $(datestamp "$2" "$3" "$4") $5 $6 $7 $8
     z "$2" "$3" "$4"
   }
 
-  book_task () {
+  book_task() {
     zb ${1:-0} "$2" "$3" "$4" '--project' "$5" '--task' "$6"
   }
 
-  zbbc () {
+  zbbc() {
     book_task "$1" "$2" "$3" "$4" '947103029' '24819463'
   }
 
-  zbi () {
+  zbi() {
     book_task "$1" "$2" "$3" "$4" '945824843' '12188024'
   }
 
-  zbm () {
+  zbm() {
     book_task "$1" "$2" "$3" "$4" '945824843' '26593282'
   }
 
-  zbmr () {
+  zbmr() {
     book_task "$1" "$2" "$3" "$4" '945824843' '12157915'
   }
 
-  zbmt () {
+  zbmt() {
     book_task "$1" "$2" "$3" "$4" '945850311' '12120194'
   }
 
-  zbr () {
+  zbr() {
     book_task "$1" "$2" "$3" "$4" '945850311' '12120234'
   }
 
-  zbz () {
+  zbz() {
     book_task "$1" "$2" "$3" "$4" '946919274' '22863646'
   }
 fi
 
-[[ -d /Applications/Dash.app ]] && ds () {
+[[ -d /Applications/Dash.app ]] && ds() {
   open "dash://b%3A$*"
 }
 
-fancy-ctrl-z () {
+fancy-ctrl-z() {
   if [[ $#BUFFER -eq 0 ]]; then
     bg
     zle redisplay
@@ -326,11 +326,11 @@ fancy-ctrl-z () {
   fi
 } && zle -N fancy-ctrl-z
 
-[ $commands[fd] ] && fr () {
+[ $commands[fd] ] && fr() {
   _ f "$*" /
 } && compdef fr=fd
 
-konfigmerge () {
+konfigmerge() {
   export KUBECONFIG=~/.kube/config:$(realpath $1)
   cp ~/.kube/config ~/.kube/config.bak
   kubectl config view --flatten >| ~/.kube/merged
@@ -339,7 +339,7 @@ konfigmerge () {
   delta ~/.kube/config.bak ~/.kube/config
 }
 
-[[ $commands[glow] ]] && [[ $commands[bat] ]] && unalias p && 'p' () {
+[[ $commands[glow] ]] && [[ $commands[bat] ]] && unalias p && 'p'() {
   if [[ $1 == *.md || $1 == *.markdown || -z $1 ]] && [[ -t 0 ]]; then
     glow --pager --width 120 --line-numbers --all $1
   else
@@ -347,7 +347,7 @@ konfigmerge () {
   fi
 } && compdef p=bat
 
-u () {
+u() {
   brew upgrade
   rm -f "$(brew --prefix)/share/zsh/site-functions/_git"
   echo $FX[bold]'Brew upgrades finished 🍻'
@@ -399,17 +399,17 @@ wat() {
   )
 } && compdef wat=which
 
-[ $commands[eza] ] && x () {
+[ $commands[eza] ] && x() {
   [ $1 ] && target=$1 || target=.
   if ! [[ -a $target ]]; then target=$target* && dir_only='--treat-dirs-as-files'; else dir_only='' fi
   [ $2 ] && sort=$2 || sort=.name
   eza --long --all --header $dir_only --sort $sort --git --icons $~target \
     && print "$FX[bold]count: $(eza --long --all $dir_only $~target | wc --lines )$FX[off]"
-} && alias x.='x ..' && xs () {
+} && alias x.='x ..' && xs() {
   x "$1" 'size'
-} && alias xs.='xs ..' && xt () {
+} && alias xs.='xs ..' && xt() {
   x "$1" 'time'
-} && alias xt.='xt ..' && xx () {
+} && alias xt.='xt ..' && xx() {
   [ $1 ] && eza --long --all --header --treat-dirs-as-files --sort .name --git --icons *$1* \
     && print "$FX[bold]count: $(eza --long --all --treat-dirs-as-files *$1* | wc --lines )$FX[off]"
 }
