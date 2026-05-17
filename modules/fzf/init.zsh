@@ -70,7 +70,7 @@ if [ $commands[fzf] ]; then
   # CTRL-/ to toggle small preview window to see the full command
   # CTRL-Y to copy the command into clipboard using pbcopy
   export FZF_CTRL_R_OPTS="
-    --preview 'echo {}' --preview-window up:3:hidden:wrap
+    --preview 'echo {}' --preview-window up:3:hidden:wrap-word
     --bind 'ctrl-/:toggle-preview'
     --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
     --color header:italic
@@ -112,7 +112,7 @@ if [ $commands[fzf] ]; then
 
     --bind 'up:preview-up'
     --bind 'down:preview-down'
-    --bind 'ctrl-w:toggle-preview-wrap'
+    --bind 'ctrl-w:toggle-preview-wrap-word'
     --bind 'page-up:preview-page-up'
     --bind 'page-down:preview-page-down'
     --bind 'home:preview-top'
