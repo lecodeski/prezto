@@ -206,6 +206,7 @@ alias psd='cd -P -- ${(Q)"$(pst)"}'
 [ !$commands[pst] ] && alias pst=pbpaste
 alias py=python3
 
+alias rd='rmdir -v'
 alias rg='batgrep --terminal-width=$(tput cols)'
 alias rr='rm -rfv'
 
