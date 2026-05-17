@@ -31,7 +31,7 @@ if [ $commands[fzf] ]; then
   # preview directory's content with eza when completing cd
   zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --long --all --header --git --icons --color=always $realpath'
   # preview generic arguments-rest with bat (for files) and eza (for directories)
-  zstyle ':fzf-tab:complete:*:argument-rest' fzf-preview '
+  zstyle ':fzf-tab:complete:*:*argument-rest' fzf-preview '
     if [[ -d $realpath ]]; then
       eza --long --all --header --git --icons --color=always $realpath
     elif [[ -f $realpath ]]; then
