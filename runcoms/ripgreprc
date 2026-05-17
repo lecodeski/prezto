@@ -1,0 +1,5 @@
+--colors=line:fg:yellow
+--colors=path:fg:blue
+--hidden
+--no-ignore
+--smart-case

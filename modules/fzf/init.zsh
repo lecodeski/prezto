@@ -123,13 +123,9 @@ if [ $commands[fzf] ]; then
     rg_args=("${@:2}")
 
     RELOAD="reload:rg \
-      --hidden \
-      --no-ignore-parent \
+      --ignore \
       --column \
       --color=always \
-      --colors=path:fg:blue \
-      --colors=line:fg:yellow \
-      --smart-case \
       ${rg_args} \
       {q} || :"
 

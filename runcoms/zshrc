@@ -9,6 +9,7 @@ fi
 #########################
 export ZLE_RPROMPT_INDENT=0
 export BAT_CONFIG_PATH="${ZDOTDIR:-$HOME}/.batrc"
+export RIPGREP_CONFIG_PATH="${ZDOTDIR:-$HOME}/.ripgreprc"
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -205,7 +206,7 @@ alias psd='cd -P -- ${(Q)"$(pst)"}'
 [ !$commands[pst] ] && alias pst=pbpaste
 alias py=python3
 
-alias rg='batgrep --terminal-width=$(tput cols) --smart-case --hidden --no-ignore'
+alias rg='batgrep --terminal-width=$(tput cols)'
 alias rr='rm -rf'
 
 alias scr='scp -r'
