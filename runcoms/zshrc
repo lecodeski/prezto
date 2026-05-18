@@ -31,6 +31,7 @@ compdef _gnu_generic \
   ldapsearch \
   ncdu \
   rga \
+  tig \
   unar
 
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
