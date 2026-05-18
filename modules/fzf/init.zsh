@@ -127,8 +127,9 @@ if [ $commands[fzf] ]; then
       --ignore \
       --column \
       --color=always \
+      {q} \
       ${rg_args} \
-      {q} || :"
+      || :"
 
     OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
               vim {1} +{2}     # No selection. Open the current line in Vim.
