@@ -142,7 +142,8 @@ alias df='df -h'
 [ $commands[doggo] ] && alias dog=doggo
 alias du=dua
 
-[ $commands[fd] ] && alias f='fd --hidden --no-ignore'
+alias f='fd --hidden --no-ignore'
+alias fr='_ fd --hidden --no-ignore --search-path /'
 
 alias g=git
 alias gA='git add --patch'
@@ -330,10 +331,6 @@ fancy-ctrl-z() {
     zle push-input
   fi
 } && zle -N fancy-ctrl-z
-
-[ $commands[fd] ] && fr() {
-  _ f "$*" /
-} && compdef fr=fd
 
 konfigmerge() {
   export KUBECONFIG=~/.kube/config:$(realpath $1)

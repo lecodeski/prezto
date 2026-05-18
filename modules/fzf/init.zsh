@@ -64,9 +64,9 @@ if [ $commands[fzf] ]; then
     --preview-window '~1'"
 
   # Use fd (Rust) as directory waker instead internal default (Go)
-  export FZF_DEFAULT_COMMAND='fd --hidden --no-ignore-vcs --no-ignore-parent'
-  export FZF_CTRL_T_COMMAND='fd --hidden --no-ignore-parent'
-  export FZF_ALT_C_COMMAND='fd --type=d --hidden --no-ignore-parent'
+  export FZF_DEFAULT_COMMAND='fd --hidden --no-ignore-vcs'
+  export FZF_CTRL_T_COMMAND='fd --hidden'
+  export FZF_ALT_C_COMMAND='fd --hidden --type=d'
 
   # CTRL-/ to toggle small preview window to see the full command
   # CTRL-Y to copy the command into clipboard using pbcopy
