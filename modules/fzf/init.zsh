@@ -40,7 +40,7 @@ if [ $commands[fzf] ]; then
       bat --color=always --style=plain --line-range :100 $realpath 2>/dev/null
     fi'
   # Git commits / refs preview
-  zstyle ':fzf-tab:complete:git-(diff|show|checkout|switch|reset|rebase|cherry-pick|revert):*' \
+  zstyle ':fzf-tab:complete:git-(diff|log|show|checkout|switch|reset|rebase|cherry-pick|revert):(*argument-rest|*)' \
     fzf-preview 'git show --stat --patch --color=always ${word%% *} 2>/dev/null | DELTA_FEATURES=+ delta --paging=never'
   # Workaround: exclude above preview for certain command as there is no exact 'files only' context qualifier
   # hopefully this list won't get too long
