@@ -6,9 +6,9 @@ and prompt themes.
 
 ## Fork
 
-This fork of the original upstream repo renders my customizations and adjustments in the Prezto framework to my favours as adviced upstream. This way this repo can be used also as an example, template or simply inspiration on how to customize the Prezto framework, how to add new modules, etc.  
-Or go ahead and smiply install my variant of prezto as documented below. Whatever floats your boat. =)
-
+This fork of the original upstream repo renders my customizations and adjustments in the Prezto framework to my favours as advised upstream. This way this repo can be used also as an example, template, or simply inspiration on how to customize the Prezto framework, how to add new modules, etc.  
+Or go ahead and simply install my variant of prezto as documented below. Whatever floats your boat. =)
+****
 ## Installation
 
 ### Manual
