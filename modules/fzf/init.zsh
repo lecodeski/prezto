@@ -28,10 +28,14 @@ if [ $commands[fzf] ]; then
 
   source "${0:h}/external/fzf-tab/fzf-tab.plugin.zsh"
 
-  # preview directory's content with eza when completing cd
-  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --long --all --header --git --icons --color=always $realpath'
+  # Git commits / refs preview
+  zstyle ':fzf-tab:complete:git-(diff|log|show|checkout|switch|reset|rebase|cherry-pick|revert):(*argument-rest|*)' \
+    fzf-preview 'git show --stat --patch --color=always ${word%% *} 2>/dev/null | DELTA_FEATURES=+ delta --paging=never'
+  # Workaround: exclude below preview for certain command as there is no exact 'files only' context qualifier
+  # hopefully this list won't get too long
+  zstyle ':fzf-tab:complete:(alias|brew*):*' fzf-preview ''
   # preview generic arguments-rest with bat (for files) and eza (for directories)
-  zstyle ':fzf-tab:complete:*:*argument-rest' fzf-preview '
+  zstyle ':fzf-tab:complete:*:(*argument-rest|argument-1|argument-2|)' fzf-preview '
     if [[ -d $realpath ]]; then
       eza --long --all --header --git --icons --color=always $realpath
     elif [[ -f $realpath ]]; then
@@ -39,12 +43,6 @@ if [ $commands[fzf] ]; then
       echo
       bat --color=always --style=plain --line-range :100 $realpath 2>/dev/null
     fi'
-  # Git commits / refs preview
-  zstyle ':fzf-tab:complete:git-(diff|log|show|checkout|switch|reset|rebase|cherry-pick|revert):(*argument-rest|*)' \
-    fzf-preview 'git show --stat --patch --color=always ${word%% *} 2>/dev/null | DELTA_FEATURES=+ delta --paging=never'
-  # Workaround: exclude above preview for certain command as there is no exact 'files only' context qualifier
-  # hopefully this list won't get too long
-  zstyle ':fzf-tab:complete:alias:argument-rest' fzf-preview ''
 
   # switch group using `>` and `<`
   zstyle ':fzf-tab:*' switch-group '>' '<'
