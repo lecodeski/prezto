@@ -1,3 +1,4 @@
 --style="changes,header-filesize,grid,numbers,snip"
 --theme="Catppuccin Mocha"
 --wrap="never"
+--pager="less -R"
