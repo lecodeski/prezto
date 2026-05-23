@@ -441,7 +441,6 @@ zshaddhistory() {
   return 0
 }
 
-### Options
+### ZSH Options
 ###########
-unsetopt nomatch
 setopt globdots
