@@ -119,7 +119,7 @@ if [ $commands[fzf] ]; then
 
   # ripgrep->fzf->vim [QUERY]
   fts() {
-    rg_args=("${@:2}")
+    rg_args="${(j: :)${(@q)@:2}}"
 
     RELOAD="reload:rg \
       --ignore \
