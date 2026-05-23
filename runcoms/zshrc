@@ -27,6 +27,11 @@ compdef _gnu_generic \
 
 [ $commands[kind] ] && source <(kind completion zsh)
 
+# Prefer the richer zsh-bundled _git over the one shipped by Homebrew's git formula
+# without touching fpath (which would let _sccs shadow git-delta's _delta).
+# see https://github.com/orgs/Homebrew/discussions/2797.
+unfunction _git && autoload -Uz $(brew --prefix zsh)/share/zsh/functions/_git && compdef _git git gitk
+
 # zsh auto suggestions
 # Widgets that accept the entire suggestion
 export ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(
@@ -342,7 +347,6 @@ konfigmerge() {
 
 u() {
   brew upgrade
-  rm -f "$(brew --prefix)/share/zsh/site-functions/_git"
   echo $FX[bold]'Brew upgrades finished 🍻'
   [[ $(uname) == 'Darwin' ]] && b cu --include-mas --no-brew-update --all --quiet --yes
   echo $FX[bold]'Brew cask upgrades finished 🍻'
