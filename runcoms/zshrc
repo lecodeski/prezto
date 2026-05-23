@@ -131,7 +131,7 @@ fi
 
 alias c=cd
 
-alias ci='autoload -U compinit && compinit'
+alias ci=compinit
 [ !$commands[cpy] ] && alias cpy=pbcopy
 alias cr='cp --recursive'
 alias cwd='echo \"$(pwd)\" | cpy'
