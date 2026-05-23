@@ -117,7 +117,7 @@ if [ $commands[fzf] ]; then
     --bind 'home:preview-top'
     --bind 'end:preview-bottom'"
 
-  # ripgrep->fzf->vim [QUERY]
+  # full text search with TUI: ripgrep -> sort -> fzf -> vim [QUERY] (with all args of ripgrep)
   fts() {
     rg_args="${(j: :)${(@q)@:2}}"
 
@@ -127,7 +127,7 @@ if [ $commands[fzf] ]; then
       --color=always \
       {q} \
       ${rg_args} \
-      || :"
+      | sort --stable --field-separator=: --key=1,1 --ignore-case"
 
     OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
               vim {1} +{2}     # No selection. Open the current line in Vim.
