@@ -52,6 +52,7 @@
 
 [delta]
 	syntax-theme = Catppuccin Mocha
+	file-decoration-style = omit
 	file-style = bold yellow ul
 	hunk-header-decoration-style = blue ul
 	hunk-header-line-number-style = brightblue
