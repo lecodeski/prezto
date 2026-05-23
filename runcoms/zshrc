@@ -151,6 +151,7 @@ alias gA='git add --patch'
 alias ga='git add'
 alias gaa='git add --all'
 alias gb="${aliases[gbV]}"
+alias gbl='git blame'
 alias gbX='git push --delete'
 alias gcfa="${aliases[gcf]} --all"
 alias gcn='git commit --no-edit'
