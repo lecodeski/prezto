@@ -21,8 +21,6 @@ fi
 
 ### Auto Completions
 ####################
-autoload -U +X bashcompinit && bashcompinit
-
 compdef _gnu_generic \
   choose \
   dive \
@@ -34,7 +32,6 @@ compdef _gnu_generic \
   tig \
   unar
 
-complete -o nospace -C /opt/homebrew/bin/terraform terraform
 [ $commands[kind] ] && source <(kind completion zsh)
 
 # zsh auto suggestions
@@ -219,7 +216,6 @@ alias rr='rm -rIv'
 alias scr='scp -r'
 [ $commands[subl] ] && alias sl=subl
 
-[ $commands[terraform] ] && alias tf='terraform'
 [ $commands[btop] ] && alias top='btop'
 [ $commands[traceroute] ] && alias tracert=traceroute
 
