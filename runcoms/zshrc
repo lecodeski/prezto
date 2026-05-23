@@ -5,13 +5,6 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-### Environment Variables
-#########################
-export ZLE_RPROMPT_INDENT=0
-export DELTA_FEATURES=+side-by-side
-export BAT_CONFIG_PATH="${ZDOTDIR:-$HOME}/.batrc"
-export RIPGREP_CONFIG_PATH="${ZDOTDIR:-$HOME}/.ripgreprc"
-
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block, everything else may go below.

@@ -12,3 +12,8 @@
 if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprofile"
 fi
+
+export ZLE_RPROMPT_INDENT=0
+export DELTA_FEATURES=+side-by-side
+export BAT_CONFIG_PATH="${ZDOTDIR:-$HOME}/.batrc"
+export RIPGREP_CONFIG_PATH="${ZDOTDIR:-$HOME}/.ripgreprc"
