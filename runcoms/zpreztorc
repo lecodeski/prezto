@@ -31,7 +31,6 @@ zstyle ':prezto:*:*' color 'yes'
 # The order matters.
 zstyle ':prezto:load' pmodule \
   'environment' \
-  'command-not-found' \
   'editor' \
   'history' \
   'directory' \
@@ -44,6 +43,7 @@ zstyle ':prezto:load' pmodule \
   'history-substring-search' \
   'docker' \
   'homebrew' \
+  'command-not-found' \
   'git' \
   'spectrum' \
   'osx' \
