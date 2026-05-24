@@ -364,6 +364,7 @@ u() {
 # 2025-07-31 +lecodeski+  add another recursion after unalias
 # 2026-05-06 +lecodeski+  massively improve wat function with type
 # 2026-05-06 +lecodeski+  call brew which-formula for commands
+# 2026-05-06 +lecodeski+  move whatis lookup below tldr
 wat() {
   ( # subshell to constrain unalias side-effects
 
@@ -390,8 +391,8 @@ wat() {
 
     if (( $+commands[$cmd] )); then
       file "${commands[$cmd]}"
-      whatis "$cmd" | grep "^${cmd}(" | sort --unique
       (( $+commands[tldr] )) && tldr "$cmd" --short-options
+      whatis "$cmd" | grep "^${cmd}(" | sort --unique
       brew which-formula "$cmd"
     fi
   done
