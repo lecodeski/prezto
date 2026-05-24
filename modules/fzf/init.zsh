@@ -31,6 +31,9 @@ if [ $commands[fzf] ]; then
   # Git commits / refs preview
   zstyle ':fzf-tab:complete:git-(diff|log|show|checkout|switch|reset|rebase|cherry-pick|revert):(*argument-rest|*)' \
     fzf-preview 'git show --stat --patch --color=always ${word%% *} 2>/dev/null | DELTA_FEATURES=+ delta --paging=never'
+  # preview for echoing and printing stuff
+  zstyle ':fzf-tab:complete:(-parameter-|echo|print):*' fzf-preview 'print -rl -- ${(P@)word}'
+
   # Workaround: exclude below preview for certain command as there is no exact 'files only' context qualifier
   # hopefully this list won't get too long
   zstyle ':fzf-tab:complete:(alias|brew*):*' fzf-preview ''
