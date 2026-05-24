@@ -315,6 +315,12 @@ if [[ $commands[moco] ]]; then
   }
 fi
 
+captioned-delimiter() {
+  termwidth="$(tput cols)"
+  padding="$(printf '%0.1s' '='{1..500})"
+  printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
+}
+
 [[ -d /Applications/Dash.app ]] && ds() {
   open "dash://b%3A$*"
 }
@@ -367,13 +373,6 @@ u() {
 # 2026-05-06 +lecodeski+  move whatis lookup below tldr
 wat() {
   ( # subshell to constrain unalias side-effects
-
-  captioned-delimiter() {
-    termwidth="$(tput cols)"
-    padding="$(printf '%0.1s' '='{1..500})"
-    printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
-  }
-
   for cmd; do
     type -S "$cmd"
     if (( $+aliases[$cmd] )); then
