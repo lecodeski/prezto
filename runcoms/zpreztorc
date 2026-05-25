@@ -45,7 +45,6 @@ zstyle ':prezto:load' pmodule \
   'homebrew' \
   'command-not-found' \
   'git' \
-  'spectrum' \
   'osx' \
   'completion' \
   'fzf' \
