@@ -50,7 +50,7 @@ version is **4.3.11**.
 2. Run **one** of two setup scripts
     1. Either run Homebrew & Prezto setup script:
         ```console
-        ${ZDOTDIR:-$HOME}/.zprezto/setup_brew_prezto.sh
+        ${ZDOTDIR:-$HOME}/.zprezto/setup_homebrew_prezto.sh
         ```
     2. Or run pure Prezto setup script:
         ```console
