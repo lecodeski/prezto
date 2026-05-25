@@ -155,6 +155,7 @@ alias gds='git diff --staged'
 alias gl='git l'
 alias gmg="${aliases[gm]} --gui"
 alias gp='git pull --rebase'
+alias gpf="${aliases[gpf]} --force-if-includes"
 alias gpm='git pull --no-rebase'
 alias gpu='git push'
 alias gR='git restore --patch'
@@ -176,7 +177,7 @@ alias gw='git-open'
 
 [ $commands[idea] ] && alias iiff='idea diff' && alias i='idea --temp-project' && alias io=idea
 
-alias jj='fasd_cd -i'
+zstyle -t ':prezto:module:fasd' loaded && alias j=fasd_cd && alias jj='fasd_cd -i'
 
 [ $commands[kubectl] ] && alias k=kubectl && [ $commands[kubectx] ] && alias kc='kubectx' && alias -- -='kubectx -' || alias kc='kubectl config use-context'
 [ -f ~/Projekte/Perl/SandBox/krazy-kase.pl ] && alias kk='perl ~/Projekte/Perl/SandBox/krazy-kase.pl'
