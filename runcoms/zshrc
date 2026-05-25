@@ -133,7 +133,6 @@ alias cwd='echo \"$(pwd)\" | cpy'
 
 [ $commands[docker] ] && alias dk=docker && alias di='docker images'
 [ $commands[docker-compose] ] && alias dc=docker-compose
-alias df='df -h'
 [ $commands[docker-machine] ] && alias dm=docker-machine
 [ $commands[doggo] ] && alias dog=doggo
 alias du=dua
