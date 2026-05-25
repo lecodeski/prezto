@@ -78,8 +78,8 @@ zstyle -s ':prezto:module:utility:download' helper '<helper>'
 
 ### Disable Spelling Correction
 
-To disable spelling corrections for one specific command, add the following line to
-`init.zsh` at the `Aliases` block:
+To disable spelling corrections for one specific command, add the following
+line to your `runcoms/zshrc` at the `Aliases` block:
 
 ```sh
 alias [command]='nocorrect [command]'
