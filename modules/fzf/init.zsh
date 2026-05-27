@@ -3,16 +3,28 @@
 #
 
 # Source module files.
-if [ $commands[fzf] ]; then
+if (( $+commands[fzf] )); then
   #
   # fzf-git for fancy git widgets powered by fzf
   #
-  source "${0:h}/external/fzf-git/fzf-git.sh" 
+  source "${0:h}/external/fzf-git/fzf-git.sh"
+
+  # Shared path preview snippet: directories via eza, files via bat with a small header.
+  # Reads from $target; consumers set it before sourcing the snippet (see usages below).
+  # Kept as a string (not a function) so fzf's preview subshell can evaluate it too.
+  _fzf_path_preview='
+    if [[ -d $target ]]; then
+      eza --long --all --header --git --icons --color=always -- $target
+    elif [[ -f $target ]]; then
+      print -r -- "$(ls -lh -- $target | awk "{print \$5}") — $(file -b -- $target)"
+      print
+      bat --color=always --style=plain --line-range :100 -- $target 2>/dev/null
+    fi'
 
   #
   # fzf-tab for fancy completions powered by fzf
   #
-  # disable sort when completing 
+  # disable sort when completing
   zstyle ':completion:*' sort false
   # set descriptions format to enable group support
   # NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
@@ -38,14 +50,7 @@ if [ $commands[fzf] ]; then
   # hopefully this list won't get too long
   zstyle ':fzf-tab:complete:(alias|brew*):*' fzf-preview ''
   # preview generic arguments-rest with bat (for files) and eza (for directories)
-  zstyle ':fzf-tab:complete:*:(*argument-rest|argument-1|argument-2|)' fzf-preview '
-    if [[ -d $realpath ]]; then
-      eza --long --all --header --git --icons --color=always $realpath
-    elif [[ -f $realpath ]]; then
-      echo "$(ls -lh $realpath | awk "{print \$5}") — $(file -b $realpath)"
-      echo
-      bat --color=always --style=plain --line-range :100 $realpath 2>/dev/null
-    fi'
+  zstyle ':fzf-tab:complete:*:(*argument-rest|argument-1|argument-2|)' fzf-preview "target=\$realpath; $_fzf_path_preview"
 
   # switch group using `>` and `<`
   zstyle ':fzf-tab:*' switch-group '>' '<'
@@ -60,20 +65,9 @@ if [ $commands[fzf] ]; then
   #
   # Options
   #
-  export FZF_DEFAULT_PREVIEW='
-    if [[ -d {} ]]; then
-      eza --long --all --header --git --icons --color=always {}
-    elif [[ -f {} ]]; then
-      echo "$(ls -lh {} | awk "{print \$5}") — $(file -b {})"
-      echo
-      bat --color=always --style=plain --line-range :100 {} 2>/dev/null
-    fi'
+  export FZF_DEFAULT_PREVIEW_OPTS=" --preview 'target={}; $_fzf_path_preview' --preview-window '~1'"
 
-  export FZF_DEFAULT_PREVIEW_OPTS="
-    --preview '$FZF_DEFAULT_PREVIEW'
-    --preview-window '~1'"
-
-  # Use fd (Rust) as directory waker instead internal default (Go)
+  # Use fd (Rust) as directory walker instead of fzf's internal default (Go).
   export FZF_DEFAULT_COMMAND='fd --hidden --no-ignore-vcs'
   export FZF_CTRL_T_COMMAND='fd --hidden'
   export FZF_ALT_C_COMMAND='fd --hidden --type=d'
@@ -131,9 +125,9 @@ if [ $commands[fzf] ]; then
 
   # full text search with TUI: ripgrep -> sort -> fzf -> vim [QUERY] (with all args of ripgrep)
   fts() {
-    rg_args="${(j: :)${(@q)@:2}}"
+    local rg_args="${(j: :)${(@q)@:2}}"
 
-    RELOAD="reload:rg \
+    local RELOAD="reload:rg \
       --ignore \
       --column \
       --color=always \
@@ -141,7 +135,7 @@ if [ $commands[fzf] ]; then
       ${rg_args} \
       | sort --stable --field-separator=: --key=1,1 --ignore-case"
 
-    OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
+    local OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
               vim {1} +{2}     # No selection. Open the current line in Vim.
             else
               vim +cw -q {+f}  # Build quickfix list for the selected items.
