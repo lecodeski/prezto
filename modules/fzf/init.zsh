@@ -5,10 +5,8 @@
 # Source module files.
 if (( $+commands[fzf] )); then
   #
-  # fzf-git for fancy git widgets powered by fzf
+  # Options
   #
-  source "${0:h}/external/fzf-git/fzf-git.sh"
-
   # Shared path preview snippet: directories via eza, files via bat with a small header.
   # Reads from $target; consumers set it before sourcing the snippet (see usages below).
   # Kept as a string (not a function) so fzf's preview subshell can evaluate it too.
@@ -20,6 +18,63 @@ if (( $+commands[fzf] )); then
       print
       bat --color=always --style=plain --line-range :100 -- $target 2>/dev/null
     fi'
+
+  export FZF_DEFAULT_PREVIEW_OPTS=" --preview 'target={}; $_fzf_path_preview' --preview-window '~1'"
+
+  # Use fd (Rust) as directory walker instead of fzf's internal default (Go).
+  export FZF_DEFAULT_COMMAND='fd --hidden --no-ignore-vcs'
+  export FZF_CTRL_T_COMMAND='fd --hidden'
+  export FZF_ALT_C_COMMAND='fd --hidden --type=d'
+
+  # CTRL-/ to toggle small preview window to see the full command
+  # CTRL-Y to copy the command into clipboard using pbcopy
+  export FZF_CTRL_R_OPTS="
+    --preview 'echo {}' --preview-window up:3:hidden:wrap-word
+    --bind 'ctrl-/:toggle-preview'
+    --bind 'ctrl-y:execute-silent(printf %s {2..} | pbcopy)+abort'
+    --color header:italic
+    --header 'Press CTRL-Y to copy command into clipboard'"
+
+  # fzf-file-widget options
+  export FZF_CTRL_T_OPTS=$FZF_DEFAULT_PREVIEW_OPTS
+
+  # fzf-cd-widget (default ALT+C): Print tree structure in the preview window
+  export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
+
+  # Avoid using delta for preview (as per git config for side-by-side view)
+  export FZF_GIT_PAGER=cat
+
+  # Key Bindings
+  export FZF_DEFAULT_OPTS="
+    --style=full
+    --multi
+
+    --bind 'alt-a:select-all,alt-q:deselect-all'
+    --bind 'ctrl-p:change-preview-window(down|hidden|)'
+
+    --bind 'alt-f:forward-subword'
+    --bind 'alt-b:backward-subword'
+    --bind 'ctrl-backspace:backward-kill-subword'
+    --bind 'alt-d:kill-subword'
+    --bind 'alt-right:end-of-line'
+    --bind 'alt-left:beginning-of-line'
+
+    --bind 'ctrl-f:up'
+    --bind 'ctrl-v:down'
+    --bind 'ctrl-g:page-up'
+    --bind 'ctrl-b:page-down'
+    --bind 'ctrl-a:top'
+    --bind 'ctrl-e:last'
+    --bind 'ctrl-j:down-selected'
+    --bind 'ctrl-k:up-selected'
+
+    --bind 'up:preview-up'
+    --bind 'down:preview-down'
+    --bind 'ctrl-w:toggle-preview-wrap-word'
+    --bind 'page-up:preview-page-up'
+    --bind 'page-down:preview-page-down'
+    --bind 'home:preview-top'
+    --bind 'end:preview-bottom'"
 
   #
   # fzf-tab for fancy completions powered by fzf
@@ -62,67 +117,6 @@ if (( $+commands[fzf] )); then
   ### the redundant binding below is a workaround - the one from defaults is not working for some reason
   zstyle ':fzf-tab:*' fzf-flags --height=~75% --bind 'ctrl-backspace:backward-kill-subword'
 
-  #
-  # Options
-  #
-  export FZF_DEFAULT_PREVIEW_OPTS=" --preview 'target={}; $_fzf_path_preview' --preview-window '~1'"
-
-  # Use fd (Rust) as directory walker instead of fzf's internal default (Go).
-  export FZF_DEFAULT_COMMAND='fd --hidden --no-ignore-vcs'
-  export FZF_CTRL_T_COMMAND='fd --hidden'
-  export FZF_ALT_C_COMMAND='fd --hidden --type=d'
-
-  # CTRL-/ to toggle small preview window to see the full command
-  # CTRL-Y to copy the command into clipboard using pbcopy
-  export FZF_CTRL_R_OPTS="
-    --preview 'echo {}' --preview-window up:3:hidden:wrap-word
-    --bind 'ctrl-/:toggle-preview'
-    --bind 'ctrl-y:execute-silent(printf %s {2..} | pbcopy)+abort'
-    --color header:italic
-    --header 'Press CTRL-Y to copy command into clipboard'"
-
-  # fzf-file-widget options
-  export FZF_CTRL_T_OPTS=$FZF_DEFAULT_PREVIEW_OPTS
-
-  # fzf-cd-widget (default ALT+C): Print tree structure in the preview window
-  export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
-
-  # Avoid using delta for preview (as per git config for side-by-side view)
-  export FZF_GIT_PAGER=cat
-
-  # Preview file content using bat (https://github.com/sharkdp/bat)
-  # Key Bindings
-  export FZF_DEFAULT_OPTS="
-    --style=full
-    --multi
-
-    --bind 'alt-a:select-all,alt-q:deselect-all'
-    --bind 'ctrl-p:change-preview-window(down|hidden|)'
-
-    --bind 'alt-f:forward-subword'
-    --bind 'alt-b:backward-subword'
-    --bind 'ctrl-backspace:backward-kill-subword'
-    --bind 'alt-d:kill-subword'
-    --bind 'alt-right:end-of-line'
-    --bind 'alt-left:beginning-of-line'
-
-    --bind 'ctrl-f:up'
-    --bind 'ctrl-v:down'
-    --bind 'ctrl-g:page-up'
-    --bind 'ctrl-b:page-down'
-    --bind 'ctrl-a:top'
-    --bind 'ctrl-e:last'
-    --bind 'ctrl-j:down-selected'
-    --bind 'ctrl-k:up-selected'
-
-    --bind 'up:preview-up'
-    --bind 'down:preview-down'
-    --bind 'ctrl-w:toggle-preview-wrap-word'
-    --bind 'page-up:preview-page-up'
-    --bind 'page-down:preview-page-down'
-    --bind 'home:preview-top'
-    --bind 'end:preview-bottom'"
-
   # full text search with TUI: ripgrep -> sort -> fzf -> vim [QUERY] (with all args of ripgrep)
   fts() {
     local rg_args="${(j: :)${(@q)@:2}}"
@@ -149,9 +143,16 @@ if (( $+commands[fzf] )); then
         --preview 'bat --style=numbers,header-filesize --color=always --highlight-line {2} {1}' \
         --preview-window '~1,+{2}/3,<80(up)' \
         --query "$1"
-  }
-  compdef fts=rg
+  } && compdef fts=rg
 
+  #
+  # fzf-git for fancy git widgets powered by fzf
+  #
+  source "${0:h}/external/fzf-git/fzf-git.sh"
+
+  #
+  # Aliases
+  #
   alias fzp="fzf $FZF_DEFAULT_PREVIEW_OPTS"
   alias ap='export AWS_PROFILE=$(sed -n "s/\[profile \(.*\)\]/\1/gp" ~/.aws/config | fzf)'
 fi
