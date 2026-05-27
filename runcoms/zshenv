@@ -15,5 +15,6 @@ fi
 
 export BAT_CONFIG_PATH="${ZDOTDIR:-$HOME}/.batrc"
 export DELTA_FEATURES=+side-by-side
+export _FASD_NOCASE=true
 export RIPGREP_CONFIG_PATH="${ZDOTDIR:-$HOME}/.ripgreprc"
 export ZLE_RPROMPT_INDENT=0
