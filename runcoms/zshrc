@@ -224,6 +224,7 @@ alias üs=trans
 
 alias v=vim
 alias va='source .venv/bin/activate'
+alias vd=deactivate
 alias vpnstat='scutil --nc list | grep Connected'
 
 alias www=links
