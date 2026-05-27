@@ -60,8 +60,17 @@ if [ $commands[fzf] ]; then
   #
   # Options
   #
+  export FZF_DEFAULT_PREVIEW='
+    if [[ -d {} ]]; then
+      eza --long --all --header --git --icons --color=always {}
+    elif [[ -f {} ]]; then
+      echo "$(ls -lh {} | awk "{print \$5}") — $(file -b {})"
+      echo
+      bat --color=always --style=plain --line-range :100 {} 2>/dev/null
+    fi'
+
   export FZF_DEFAULT_PREVIEW_OPTS="
-    --preview 'bat --style header-filesize --color=always {}'
+    --preview '$FZF_DEFAULT_PREVIEW'
     --preview-window '~1'"
 
   # Use fd (Rust) as directory waker instead internal default (Go)
