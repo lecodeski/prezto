@@ -65,8 +65,9 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 ################
 [[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey '^H' backward-delete-word
 [[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey '^[^H' kill-whole-line
-bindkey '^[d' delete-word
 bindkey '^f' vi-forward-word
+bindkey '^w' vi-backward-word
+bindkey '^[d' delete-word
 bindkey '^[f' forward-word
 
 bindkey '^[[5~' history-beginning-search-backward # Page Up
