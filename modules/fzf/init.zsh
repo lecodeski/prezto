@@ -106,6 +106,8 @@ if (( $+commands[fzf] )); then
   zstyle ':fzf-tab:complete:(alias|brew*):*' fzf-preview ''
   # preview generic arguments-rest with bat (for files) and eza (for directories)
   zstyle ':fzf-tab:complete:*:(*argument-rest|argument-1|argument-2|)' fzf-preview "target=\$realpath; $_fzf_path_preview"
+  # preview for commands, functions and aliases with where
+  zstyle ':fzf-tab:complete:-command-:' fzf-preview 'where $word'
 
   # switch group using `>` and `<`
   zstyle ':fzf-tab:*' switch-group '>' '<'
