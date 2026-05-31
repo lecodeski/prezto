@@ -230,8 +230,6 @@ alias vpnstat='scutil --nc list | grep Connected'
 
 alias www=links
 
-[ $commands[yarn] ] && alias y='BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome yarn'
-
 alias äh="vim + ${ZDOTDIR:-$HOME}/.zsh_history \
   && /bin/cp ${ZDOTDIR:-$HOME}/.zsh_history ${ZDOTDIR:-$HOME}/.zsh_history.bak"
 
