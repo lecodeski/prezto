@@ -371,6 +371,7 @@ u() {
 wat() {
   ( # subshell to constrain unalias side-effects
   for cmd; do
+    captioned-delimiter "wat is [$cmd]"
     type -S "$cmd"
     if (( $+aliases[$cmd] )); then
       local -a words=(${${(z)aliases[$cmd]}:#(*=*|rlwrap|noglob|command)})
@@ -379,7 +380,12 @@ wat() {
         words[1]=${words[1]#\"}
         unalias "${words[1]}" 2>/dev/null
       fi
-      [[ ${words[1]} != "$cmd" ]] && wat "${words[1]}" && captioned-delimiter "looking up unaliased command [$cmd]" && wat "$cmd"
+      if [[ ${words[1]} != "$cmd" ]]; then
+        wat "${words[1]}"
+        captioned-delimiter "looking up unaliased command [$cmd]"
+        wat "$cmd"
+        continue
+      fi
     elif (( $+functions[$cmd] )); then
       whence -f "$cmd"
       (( $+commands[$cmd] )) && captioned-delimiter "shadowed command [$cmd]"
