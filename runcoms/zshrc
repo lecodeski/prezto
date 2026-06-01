@@ -314,7 +314,7 @@ fi
 
 captioned-delimiter() {
   termwidth="$(tput cols)"
-  padding="$(printf '%0.1s' '='{1..500})"
+  padding="$(printf '%0.1s' $2{1..500})"
   printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
 }
 
@@ -371,7 +371,7 @@ u() {
 wat() {
   ( # subshell to constrain unalias side-effects
   for cmd; do
-    captioned-delimiter "wat is [$cmd]"
+    captioned-delimiter "wat is [$cmd]" '-'
     type -S "$cmd"
     if (( $+aliases[$cmd] )); then
       local -a words=(${${(z)aliases[$cmd]}:#(*=*|rlwrap|noglob|command)})
@@ -382,13 +382,13 @@ wat() {
       fi
       if [[ ${words[1]} != "$cmd" ]]; then
         wat "${words[1]}"
-        captioned-delimiter "looking up unaliased command [$cmd]"
+        captioned-delimiter "looking up unaliased command [$cmd]" '-'
         wat "$cmd"
         continue
       fi
     elif (( $+functions[$cmd] )); then
       whence -f "$cmd"
-      (( $+commands[$cmd] )) && captioned-delimiter "shadowed command [$cmd]"
+      (( $+commands[$cmd] )) && captioned-delimiter "shadowed command [$cmd]" '-'
     fi
 
     if (( $+commands[$cmd] )); then
