@@ -139,8 +139,8 @@ alias cwd='echo \"$(pwd)\" | cpy'
 [ $commands[doggo] ] && alias dog=doggo
 alias du=dua
 
-alias f='fd --hidden --no-ignore'
-alias fr='_ fd --hidden --no-ignore --search-path /'
+alias f='fd --no-follow --hidden --no-ignore'
+alias fr='_ fd --no-follow --hidden --no-ignore --search-path /'
 
 alias g=git
 alias gA='git add --patch'

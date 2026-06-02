@@ -22,9 +22,9 @@ if (( $+commands[fzf] )); then
   export FZF_DEFAULT_PREVIEW_OPTS=" --preview 'target={}; $_fzf_path_preview' --preview-window '~1'"
 
   # Use fd (Rust) as directory walker instead of fzf's internal default (Go).
-  export FZF_DEFAULT_COMMAND='fd --hidden --no-ignore-vcs'
-  export FZF_CTRL_T_COMMAND='fd --hidden'
-  export FZF_ALT_C_COMMAND='fd --hidden --type=d'
+  export FZF_DEFAULT_COMMAND='fd --no-follow --hidden --no-ignore-vcs'
+  export FZF_CTRL_T_COMMAND='fd --no-follow --hidden'
+  export FZF_ALT_C_COMMAND='fd --no-follow --hidden --type=d'
 
   # CTRL-/ to toggle small preview window to see the full command
   # CTRL-Y to copy the command into clipboard using pbcopy
