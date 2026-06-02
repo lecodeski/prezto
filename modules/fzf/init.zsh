@@ -103,7 +103,7 @@ if (( $+commands[fzf] )); then
 
   # Workaround: exclude below preview for certain command as there is no exact 'files only' context qualifier
   # hopefully this list won't get too long
-  zstyle ':fzf-tab:complete:(alias|brew*):*' fzf-preview ''
+  zstyle ':fzf-tab:complete:(alias|brew*|ollama):*' fzf-preview ''
   # preview generic arguments-rest with bat (for files) and eza (for directories)
   zstyle ':fzf-tab:complete:*:(*argument-rest|argument-1|argument-2|)' fzf-preview "target=\$realpath; $_fzf_path_preview"
 
