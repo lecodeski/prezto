@@ -311,6 +311,14 @@ if [[ $commands[moco] ]]; then
   zbbc() {
     book_task "$1" "$2" "$3" "$4" '947103029' '24819463'
   }
+
+  zbo() {
+    book_task "$1" "$2" "$3" "$4" '948400434' '34765085'
+  }
+
+  zbon() {
+    book_task "$1" "$2" "$3" "$4" '948400434' '34765046'
+  }
 fi
 
 captioned-delimiter() {
