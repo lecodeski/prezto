@@ -89,6 +89,9 @@ noremap! <C-j> <Down>
 noremap! <C-k> <Up>
 noremap! <C-l> <Right>
 
+nnoremap # *
+nnoremap + #
+
 call plug#begin()
 " List your plugins here
 Plug 'tpope/vim-sensible'
