@@ -245,13 +245,6 @@ if [[ $commands[moco] ]]; then
   alias ü='moco overtime'
   alias üm='ü --monthly'
 
-  datestamp() {
-    [ $3 ] && echo "$3-$2-$1" && return
-    [ $2 ] && echo "$(date +%Y-)$2-$1" && return
-    [ $1 ] && echo "$(date +%Y-%m-)$1" && return
-    echo "$(date +%Y-%m-%d)"
-  }
-
   backward() {
     echo "--backward ${1:-0}"
   }
@@ -351,6 +344,13 @@ captioned-delimiter() {
   termwidth="$(tput cols)"
   padding="$(printf '%0.1s' $2{1..500})"
   printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
+}
+
+datestamp() {
+  [ $3 ] && echo "$3-$2-$1" && return
+  [ $2 ] && echo "$(date +%Y-)$2-$1" && return
+  [ $1 ] && echo "$(date +%Y-%m-)$1" && return
+  echo "$(date +%Y-%m-%d)"
 }
 
 [[ -d /Applications/Dash.app ]] && ds() {
