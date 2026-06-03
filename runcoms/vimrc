@@ -98,6 +98,7 @@ Plug 'tpope/vim-sensible'
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 Plug 'airblade/vim-gitgutter'
 Plug 'andymass/vim-matchup'
+Plug 'tomtom/tcomment_vim'
 call plug#end()
 
 :colorscheme catppuccin
