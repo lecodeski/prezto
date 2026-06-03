@@ -27,6 +27,7 @@ compdef _gnu_generic \
   unar
 
 (( $+commands[kind] )) && source <(kind completion zsh)
+(( $+commands[rustup] )) && source <(rustup completions zsh)
 
 # Prefer the richer zsh-bundled _git over the one shipped by Homebrew's git formula
 # without touching fpath (which would let _sccs shadow git-delta's _delta).
