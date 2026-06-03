@@ -26,7 +26,7 @@ compdef _gnu_generic \
   tig \
   unar
 
-[ $commands[kind] ] && source <(kind completion zsh)
+(( $+commands[kind] )) && source <(kind completion zsh)
 
 # Prefer the richer zsh-bundled _git over the one shipped by Homebrew's git formula
 # without touching fpath (which would let _sccs shadow git-delta's _delta).
