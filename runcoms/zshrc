@@ -233,7 +233,9 @@ alias vpnstat='scutil --nc list | grep Connected'
 alias www=links
 
 alias äh="vim + ${ZDOTDIR:-$HOME}/.zsh_history \
-  && /bin/cp ${ZDOTDIR:-$HOME}/.zsh_history ${ZDOTDIR:-$HOME}/.zsh_history.bak"
+  && /bin/cp ${ZDOTDIR:-$HOME}/.zsh_history ${ZDOTDIR:-$HOME}/.zsh_history.bak \
+  && arc ${ZDOTDIR:-$HOME}/.zsh_history.tar.xz ${ZDOTDIR:-$HOME}/.zsh_history \
+  && mv -f ${ZDOTDIR:-$HOME}/.zsh_history.tar.xz ${ZDOTDIR:-$HOME}/iCloud/"
 
 ### Functions
 #############
