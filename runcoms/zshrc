@@ -351,10 +351,10 @@ captioned-delimiter() {
 }
 
 datestamp() {
-  [ $3 ] && echo "$3-$2-$1" && return
-  [ $2 ] && echo "$(date +%Y-)$2-$1" && return
-  [ $1 ] && echo "$(date +%Y-%m-)$1" && return
-  echo "$(date +%Y-%m-%d)"
+  # Args (day month year); omitted fields default to today. Pads to ISO YYYY-MM-DD
+  # a <70 year maps to 20**, a <100 year maps to 19**
+  local y=${3:-$(date +%Y)}
+  printf '%04d-%02d-%02d\n' $(( y<70 ? y+2000 : y<100 ? y+1900 : y)) ${2:-$(date +%m)} ${1:-$(date +%d)}
 }
 
 [[ -d /Applications/Dash.app ]] && ds() {
