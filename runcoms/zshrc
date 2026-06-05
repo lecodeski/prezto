@@ -22,6 +22,7 @@ compdef _gnu_generic \
   jiq \
   ldapsearch \
   ncdu \
+  openconnect \
   rga \
   tig \
   unar
