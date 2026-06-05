@@ -249,12 +249,16 @@ if [[ $commands[moco] ]]; then
   alias ü='moco overtime'
   alias üm='ü --monthly'
 
+  _moco_datestamp() {
+    echo "--date $(datestamp "$1" "$2" "$3")"
+  }
+
   _backward() {
     echo "--backward ${1:-0}"
   }
 
   z() {
-    moco list --date $(datestamp "$1" "$2" "$3")
+    moco list $(_moco_datestamp "$1" "$2" "$3")
   }
 
   zt() {
@@ -270,15 +274,15 @@ if [[ $commands[moco] ]]; then
   }
 
   ze() {
-    moco edit-date --date $(datestamp "$1" "$2" "$3")
+    moco edit-date $(_moco_datestamp "$1" "$2" "$3")
   }
 
   zl() {
-    moco rm --date $(datestamp "$1" "$2" "$3")
+    moco rm $(_moco_datestamp "$1" "$2" "$3")
   }
 
   zb() {
-    moco new --hours ${1/,/.} --date $(datestamp "$2" "$3" "$4") $5 $6 $7 $8
+    moco new --hours ${1/,/.} --date $(_moco_datestamp "$2" "$3" "$4") $5 $6 $7 $8
     z "$2" "$3" "$4"
   }
 
