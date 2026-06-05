@@ -286,6 +286,9 @@ if [[ $commands[moco] ]]; then
     z "$2" "$3" "$4"
   }
 
+  # specific tasks: _zb reorders args putting <project> <task> ids to trailing positions
+  _zb() {zb "$3" "$4" "$5" "$6" "$7" "$1" "$2" }
+
   # specific tasks
   zbam() {zb "$1" "$2" "$3" "$4" "$5" '945824843' '26593282'}
   zbag() {zb "$1" "$2" "$3" "$4" "$5" '945824843' '26593295'}
