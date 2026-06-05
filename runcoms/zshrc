@@ -249,7 +249,7 @@ if [[ $commands[moco] ]]; then
   alias ü='moco overtime'
   alias üm='ü --monthly'
 
-  backward() {
+  _backward() {
     echo "--backward ${1:-0}"
   }
 
@@ -258,15 +258,15 @@ if [[ $commands[moco] ]]; then
   }
 
   zt() {
-    moco list $(backward "$1")
+    moco list $(_backward "$1")
   }
 
   zw() {
-    moco list --week $(backward "$1")
+    moco list --week $(_backward "$1")
   }
 
   zm() {
-    moco list --month $(backward "$1")
+    moco list --month $(_backward "$1")
   }
 
   ze() {
