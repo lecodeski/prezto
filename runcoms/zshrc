@@ -229,7 +229,7 @@ alias üs=trans
 alias v=vim
 alias va='source .venv/bin/activate'
 alias vd=deactivate
-alias vpnstat='scutil --nc list | grep Connected'
+alias vpnstat="ifconfig | grep '\-->' || ip a show utun8 2> /dev/null || scutil --nc list | grep Connected"
 
 alias www=links
 
