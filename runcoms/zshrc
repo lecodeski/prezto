@@ -233,10 +233,11 @@ alias vpnstat="ifconfig | grep '\-->' || ip a show utun8 2> /dev/null || scutil 
 
 alias www=links
 
-alias äh="vim + ${ZDOTDIR:-$HOME}/.zsh_history \
-  && /bin/cp ${ZDOTDIR:-$HOME}/.zsh_history ${ZDOTDIR:-$HOME}/.zsh_history.bak \
-  && arc ${ZDOTDIR:-$HOME}/.zsh_history.tar.xz ${ZDOTDIR:-$HOME}/.zsh_history \
-  && mv -f ${ZDOTDIR:-$HOME}/.zsh_history.tar.xz ${ZDOTDIR:-$HOME}/iCloud/"
+alias äh="cd ${ZDOTDIR:-$HOME} \
+  && vim .zsh_history \
+  && /bin/cp .zsh_history .zsh_history.bak \
+  && arc .zsh_history.txz .zsh_history && mv -f .zsh_history.txz iCloud/ \
+  && popd"
 
 ### Functions
 #############
