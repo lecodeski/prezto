@@ -282,7 +282,7 @@ if [[ $commands[moco] ]]; then
   }
 
   zb() {
-    moco new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") ${5:+--description $5} ${6:+--project $6} ${7:+--task $7}
+    moco new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") ${5:+--description=$5} ${6:+--project=$6} ${7:+--task=$7}
     z "$2" "$3" "$4"
   }
 
