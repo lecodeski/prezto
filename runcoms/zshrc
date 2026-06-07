@@ -275,16 +275,19 @@ if [[ $commands[moco] ]]; then
 
   ze() {
     moco edit-date $(_moco_datestamp "$1" "$2" "$3")
+    echo
     z "$1" "$2" "$3"
   }
 
   zl() {
     moco rm $(_moco_datestamp "$1" "$2" "$3")
+    echo
     z "$1" "$2" "$3"
   }
 
   zb() {
     moco new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") ${5:+--description=$5} ${6:+--project=$6} ${7:+--task=$7}
+    echo
     z "$2" "$3" "$4"
   }
 
