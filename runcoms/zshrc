@@ -194,7 +194,7 @@ alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel1
 [ $commands[batman] ] && alias man=batman && compdef batman=man
 [ $commands[minikube] ] && alias mk=minikube
 [ $commands[mtr] ] && alias mtr='_ mtr'
-alias mv='/bin/mv -i -v'
+alias mv='command mv -i -v'
 
 alias ncdu='_ ncdu --extended --color dark'
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium npm'
