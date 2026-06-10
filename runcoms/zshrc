@@ -289,7 +289,9 @@ if [[ $commands[moco] ]]; then
   }
 
   zb() {
-    moco new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") ${5:+--description=$5} ${6:+--project=$6} ${7:+--task=$7}
+    # text in $1 → treat it as the description
+    [[ $1 == *[^0-9,]* ]] && set -- "$2" "$3" "$4" "$5" "$1" "$6" "$7"
+    moco new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") --description="$5" ${6:+--project=$6} ${7:+--task=$7}
     echo
     z "$2" "$3" "$4"
   }
