@@ -277,7 +277,7 @@ if [[ $commands[moco] ]]; then
   }
 
   ze() {
-    moco edit-date $(_moco_datestamp "$1" "$2" "$3")
+    moco edit $(_moco_datestamp "$1" "$2" "$3")
     echo
     z "$1" "$2" "$3"
   }
