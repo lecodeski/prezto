@@ -248,7 +248,7 @@ if [[ $commands[moco] ]]; then
   unalias e
 
   alias s='moco timer start'
-  alias e='moco timer stop'
+  alias e='moco timer stop && echo && z'
   alias ü='moco overtime'
   alias üm='ü --monthly'
 
