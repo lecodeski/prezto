@@ -132,7 +132,8 @@ alias c=cd
 
 alias ci=compinit
 [ !$commands[cpy] ] && alias cpy=pbcopy
-alias cr='cp --recursive'
+alias cp="${aliases[cp]} --verbose"
+alias cr="${aliases[cp]} --recursive"
 alias cwd='echo \"$(pwd)\" | cpy'
 
 [ $commands[docker] ] && alias dk=docker && alias di='docker images'
@@ -188,6 +189,7 @@ zstyle -t ':prezto:module:fasd' loaded && alias j=fasd_cd && alias jj='fasd_cd -
 [ -x ~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh ] && alias kkc=~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh
 
 alias l=locate
+alias ln="${aliases[ln]} --verbose"
 alias lz='git -C ${ZDOTDIR:-$HOME}/.zprezto l'
 alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k l'
 
@@ -213,7 +215,8 @@ alias rd='rmdir -v'
 alias rg='batgrep --terminal-width=$(tput cols)' && compdef batgrep=rg
 alias rga='rga --line-number'
 alias rgp="${commands[rg]}"
-alias rr='rm -rIv'
+alias rm="${aliases[rm]} --verbose"
+alias rr='rm -I --recursive'
 
 alias scr='scp -r'
 [ $commands[subl] ] && alias sl=subl
