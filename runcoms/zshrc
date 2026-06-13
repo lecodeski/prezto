@@ -383,6 +383,7 @@ u() {
 # 2026-05-06 +lecodeski+  call brew which-formula for commands
 # 2026-05-06 +lecodeski+  move whatis lookup below tldr
 # 2026-06-01 +lecodeski+  avoid duplicate command lookups in wat function
+# 2026-06-10 +lecodeski+  remove elif and separate condition check for function existence
 wat() {
   ( # subshell to constrain unalias side-effects
   for cmd; do
