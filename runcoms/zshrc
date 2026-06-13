@@ -17,6 +17,7 @@ fi
 compdef _gnu_generic \
   choose \
   dive \
+  duf \
   file \
   fzf \
   jiq \
