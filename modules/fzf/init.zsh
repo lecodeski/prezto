@@ -155,6 +155,11 @@ if (( $+commands[fzf] )); then
   source "${0:h}/external/fzf-git/fzf-git.sh"
 
   #
+  # fzf-fasd for fzf completions for fasd
+  #
+  source "${0:h}/fzf-fasd.plugin.zsh"
+
+  #
   # Aliases
   #
   alias fzp="fzf $FZF_DEFAULT_PREVIEW_OPTS"
