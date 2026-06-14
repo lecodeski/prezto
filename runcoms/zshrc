@@ -149,6 +149,11 @@ alias cwd='echo \"$(pwd)\" | cpy'
 [ $commands[doggo] ] && alias dog=doggo
 alias du=dua
 
+alias enf="env | fzf
+    --bind 'ctrl-x:execute-silent(echo {2..})'
+    --color header:italic
+    --header 'Press CTRL-X to copy command into clipboard'"
+
 alias f='fd --no-follow --hidden --no-ignore'
 alias fr='_ fd --no-follow --hidden --no-ignore --search-path /'
 
