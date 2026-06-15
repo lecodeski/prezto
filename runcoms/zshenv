@@ -1,3 +1,4 @@
+echo $PATH
 #
 # Defines environment variables.
 #
@@ -18,3 +19,4 @@ export DELTA_FEATURES=+side-by-side
 export _FASD_NOCASE=true
 export RIPGREP_CONFIG_PATH="${ZDOTDIR:-$HOME}/.ripgreprc"
 export ZLE_RPROMPT_INDENT=0
+echo $PATH

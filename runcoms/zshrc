@@ -1,3 +1,4 @@
+echo $PATH
 #!/bin/zsh
 
 # Source Prezto.
@@ -476,3 +477,4 @@ zshaddhistory() {
 ### ZSH Options
 ###########
 setopt globdots
+echo $PATH
