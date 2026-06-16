@@ -245,12 +245,12 @@ alias äh="cd ${ZDOTDIR:-$HOME} \
 
 ### Functions
 #############
-if [[ $commands[moco] ]]; then
+if [[ $commands[mococli] ]]; then
   unalias e
 
-  alias s='moco timer start'
-  alias e='moco timer stop && echo && z'
-  alias ü='moco overtime'
+  alias s='mococli timer start'
+  alias e='mococli timer stop && echo && z'
+  alias ü='mococli overtime'
   alias üm='ü --monthly'
 
   _moco_datestamp() {
@@ -262,29 +262,29 @@ if [[ $commands[moco] ]]; then
   }
 
   z() {
-    moco list $(_moco_datestamp "$1" "$2" "$3")
+    mococli list $(_moco_datestamp "$1" "$2" "$3")
   }
 
   zt() {
-    moco list $(_backward "$1")
+    mococli list $(_backward "$1")
   }
 
   zw() {
-    moco list --week $(_backward "$1")
+    mococli list --week $(_backward "$1")
   }
 
   zm() {
-    moco list --month $(_backward "$1")
+    mococli list --month $(_backward "$1")
   }
 
   ze() {
-    moco edit $(_moco_datestamp "$1" "$2" "$3")
+    mococli edit $(_moco_datestamp "$1" "$2" "$3")
     echo
     z "$1" "$2" "$3"
   }
 
   zl() {
-    moco rm $(_moco_datestamp "$1" "$2" "$3")
+    mococli rm $(_moco_datestamp "$1" "$2" "$3")
     echo
     z "$1" "$2" "$3"
   }
@@ -292,7 +292,7 @@ if [[ $commands[moco] ]]; then
   zb() {
     # text in $1 → treat it as the description
     [[ $1 == *[^0-9,]* ]] && set -- "$2" "$3" "$4" "$5" "$1" "$6" "$7"
-    moco new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") --description="$5" ${6:+--project=$6} ${7:+--task=$7}
+    mococli new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") --description="$5" ${6:+--project=$6} ${7:+--task=$7}
     echo
     z "$2" "$3" "$4"
   }
