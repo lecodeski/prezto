@@ -130,6 +130,7 @@ if [[ $commands[brew] ]]; then
 fi
 
 alias c=cd
+(( $+commands[claude] )) && alias cc=claude
 
 alias ci=compinit
 [ !$commands[cpy] ] && alias cpy=pbcopy
