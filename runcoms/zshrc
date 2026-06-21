@@ -129,6 +129,7 @@ if [[ $commands[brew] ]]; then
   alias bRz='brew remove --force --zap'
   alias bs='brew search'
   alias bsv='brew services'
+  alias bt='brew tap'
   alias bu='brew uses --installed'
 fi
 
