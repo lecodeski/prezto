@@ -65,6 +65,8 @@ if (( $+commands[fzf] )); then
     --bind 'ctrl-b:page-down'
     --bind 'ctrl-a:top'
     --bind 'ctrl-e:last'
+
+    --bind 'f4:toggle'
     --bind 'ctrl-j:down-selected'
     --bind 'ctrl-k:up-selected'
 
