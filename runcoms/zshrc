@@ -304,8 +304,15 @@ if [[ $commands[mococli] ]]; then
   }
 
   zb() {
-    # text in $1 → treat it as the description
-    [[ $1 == *[^0-9,]* ]] && set -- "$2" "$3" "$4" "$5" "$1" "$6" "$7"
+    # text in a pos arg → treat it as the description
+    for i in {1..$#}; do
+      if [[ $argv[$i] == *[^0-9,]* ]]; then
+        local desc=$argv[$i]
+        argv[$i]=() && argv[5,4]=$desc
+        break
+      fi
+    done
+
     mococli new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") --description="$5" ${6:+--project=$6} ${7:+--task=$7}
     echo
     z "$2" "$3" "$4"
