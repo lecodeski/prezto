@@ -263,24 +263,32 @@ if [[ $commands[mococli] ]]; then
     echo "--date $(datestamp "$1" "$2" "$3")"
   }
 
-  _backward() {
-    echo "--backward ${1:-0}"
-  }
-
   z() {
     mococli list $(_moco_datestamp "$1" "$2" "$3")
   }
 
   zt() {
-    mococli list $(_backward "$1")
+    zta "$1" "--backward"
   }
 
   zw() {
-    mococli list --week $(_backward "$1")
+    zwa "$1" "--backward"
   }
 
   zm() {
-    mococli list --month $(_backward "$1")
+    zma "$1" "--backward"
+  }
+
+  zta() {
+    mococli list --day ${1:-0} ${2:+$2}
+  }
+
+  zwa() {
+    mococli list --week ${1:-0} ${2:+$2}
+  }
+
+  zma() {
+    mococli list --month ${1:-0} ${2:+$2}
   }
 
   ze() {
