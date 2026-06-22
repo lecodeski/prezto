@@ -251,7 +251,7 @@ alias ä="cd ${ZDOTDIR:-$HOME} \
 
 ### Functions
 #############
-if [[ $commands[mococli] ]]; then
+if (( $+commands[mococli] )); then
   unalias e
 
   alias s='mococli timer start'
@@ -260,47 +260,32 @@ if [[ $commands[mococli] ]]; then
   alias üm='ü --monthly'
 
   _moco_datestamp() {
-    echo "--date $(datestamp "$1" "$2" "$3")"
+    echo "--date $(datestamp "$@")"
   }
 
   z() {
-    mococli list $(_moco_datestamp "$1" "$2" "$3")
+    mococli list $(_moco_datestamp "$@")
   }
 
-  zt() {
-    zta "$1" "--backward"
+  # List a relative period; the *a variants take an optional direction flag.
+  _moco_list() {
+    mococli list --$1 ${2:-0} ${3:+$3}
   }
+  zta() { _moco_list day   "$@" }
+  zwa() { _moco_list week  "$@" }
+  zma() { _moco_list month "$@" }
+  zt()  { zta "$1" --backward }
+  zw()  { zwa "$1" --backward }
+  zm()  { zma "$1" --backward }
 
-  zw() {
-    zwa "$1" "--backward"
-  }
-
-  zm() {
-    zma "$1" "--backward"
-  }
-
-  zta() {
-    mococli list --day ${1:-0} ${2:+$2}
-  }
-
-  zwa() {
-    mococli list --week ${1:-0} ${2:+$2}
-  }
-
-  zma() {
-    mococli list --month ${1:-0} ${2:+$2}
-  }
-
+  # Edit/remove a day's entries, then re-list that day.
   ze() {
-    mococli edit $(_moco_datestamp "$1" "$2" "$3")
-    echo
-    z "$1" "$2" "$3"
+    mococli edit $(_moco_datestamp "$@")
+    echo && z "$@"
   }
-
   zl() {
-    mococli rm $(_moco_datestamp "$1" "$2" "$3")
-    echo
-    z "$1" "$2" "$3"
+    mococli rm $(_moco_datestamp "$@")
+    echo && z "$@"
   }
 
   zb() {
@@ -314,30 +299,29 @@ if [[ $commands[mococli] ]]; then
     done
 
     mococli new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") --description="$5" ${6:+--project=$6} ${7:+--task=$7}
-    echo
-    z "$2" "$3" "$4"
+    echo && z "$2" "$3" "$4"
   }
 
-  # specific tasks: _zb reorders args putting <project> <task> ids to trailing positions
-  _zb() {zb "$3" "$4" "$5" "$6" "$7" "$1" "$2" }
+  # specific tasks: _zb reorders args, moving <project> <task> ids to trailing positions
+  _zb() { zb "$3" "$4" "$5" "$6" "$7" "$1" "$2" }
 
-  zbad() {_zb '945824843' '26699057' "$@"}
-  zbaf() {_zb '945824843' '26593282' "$@"}
-  zbagf(){_zb '945824843' '23750892' "$@"}
-  zbag() {_zb '945824843' '26593295' "$@"}
-  zbat() {_zb '945824843' '12188024' "$@"}
+  zbad()  { _zb 945824843 26699057 "$@" }
+  zbaf()  { _zb 945824843 26593282 "$@" }
+  zbagf() { _zb 945824843 23750892 "$@" }
+  zbag()  { _zb 945824843 26593295 "$@" }
+  zbat()  { _zb 945824843 12188024 "$@" }
 
-  zbgr() {_zb '945850311' '12120234' "$@"}
+  zbgr()  { _zb 945850311 12120234 "$@" }
 
-  zbwf() {_zb '947103029' '24819516' "$@"}
-  zbwc() {_zb '947103029' '24819541' "$@"}
-  zbwb() {_zb '947103029' '24819463' "$@"}
-  zbwk() {_zb '947103029' '24819540' "$@"}
-  zbwm() {_zb '947103029' '30940944' "$@"}
-  zbwa() {_zb '947103029' '24819542' "$@"}
+  zbwf()  { _zb 947103029 24819516 "$@" }
+  zbwc()  { _zb 947103029 24819541 "$@" }
+  zbwb()  { _zb 947103029 24819463 "$@" }
+  zbwk()  { _zb 947103029 24819540 "$@" }
+  zbwm()  { _zb 947103029 30940944 "$@" }
+  zbwa()  { _zb 947103029 24819542 "$@" }
 
-  zbo()  {_zb '948400434' '34765085' "$@"}
-  zbon() {_zb '948400434' '34765046' "$@"}
+  zbo()   { _zb 948400434 34765085 "$@" }
+  zbon()  { _zb 948400434 34765046 "$@" }
 fi
 
 captioned-delimiter() {
