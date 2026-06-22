@@ -25,6 +25,7 @@ compdef _gnu_generic \
   ldapsearch \
   ncdu \
   openconnect \
+  reveal-md \
   rga \
   tig \
   unar
