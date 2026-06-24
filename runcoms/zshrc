@@ -283,8 +283,14 @@ if (( $+commands[mococli] )); then
     mococli edit $(_moco_datestamp "$@")
     echo && z "$@"
   }
+
   zl() {
     mococli rm $(_moco_datestamp "$@")
+    echo && z "$@"
+  }
+
+  zll() {
+    mococli rm $(_moco_datestamp "$@") --loop
     echo && z "$@"
   }
 
