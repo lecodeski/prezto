@@ -328,6 +328,7 @@ if (( $+commands[mococli] )); then
 
   zbo()   { _zb 948400434 34765085 "$@" }
   zbon()  { _zb 948400434 34765046 "$@" }
+  zbor()  { _zb 948400434 35365487 "$@" }
 fi
 
 captioned-delimiter() {
