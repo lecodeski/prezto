@@ -16,3 +16,5 @@
 *.rej
 
 Documentation
+
+**/.claude/settings.local.json
