@@ -257,7 +257,7 @@ if (( $+commands[mococli] )); then
   alias s='mococli timer start'
   alias e='mococli timer stop && echo && z'
   alias ü='mococli overtime'
-  alias üm='ü --monthly'
+  alias üm="$aliases[ü] --monthly"
 
   _moco_datestamp() {
     echo "--date $(datestamp "$@")"
