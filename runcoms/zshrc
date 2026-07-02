@@ -135,7 +135,7 @@ if [[ $commands[brew] ]]; then
 fi
 
 alias c=cd
-(( $+commands[claude] )) && alias cc=claude
+(( $+commands[claude] )) && alias cc='claude' && alias ca='claude agents' && alias ccp='claude --print --no-session-persistence'
 
 alias ci=compinit
 [ !$commands[cpy] ] && alias cpy=pbcopy
