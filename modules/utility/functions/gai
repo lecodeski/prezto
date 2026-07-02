@@ -1,0 +1,117 @@
+#
+# ai-commit — generate a commit message for the staged diff and commit it.
+# Fast path: one direct Haiku API call (ANTHROPIC_API_KEY, or the unexpired
+# Claude Code OAuth token from the macOS Keychain).
+# Fallback: `claude -p` with MCP servers stripped (uses Claude Code auth).
+#
+
+# function gai {
+
+emulate -L zsh
+
+local model=claude-haiku-4-5
+
+if ! command git rev-parse --git-dir &>/dev/null; then
+  print -u2 "$0: not a repository work tree: $PWD"
+  return 1
+fi
+
+local diff stat style
+diff=$(command git diff --cached)
+if [[ -z "$diff" ]]; then
+  command git add -A
+  diff=$(command git diff --cached)
+  [[ -n "$diff" ]] && print -u2 "$0: nothing staged, staged all changes"
+fi
+if [[ -z "$diff" ]]; then
+  print -u2 "$0: nothing to commit"
+  return 1
+fi
+diff=${diff[1,12000]}
+
+stat=$(command git diff --cached --stat | tail -20)
+style=$(command git log -10 --format='%s' 2>/dev/null)
+
+# keep the rules in sync with ~/.claude/commands/commit.md (/commit)
+local request="Write a git commit message for the diff below. Output ONLY the raw commit message — no preamble, no quotes, no markdown fences.
+
+Rules:
+- Subject: imperative mood, max 50 chars, no trailing period.
+- Use conventional-commit prefixes (feat:/fix:/...) only if the recent subjects below use them.
+- Be concrete and tangible: name the actual functions, files, or behavior that changed (e.g. 'fix: reject empty names in greet()', not 'fix: improve validation').
+- Body only if the change is non-trivial: what changed and why, wrapped at 72 chars, blank line after the subject. Trivial changes get no body.
+- Never mention AI, assistants, or code generation. No trailers, no emoji.
+
+Recent subjects:
+$style
+
+Stats:
+$stat
+
+Diff:
+$diff"
+
+# Auth resolution: API key > unexpired Claude Code OAuth token > claude -p
+local auth_mode='' secret=''
+if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+  auth_mode=apikey secret=$ANTHROPIC_API_KEY
+else
+  secret=$(command security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null \
+    | python3 -c 'import json, sys, time
+c = json.load(sys.stdin)["claudeAiOauth"]
+e = c.get("expiresAt")
+if e and e / 1000 <= time.time():
+    sys.exit(1)
+print(c["accessToken"])' 2>/dev/null)
+  [[ -n "$secret" ]] && auth_mode=oauth
+fi
+
+local msg=''
+if [[ -n "$auth_mode" ]]; then
+  msg=$(AIC_AUTH_MODE=$auth_mode AIC_SECRET=$secret AIC_MODEL=$model python3 - "$request" <<'PY'
+import json, os, sys, urllib.request
+
+headers = {"anthropic-version": "2023-06-01", "content-type": "application/json"}
+if os.environ["AIC_AUTH_MODE"] == "oauth":
+    headers["Authorization"] = "Bearer " + os.environ["AIC_SECRET"]
+    headers["anthropic-beta"] = "oauth-2025-04-20"
+else:
+    headers["x-api-key"] = os.environ["AIC_SECRET"]
+
+req = urllib.request.Request(
+    "https://api.anthropic.com/v1/messages",
+    data=json.dumps({
+        "model": os.environ["AIC_MODEL"],
+        "max_tokens": 400,
+        "messages": [{"role": "user", "content": sys.argv[1]}],
+    }).encode(),
+    headers=headers,
+)
+try:
+    resp = json.load(urllib.request.urlopen(req, timeout=30))
+    print(next(b["text"] for b in resp["content"] if b["type"] == "text").strip())
+except Exception as e:
+    print(f"ai-commit: API call failed ({e}), falling back", file=sys.stderr)
+    sys.exit(1)
+PY
+)
+fi
+
+if [[ -z "$msg" ]]; then
+  # request via stdin: --mcp-config is variadic and would swallow a trailing arg
+  msg=$(print -r -- "$request" | command claude -p --model $model --no-session-persistence \
+    --strict-mcp-config --mcp-config '{"mcpServers":{}}') || {
+    print -u2 "$0: claude -p failed${msg:+: $msg}"
+    return 1
+  }
+fi
+
+if [[ -z "$msg" ]]; then
+  print -u2 "$0: empty message from model"
+  return 1
+fi
+
+print -r -- "$msg" | command git commit -F - || return 1
+command git log -1 --format='%h %s'
+
+# }
