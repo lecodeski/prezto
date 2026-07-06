@@ -135,12 +135,12 @@ if [[ $commands[brew] ]]; then
 fi
 
 alias c=cd
-(( $+commands[claude] )) && alias cc='claude' && alias ca='claude agents' && alias ccp='claude --print --no-session-persistence'
+(( $+commands[claude] )) && alias cc='claude' && alias ca='claude agents' && alias cr='claude --resume' alias ccp='claude --print --no-session-persistence'
 
 alias ci=compinit
 [ !$commands[cpy] ] && alias cpy=pbcopy
 alias cp="${aliases[cp]} --verbose"
-alias cr="${aliases[cp]} --recursive"
+alias cpr="${aliases[cp]} --recursive"
 alias cwd='echo \"$(pwd)\" | cpy'
 
 [ $commands[docker] ] && alias dk=docker && alias di='docker images'
