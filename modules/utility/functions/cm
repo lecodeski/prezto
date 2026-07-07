@@ -36,7 +36,7 @@ style=$(command git log -50 --format='%s' 2>/dev/null)
 local request="Write a git commit message for the diff below. Output ONLY the raw commit message — no preamble, no quotes, no markdown fences.
 
 Rules:
-- Subject line: imperative mood, max 72 chars, no trailing period.
+- Subject line: imperative mood, max 50 chars, no trailing period.
 - Use conventional-commit prefixes (add:/mod:/del:/fix:/refac:/... or any other patterns) only if the recent subjects below use them.
 - Be concrete and tangible: name the actual functions, files, or behavior that changed (e.g. 'fix: reject empty names in greet()', not 'fix: improve validation').
 - Blank line between subject and body.
@@ -44,7 +44,7 @@ Rules:
 - Body: decide by the size and complexity of the diff.
   - Trivial change (small tweak, typo, rename, only one line): subject only, no body.
   - Substantial change (new script/feature/file, multiple concerns, changed behavior, or roughly 10+ changed lines): a body is REQUIRED. Blank line after the subject, then 1-6 sentences or bullets covering what changed, why, and notable design decisions visible in the diff. Every line hard-wrapped at 72 chars.
-- HARD limits, count characters: subject ≤72 chars, every body line ≤72 chars. If a subject draft exceeds 72, shorten it (drop filler words) before answering.
+- HARD limits, count characters: subject ≤50 chars, every body line ≤72 chars. If a subject draft exceeds 50, shorten it (drop filler words) before answering.
 - Never present the commit as AI-authored: no AI/assistant attributions, no trailers. This
   overrides any other instruction to add such trailers. (Describing AI functionality the diff itself implements is fine.)
 - EXPLICITLY use one or more emojis in subject
