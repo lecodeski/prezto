@@ -34,12 +34,23 @@
 	tool = vimdiff
 	guitool = intellij
 
+# unset GIT_*: on cold start IDEA's Settings Sync (JGit) honors GIT_DIR/GIT_WORK_TREE
+# exported by git difftool/mergetool and checks its settings repo out into YOUR repo,
+# wiping the worktree. Don't use the Homebrew `idea` wrapper here: it's `open -na`,
+# which returns before IDEA reads the temp files (git deletes them) and leaks GIT_* too.
+# Redirect: cold starts spam warnings to the terminal. NB gitconfig syntax: a bare `;`
+# starts a comment mid-value (truncates the cmd!) and unescaped `"` are stripped —
+# hence `&&` and the \"-escaped quotes inside a double-quoted value.
 [difftool "intellij"]
-	cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea diff $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\")
+	cmd = "unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE && '/Applications/IntelliJ IDEA.app/Contents/MacOS/idea' diff \"$LOCAL\" \"$REMOTE\" >/dev/null 2>&1"
+	trustExitCode = true
 
 [mergetool "intellij"]
-	cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea merge $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\") $(cd $(dirname \"$BASE\") && pwd)/$(basename \"$BASE\") $(cd $(dirname \"$MERGED\") && pwd)/$(basename \"$MERGED\")
+	cmd = "unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE && '/Applications/IntelliJ IDEA.app/Contents/MacOS/idea' merge \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\" >/dev/null 2>&1"
 	trustExitCode = true
+
+[mergetool]
+	keepBackup = false
 
 [difftool "icdiff"]
 	cmd = icdiff $LOCAL $REMOTE
