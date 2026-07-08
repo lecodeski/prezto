@@ -398,6 +398,7 @@ u() {
 # 2026-05-06 +lecodeski+  move whatis lookup below tldr
 # 2026-06-01 +lecodeski+  avoid duplicate command lookups in wat function
 # 2026-06-10 +lecodeski+  remove elif and separate condition check for function existence
+# 2026-07-08 +lecodeski+  add: display file contents in `wat` function
 wat() {
   ( # subshell to constrain unalias side-effects
   for cmd; do
@@ -425,6 +426,9 @@ wat() {
 
     if (( $+commands[$cmd] )); then
       file "${commands[$cmd]}"
+      if [[ "$(file -b --mime-encoding "${commands[$cmd]}")" != binary ]]; then
+        bat "${commands[$cmd]}" --no-paging
+      fi
       (( $+commands[tldr] )) && tldr "$cmd" --short-options
       whatis "$cmd" | grep "^${cmd}(" | sort --unique
       brew which-formula "$cmd"
