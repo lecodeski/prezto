@@ -4,6 +4,7 @@
 # Fast path: one direct Haiku API call (ANTHROPIC_API_KEY, or the unexpired
 # Claude Code OAuth token from the macOS Keychain).
 # Fallback: `claude -p` with MCP servers stripped (uses Claude Code auth).
+# Pass -t/--time to print per-step timings (api call, fallback) to stderr.
 #
 
 # function gai {
@@ -11,6 +12,13 @@
 emulate -L zsh
 
 local model=claude-haiku-4-5
+
+local timing=0
+if [[ ${1:-} == (-t|--time) ]]; then
+  timing=1
+  zmodload zsh/datetime
+  shift
+fi
 
 if ! command git rev-parse --git-dir &>/dev/null; then
   print -u2 "$0: not a repository work tree: $PWD"
@@ -77,8 +85,9 @@ print(c["accessToken"])' 2>/dev/null)
   [[ -n "$secret" ]] && auth_mode=oauth
 fi
 
-local msg=''
+local msg='' t0
 if [[ -n "$auth_mode" ]]; then
+  (( timing )) && t0=$EPOCHREALTIME
   msg=$(AIC_AUTH_MODE=$auth_mode AIC_SECRET=$secret AIC_MODEL=$model python3 - "$request" <<'PY'
 import json, os, sys, urllib.request
 
@@ -106,15 +115,20 @@ except Exception as e:
     sys.exit(1)
 PY
 )
+  (( timing )) && print -u2 -f '%s: api call (%s, %s) %s: %.2fs\n' \
+    $0 $model $auth_mode ${${msg:+ok}:-failed} $((EPOCHREALTIME - t0))
 fi
 
 if [[ -z "$msg" ]]; then
+  (( timing )) && t0=$EPOCHREALTIME
   # request via stdin: --mcp-config is variadic and would swallow a trailing arg
   msg=$(print -r -- "$request" | command claude -p --model $model --no-session-persistence \
     --strict-mcp-config --mcp-config '{"mcpServers":{}}') || {
     print -u2 "$0: claude -p failed${msg:+: $msg}"
     return 1
   }
+  (( timing )) && print -u2 -f '%s: claude -p fallback (%s): %.2fs\n' \
+    $0 $model $((EPOCHREALTIME - t0))
 fi
 
 if [[ -z "$msg" ]]; then
