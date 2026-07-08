@@ -50,6 +50,7 @@ HARD IMPORTANT Rules, DON'T VIOLATE THEM!
   - ONLY WHEN Substantial changes (new script/feature/file, multiple concerns, changed behavior, or roughly 10+ changed lines): a body is required. Blank line after the subject, then 1-6 sentences or bullets covering what changed, why, and notable design decisions visible in the diff. Every line HARD-WRAPPED AT 72 chars.
 - EXPLICITLY use one or more emojis in subject
 - EXPLICITLY start each sentence with an emoji in the body, if writing bullets use emojis instead points / lines ('-')
+- DON'T NARROW Your choice of emojis from existing commits
 - Be concrete and TANGIBLE: name the actual functions, files, or behavior that changed (e.g. 'fix: reject empty names in greet()', not 'fix: improve validation').
 - NO EMPTY LINES in body
 - Always use BACKTICKS When mentioning code / command stuff
