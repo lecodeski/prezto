@@ -1,3 +1,4 @@
+#!zsh
 #
 # ai-commit — generate a commit message for the staged diff and commit it.
 # Fast path: one direct Haiku API call (ANTHROPIC_API_KEY, or the unexpired
