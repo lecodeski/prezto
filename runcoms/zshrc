@@ -136,7 +136,15 @@ if [[ $commands[brew] ]]; then
 fi
 
 alias c=cd
-(( $+commands[claude] )) && alias cc='claude' && alias ca='claude agents' && alias cr='claude --resume' alias ci='claude --print --no-session-persistence' alias cmp="cm && git push" alias compare='\cmp'
+(( $+commands[claude] )) && \
+  alias ca='claude agents' && \
+  alias cc='claude' && \
+  alias ci='claude --print --no-session-persistence' && \
+  alias cmp='cm && git push' && \
+  alias compare='\cmp' && \
+  alias cr='claude --resume' && \
+  alias cih="${aliases[ci]} --model=Haiku" && \
+  alias cis="${aliases[ci]} --model=Sonnet"
 
 [ !$commands[cpy] ] && alias cpy=pbcopy
 alias cp="${aliases[cp]} --verbose"
