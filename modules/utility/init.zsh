@@ -1,5 +1,5 @@
 #
-# Defines general aliases and functions.
+# Defines general aliases, functions and commands.
 #
 # Authors:
 #   Robby Russell <robby@planetargon.com>
@@ -9,6 +9,9 @@
 
 # Load dependencies.
 pmodload 'helper' 'spectrum'
+
+# Include module's bin directory in PATH env
+export PATH="${PATH}:${HOME}"/.zprezto/modules/utility/bin""
 
 # Correct commands.
 if zstyle -T ':prezto:module:utility' correct; then

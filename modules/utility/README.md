@@ -1,6 +1,6 @@
 # Utility
 
-Defines general aliases and functions.
+Defines general aliases, functions and commands.
 
 This module must be loaded _before_ the [_`completion`_][1] module so that the
 provided completion definitions are loaded automatically by _`completion`_
@@ -202,6 +202,18 @@ In addition, the following aliases have been added:
 
 - `prep` provides a grep-like pattern search.
 - `psub` provides a sed-like pattern substitution.
+
+## Commands
+
+The module's _`bin`_ directory is appended to `PATH`, making the following
+standalone commands available:
+
+- `cm` generates a commit message for the staged diff via Claude and commits
+  it (stages all changes if nothing is staged).
+- `cpy` copies stdin to the clipboard (`pbcopy`, `xsel` or `ncat` over SSH).
+- `pst` pastes the clipboard to stdout (`pbpaste`, `xsel` or `ncat` over SSH).
+
+Feel free to add custom commands / scripts / binaries in this directory to be available in the shell / at runtime.
 
 ## Authors
 
