@@ -137,8 +137,9 @@ fi
 
 alias c=cd
 (( $+commands[claude] )) && \
-  alias ca='claude agents' && \
+  alias ca='claude attach' && \
   alias cc='claude' && \
+  alias cg='claude agents' && \
   alias ci='claude --print --no-session-persistence' && \
   alias cmp='cm && git push' && \
   alias compare='\cmp' && \
