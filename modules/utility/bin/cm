@@ -49,13 +49,14 @@ style=$(git log -50 --format='%s' 2>/dev/null)
 # keep the rules in sync with ~/.claude/commands/commit.md (/commit)
 request="Write a git commit message for the diff below. Output ONLY the raw commit message.
 
-HARD IMPORTANT Rules, DON'T VIOLATE THEM!
+HARD IMPORTANT commit message rules, DON'T VIOLATE THEM!
 - Body: decide by the size and complexity of the diff.
   - Trivial change (small tweak OR typo OR rename OR ONLY FEW LINES): subject only, NO body.
   - ONLY WHEN Substantial changes (new script/feature/file, multiple concerns, changed behavior, or roughly 10+ changed lines): a body is required. Blank line after the subject, then 1-6 sentences or bullets covering what changed, why, and notable design decisions visible in the diff. Every line HARD-WRAPPED AT 72 chars.
 - EXPLICITLY use one or more emojis in subject
 - EXPLICITLY start each sentence with an emoji in the body, if writing bullets use emojis instead points / lines ('-')
 - DON'T NARROW Your choice of emojis from existing commits
+- DON'T REPEAT emojis: all emojis are different in complete commit message (incl. body)
 - Be concrete and TANGIBLE: name the actual functions, files, or behavior that changed (e.g. 'fix: reject empty names in greet()', not 'fix: improve validation').
 - NO EMPTY LINES in body
 - Always use BACKTICKS When mentioning code / command stuff
