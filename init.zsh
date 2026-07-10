@@ -47,7 +47,7 @@ function zprezto-update {
       [[ "$orig_branch" != "main" ]] && local off_main=$orig_branch
       [[ $(git diff --stat) != '' ]] && local dirty=1
 
-      [ $dirty ] && git stash
+      [ $dirty ] && git stash push --include-untracked
       [ $off_main ] && git switch main
 
       if git pull --ff-only; then
