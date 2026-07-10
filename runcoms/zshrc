@@ -347,6 +347,12 @@ captioned-delimiter() {
   printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
 }
 
+cl() {
+  local target=${1:A}          # resolve symlink to absolute real path
+  [[ -d $target ]] || target=${target:h}  # if it's a file, take its directory
+  cd -- "$target"
+}
+
 datestamp() {
   # Args (day month year); omitted fields default to today. Pads to ISO YYYY-MM-DD
   # a <70 year maps to 20**, a <100 year maps to 19**
