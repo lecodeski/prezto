@@ -146,7 +146,8 @@ alias c=cd
   alias compare='\cmp' && \
   alias cr='claude --resume' && \
   alias cih="${aliases[ci]} --model=Haiku" && \
-  alias cis="${aliases[ci]} --model=Sonnet"
+  alias cis="${aliases[ci]} --model=Sonnet" && \
+  alias cw='claude --worktree'
 
 [ !$commands[cpy] ] && alias cpy=pbcopy
 alias cp="${aliases[cp]} --verbose"
