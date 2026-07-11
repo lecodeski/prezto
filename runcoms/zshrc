@@ -33,6 +33,7 @@ compdef _gnu_generic \
 
 (( $+commands[prettyping] )) && compdef prettyping=ping
 
+(( $+commands[herdr] )) && source <(herdr completion zsh)
 (( $+commands[kind] )) && source <(kind completion zsh)
 (( $+commands[rustup] )) && source <(rustup completions zsh)
 
