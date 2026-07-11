@@ -56,8 +56,8 @@ function zprezto-update {
         git submodule foreach --recursive 'git fetch --tags'
         git submodule update --init --recursive
         [ $off_main ] && git switch $orig_branch && git rebase main && git push --force-with-lease --force-if-includes
-        [ $dirty ] && git stash pop
-        return $?
+        if [ $dirty ]; then git stash pop || return $?; fi
+        return 0
 
       else
         cannot-fast-forward
