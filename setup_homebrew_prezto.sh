@@ -21,7 +21,6 @@ brew install dua-cli
 brew install ncdu
 brew install git-open
 brew install tree
-brew install zsh-completions
 brew install fd
 
 brew install fzf
