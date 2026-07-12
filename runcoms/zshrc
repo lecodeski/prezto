@@ -194,6 +194,7 @@ alias grm="${aliases[gRl]}"
 alias gRs='git restore --staged --patch'
 alias grs='git restore --staged'
 alias grsa='git restore --staged :/'
+alias grv='git revert'
 alias gs='git status'
 alias gsh="${aliases[gcs]} --stat --patch"
 alias gsm='git submodule'
