@@ -201,7 +201,6 @@ alias gsh="${aliases[gcs]} --stat --patch"
 alias gsm='git submodule'
 alias gst='git stash push --include-untracked'
 alias gsT='git stash push --patch'
-alias gsw='git switch'
 alias gw='git-open'
 
 [ $commands[idea] ] && alias iiff='idea diff' && alias i='idea --temp-project' && alias io=idea
@@ -370,6 +369,9 @@ datestamp() {
 [[ -d /Applications/Dash.app ]] && ds() {
   open "dash://b%3A$*"
 }
+
+unalias gsw  # git module's `git stash save` alias would shadow the function
+gsw() { git switch "${@:--}" }
 
 fancy-ctrl-z() {
   if [[ $#BUFFER -eq 0 ]]; then
