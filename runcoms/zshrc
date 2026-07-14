@@ -181,6 +181,7 @@ alias gdg='git difftool --gui'
 alias gds='git diff --staged'
 alias gl='git l'
 alias gmg="${aliases[gm]} --gui"
+alias gms="${aliases[gm]} --squash"
 alias gp='git pull --rebase'
 alias gpf="${aliases[gpf]} --force-if-includes"
 alias gpm='git pull --no-rebase'
