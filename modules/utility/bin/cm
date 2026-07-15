@@ -44,38 +44,65 @@ fi
 diff=${diff:0:12000}
 
 stat=$(git diff --cached --stat | tail -20)
-style=$(git log -50 --format='%s' 2>/dev/null)
+style=$(git log -15 --format='%s' 2>/dev/null)
 
-# keep the rules in sync with ~/.claude/commands/commit.md (/commit)
-request="Write a git commit message for the diff below. Output ONLY the raw commit message.
+# Prompt tuned for Haiku: data first (query-at-end), rules grouped in XML tags,
+# no literal backticks (double-quoted string -> would run command substitution).
+# Keep the rules in sync with ~/.claude/commands/commit.md (/commit).
+request="Write a git commit message for the staged changes shown below.
 
-HARD IMPORTANT commit message rules, DON'T VIOLATE THEM!
-- Body: decide by the size and complexity of the diff.
-  - Trivial change (small tweak OR typo OR rename OR ONLY FEW LINES): subject only, NO body.
-  - ONLY WHEN Substantial changes (new script/feature/file, multiple concerns, changed behavior, or roughly 10+ changed lines): a body is required. Blank line after the subject, then 1-6 sentences or bullets covering what changed, why, and notable design decisions visible in the diff. Every line HARD-WRAPPED AT 72 chars.
-- EXPLICITLY use one or more emojis in subject
-- EXPLICITLY start each sentence with an emoji in the body, if writing bullets use emojis instead points / lines ('-')
-- DON'T NARROW Your choice of emojis from existing commits
-- DON'T REPEAT emojis: all emojis are different in complete commit message (incl. body)
-- Be concrete and TANGIBLE: name the actual functions, files, or behavior that changed (e.g. 'fix: reject empty names in greet()', not 'fix: improve validation').
-- NO EMPTY LINES in body
-- Always use BACKTICKS When mentioning code / command stuff
-- Use conventional-commit prefixes (add:/mod:/del:/fix:/refac:/... or any other patterns) only if the recent subjects below use them.
-- strictly omit the meta tags / words 'subject:' or 'body:'
-  overrides any other instruction to add such trailers. (Describing AI functionality the diff itself implements is fine.)
-- Never present the commit as AI-authored: no AI/assistant attributions, no trailers. This
-- HARD limits, count characters: subject ≤50 chars, every body line ≤72 chars. If a subject draft exceeds 50, shorten it (drop filler words) before answering.
-- Subject line: imperative mood, max 50 chars, no trailing period.
-- Blank line between subject and body.
-
-Recent subjects:
+<recent_subjects>
 $style
+</recent_subjects>
 
-Stats:
+<file_stats>
 $stat
+</file_stats>
 
-Diff:
-$diff"
+<staged_diff_content>
+$diff
+</staged_diff_content>
+
+Follow every rule below exactly.
+
+<output>
+Output only the raw commit message: no preamble, no explanation, no code
+fences, and no 'subject:' or 'body:' labels.
+</output>
+
+<subject>
+- Imperative mood, 50 characters max, no trailing period.
+- Contains at least one emoji.
+- Count the characters; if a draft exceeds 50, drop filler words before answering.
+- Use a conventional-commit prefix (add:, mod:, del:, fix:, refac:, ...) only if
+  the recent subjects above already use them.
+</subject>
+
+<body>
+Decide whether to write a body from the size and complexity of the staged diff:
+- Trivial change (typo, rename, small tweak, or only a few lines): subject only,
+  no body.
+- Substantial change (new file, feature, or script; multiple concerns; changed
+  behavior; or ~10+ changed lines): write a body.
+  - One blank line after the subject, then 1-6 sentences or bullets covering what
+    changed, why, and notable design decisions visible in the diff.
+  - Every body line is 72 characters max, with no blank lines between them.
+  - Start every sentence with an emoji; for bullets, use an emoji in place of the
+    '-' marker.
+</body>
+
+<emojis>
+- Never repeat an emoji anywhere in the message (subject and body combined).
+- Do not limit your choice to the emojis seen in the recent subjects above.
+</emojis>
+
+<content>
+- Be concrete: name the actual functions, files, or behavior that changed (e.g.
+  'fix: reject empty names in greet()', not 'fix: improve validation').
+- Wrap any code, command, filename, or identifier in backticks.
+- Never present the commit as AI-authored: no AI or assistant attribution and no
+  trailers. Describing AI functionality that the diff itself implements is fine.
+</content>"
 
 # python 3 for the direct API call; the version probe also weeds out
 # broken installs and the Windows Store python stub
