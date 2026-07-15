@@ -46,6 +46,7 @@ if (( $+commands[fzf] )); then
 
   # Key Bindings
   export FZF_DEFAULT_OPTS="
+    --ignore-case
     --style=full
     --multi
 
