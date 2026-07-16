@@ -408,7 +408,7 @@ konfigmerge() {
 u() {
   brew upgrade
   echo $FX[bold]'Brew upgrades finished 🍻'
-  [[ $(uname) == 'Darwin' ]] && b cu --include-mas --no-brew-update --all --quiet --yes
+  (( $(uname) == 'Darwin' && $+commands[mas] )) && b cu --include-mas --no-brew-update --all --quiet --yes
   echo $FX[bold]'Brew cask upgrades finished 🍻'
   [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update
   echo '🍻 Updating Prezto:'$FX[off] && zprezto-update
