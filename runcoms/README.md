@@ -12,6 +12,12 @@ but are prefixed with a dot (hidden). Zsh looks for these files in the path
 stored in the `$ZDOTDIR` environment variable. However, if said variable is
 not defined, Zsh will use the user's home directory.
 
+This repo follows the strong ambition to keep stuff alphabetically sorted as
+much as possible (aside from upstream to maintain conflict-free mergeability).
+Hence, all list stuff like aliases, functions, env vars, completion
+definitions, etc. are sorted alphabetically here in the runcoms, too (aside
+from some minor exceptions for readability or proper placement / grouping).
+
 ## File Descriptions
 
 The [configuration files][1] are read in the following order:
