@@ -32,6 +32,7 @@ compdef _gnu_generic \
   unar
 
 (( $+commands[herdr] )) && source <(herdr completion zsh)
+(( $+commands[ipinfo] )) && source <(ipinfo completion zsh)
 (( $+commands[kind] )) && source <(kind completion zsh)
 (( $+commands[prettyping] )) && compdef prettyping=ping
 (( $+commands[rustup] )) && source <(rustup completions zsh)
