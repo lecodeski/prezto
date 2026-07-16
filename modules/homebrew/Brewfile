@@ -116,6 +116,8 @@ brew "icdiff"
 brew "imessage-exporter"
 # GPU powered yet browserless tool to help you quickly view markdown files
 brew "inlyne"
+# Official CLI for the IPinfo IP Address API
+brew "ipinfo-cli"
 # CLI wrapper for basic network utilities on macOS - ip command
 brew "iproute2mac"
 # JQ clone focussed on correctness, speed, and simplicity
