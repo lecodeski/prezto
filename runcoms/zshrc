@@ -31,10 +31,9 @@ compdef _gnu_generic \
   tig \
   unar
 
-(( $+commands[prettyping] )) && compdef prettyping=ping
-
 (( $+commands[herdr] )) && source <(herdr completion zsh)
 (( $+commands[kind] )) && source <(kind completion zsh)
+(( $+commands[prettyping] )) && compdef prettyping=ping
 (( $+commands[rustup] )) && source <(rustup completions zsh)
 
 # Prefer the richer zsh-bundled _git over the one shipped by Homebrew's git formula
