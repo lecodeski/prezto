@@ -237,7 +237,7 @@ alias rd='rmdir -v'
 # Add this compdef workaround because the gnu generic completion breaks when providing
 # a terminal width. Hopefully only a *temporary* solution.
 alias rg='batgrep --terminal-width=$(tput cols)' && compdef batgrep=rg
-alias rga='rga --line-number'
+(( $+commands[rga] )) && alias rga='rga --line-number'
 alias rgp="${commands[rg]}"
 alias rm="${aliases[rm]} --verbose"
 alias rr='rm -I --recursive'
@@ -251,14 +251,14 @@ alias scr='scp -r'
 alias ua='unarchive'
 alias um='diskutil unmount'
 
-alias üs=trans
+(( $+commands[trans] )) && alias üs=trans
 
 alias v=vim
 alias va='source .venv/bin/activate'
 alias vd=deactivate
 alias vs="ifconfig | grep '\-->' || ip a show utun8 2> /dev/null || scutil --nc list | grep Connected"
 
-alias www=links
+(( $+commands[links] )) && alias www=links
 
 alias ä="cd ${ZDOTDIR:-$HOME} \
   && vim + .zsh_history \
