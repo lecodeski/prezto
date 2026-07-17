@@ -40,6 +40,8 @@ brew "coreutils"
 brew "cpufetch"
 # Command-line csv viewer
 brew "csvlens"
+# Get a file from an HTTP, HTTPS or FTP server
+brew "curl"
 # Diff that understands syntax
 brew "difftastic"
 # Tool for exploring each layer in a docker image
