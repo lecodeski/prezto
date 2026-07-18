@@ -1,32 +1,18 @@
 #!/bin/bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+(( EUID )) || { echo "ERROR: don't run this script as root - bad things can happen" >&2; exit 1; }
+[[ $OSTYPE == darwin* && $(sysctl -n sysctl.proc_translated 2>/dev/null) == 1 ]] && { echo "ERROR: Rosetta shell, run from a native arm64 terminal" >&2; exit 1; }
+script=$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh) && [[ $script ]] && /bin/bash -c "$script" || { echo "ERROR: Homebrew install failed" >&2; exit 1; }
 
-if [[ $(uname) == "Linux" ]]; then
-  eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
-  echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> ~/.profile
-fi
+case $OSTYPE-$HOSTTYPE in
+  darwin*-arm64 | darwin*-aarch64) HOMEBREW_PREFIX=/opt/homebrew ;;
+  darwin*)                         HOMEBREW_PREFIX=/usr/local ;;
+  *)                               HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew ;;
+esac
+[[ -x $HOMEBREW_PREFIX/bin/brew ]] || { echo "ERROR: no brew at $HOMEBREW_PREFIX, install failed?" >&2; exit 1; }
+eval "$("$HOMEBREW_PREFIX"/bin/brew shellenv)"
 
-brew install zsh
+brew bundle --file="${ZDOTDIR:-$HOME}"/.zprezto/setup_Brewfile
+[[ -x $HOMEBREW_PREFIX/bin/zsh ]] || { echo "ERROR: no zsh at $HOMEBREW_PREFIX/bin/zsh, aborting" >&2; exit 1; }
+"$HOMEBREW_PREFIX"/opt/fzf/install --key-bindings --completion --no-update-rc
 
-brew install git
-
-brew install vim
-brew install eza
-brew install ripgrep
-brew install bat
-brew install bat-extras
-brew install icdiff
-brew install git-delta
-brew install dua-cli
-brew install ncdu
-brew install git-open
-brew install tree
-brew install fd
-
-brew install fzf
-$(brew --prefix)/opt/fzf/install
-
-# Install vim plugin manager vim-plug
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-
-$(brew --prefix)/bin/zsh "${ZDOTDIR:-$HOME}"/.zprezto/setup_prezto.zsh
+"${ZDOTDIR:-$HOME}"/.zprezto/setup_prezto.zsh

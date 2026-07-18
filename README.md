@@ -22,47 +22,24 @@ version is **4.3.11**.
     git clone --recursive --shallow-submodules https://github.com/lecodeski/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
     ```
 
-    <details>
-        <summary><em>Optional: Installing in <code>$XDG_CONFIG_HOME</code></em></summary>
-
-   Optionally, if you already have `$XDG_CONFIG_HOME` configured (usually as
-   _`$HOME/.config`_ by default) and intend to install Prezto under
-   _`$XDG_CONFIG_HOME/zsh`_ instead, you can clone the repository there and
-   configure `$ZDOTDIR` separately if not already configured.
-
-    - Clone the repository:
-
-      ```console
-      git clone --recursive https://github.com/lecodeski/prezto.git "${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}/.zprezto"
-      ```
-
-    - Configure `$XDG_CONFIG_HOME` and `$ZDOTDIR` in _`$HOME/.zshenv`_:
-
-      ```sh
-      export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:=$HOME/.config}"
-      [[ -d $XDG_CONFIG_HOME/zsh ]] && export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
-      source "$ZDOTDIR/.zshenv"
-      ```
-
-    </details>
-
-
-2. Run **one** of two setup scripts
-    1. Either run Homebrew & Prezto setup script:
+2. Run **one** of two setup scripts (**not as root** — they use `sudo` only where needed)
+    1. Either run Homebrew & Prezto setup script (installs the CLI tools listed in `${ZDOTDIR:-$HOME}/.zprezto/setup_Brewfile`):
         ```console
         ${ZDOTDIR:-$HOME}/.zprezto/setup_homebrew_prezto.sh
         ```
-    2. Or run pure Prezto setup script:
+    2. Or run pure Prezto setup script (requires `zsh` on `PATH`):
         ```console
-        ${ZDOTDIR:-$HOME}/.zprezto/setup_prezto.sh
+        ${ZDOTDIR:-$HOME}/.zprezto/setup_prezto.zsh
         ```
-        1. <details><summary><em>Optional: Only in second case, manually set Zsh as your default shell on demand</em></summary>
+        1. <details><summary><em>Optional: If Zsh is absent or you lack `sudo` (the script only sets it as login shell when both are present), manually set Zsh as your default shell on demand</em></summary>
        
            ```console
            chsh -s /bin/zsh
            ```
            
            </details>
+
+    Both scripts back up conflicting dotfiles to `<dotfile>.bak-<timestamp>` and finish in a fresh login shell.
 
 ### Troubleshooting
 
