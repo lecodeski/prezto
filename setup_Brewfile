@@ -1,5 +1,4 @@
 tap "buo/cask-upgrade", trusted: true
-tap "lecodeski/maple-font"
 brew "bat"
 brew "bat-extras"
 brew "coreutils"
@@ -11,10 +10,8 @@ brew "git"
 brew "git-delta"
 brew "git-open"
 brew "icdiff"
-brew "mas"
 brew "ncdu"
 brew "ripgrep"
 brew "tree"
 brew "vim"
 brew "zsh"
-cask "lecodeski/maple-font/font-maple-mini", trusted: true
