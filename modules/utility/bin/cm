@@ -195,5 +195,5 @@ if [[ -z $msg ]]; then
   exit 1
 fi
 
-printf '%s\n' "$msg" | git commit -F - || exit 1
-git log -1 --format='%n%-b'
+git commit -qm "$msg" || exit 1
+git -P log -1 --stat --summary --pretty=format:'%D [%h] %an%n%n%C(bold)%s%C(reset)%n%+b'
