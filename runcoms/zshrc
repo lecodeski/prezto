@@ -138,17 +138,16 @@ if [[ $commands[brew] ]]; then
 fi
 
 alias c=cd
-(( $+commands[claude] )) && \
-  alias ca='claude attach' && \
-  alias cc='claude' && \
-  alias cg='claude agents' && \
-  alias ci='claude --print --no-session-persistence' && \
-  alias cmp='cm && git push' && \
-  alias compare='\cmp' && \
-  alias cr='claude --resume' && \
-  alias cih="${aliases[ci]} --model=Haiku" && \
-  alias cis="${aliases[ci]} --model=Sonnet" && \
+
+if (( $+commands[claude] )); then
+  alias ca='claude attach'
+  alias cc='claude'
+  alias cg='claude agents'
+  alias cmp='cm && git push'
+  alias compare='\cmp'
+  alias cr='claude --resume'
   alias cw='claude --worktree'
+fi
 
 [ !$commands[cpy] ] && alias cpy=pbcopy
 alias cp="${aliases[cp]} --verbose"
@@ -353,6 +352,12 @@ captioned-delimiter() {
   padding="$(printf '%0.1s' $2{1..500})"
   printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
 }
+
+if (( $+commands[claude] )); then
+  ci() { claude --print --no-session-persistence "$@" | glow }
+  cih() { ci --model=Haiku "$@" }
+  cis() { ci --model=Sonnet "$@" }
+fi
 
 cl() {
   local target=${1:A}          # resolve symlink to absolute real path
