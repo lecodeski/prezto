@@ -406,12 +406,22 @@ konfigmerge() {
 } && compdef p=bat
 
 u() {
-  brew upgrade
-  echo $FX[bold]'Brew upgrades finished 🍻'
-  (( $(uname) == 'Darwin' && $+commands[mas] )) && b cu --include-mas --no-brew-update --all --quiet --yes
-  echo $FX[bold]'Brew cask upgrades finished 🍻'
-  [ $commands[tldr] ] && echo '🍻 Updating tldr' && tldr --update
-  echo '🍻 Updating Prezto:'$FX[off] && zprezto-update
+  local -x HOMEBREW_BUNDLE_FILE=${ZPREZTODIR:-${ZDOTDIR:-$HOME}/.zprezto}/modules/homebrew/Brewfile
+  [[ -s $HOMEBREW_BUNDLE_FILE ]] || { echo "ERROR: Brewfile empty or missing - check env vars and working copy state. Aborting." >&2; return 1; }
+
+  HOMEBREW_NO_AUTO_UPDATE=1 brew bundle dump --force
+
+  print -P '%B🍻 Updating Prezto:%b'
+  zprezto-update || { echo "ERROR: could not update Prezto - check its working copy state. Aborting." >&2; return 1; }
+
+  print -P '%B🍻 Brew upgrades:%b'
+  brew update --quiet && brew bundle upgrade --force-cleanup --quiet && brew upgrade ||
+    { echo "ERROR: could not upgrade Brew packages. Aborting." >&2; return 1; }
+  print -P '%BBrew upgrades finished 🍻%b'
+
+  brew cu ${commands[mas]:+--include-mas} --no-brew-update --all --quiet --yes ||
+    { echo "ERROR: could not upgrade Brew casks. Aborting." >&2; return 1; }
+  print -P '%BBrew cask upgrades finished 🍻%b'
 }
 
 # by Leah Neukirchen (http://leahneukirchen.org/dotfiles/.zshrc)

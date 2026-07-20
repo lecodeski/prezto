@@ -47,15 +47,17 @@ function zprezto-update {
       [[ "$orig_branch" != "main" ]] && local off_main=$orig_branch
       [[ $(git diff --stat) != '' ]] && local dirty=1
 
-      [ $dirty ] && git stash push --include-untracked
-      [ $off_main ] && git switch main
+      if [ $dirty ]; then git stash push --include-untracked || return $?; fi
+      if [ $off_main ]; then git switch main || return $?; fi
 
       if git pull --ff-only; then
         printf "Syncing submodules\n"
-        git submodule sync --recursive
-        git submodule foreach --recursive 'git fetch --tags'
-        git submodule update --init --recursive
-        [ $off_main ] && git switch $orig_branch && git rebase main && git push --force-with-lease --force-if-includes
+        git submodule sync --recursive || return $?
+        git submodule foreach --recursive 'git fetch --tags' || return $?
+        git submodule update --init --recursive || return $?
+        if [ $off_main ]; then
+          git switch $orig_branch && git rebase main && git push --force-with-lease --force-if-includes || return $?
+        fi
         if [ $dirty ]; then git stash pop || return $?; fi
         return 0
 
