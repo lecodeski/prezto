@@ -475,14 +475,14 @@ wat() {
       dir_only=(--treat-dirs-as-files)
   fi
   eza --long --all --header $dir_only --sort $sort --git --icons=auto -- $target \
-    && print "$FX[bold]count: $(eza --long --all $dir_only -- $target | wc --lines)$FX[off]"
+    && print "$FX[bold]count: $(eza --long --all $dir_only -- $target | wc --lines)$FX[no-bold]"
 } && alias x.='x ..' && xs() {
   x "$1" 'size'
 } && alias xs.='xs ..' && xt() {
   x "$1" 'time'
 } && alias xt.='xt ..' && xx() {
   [ $1 ] && eza --long --all --header --treat-dirs-as-files --sort .name --git --icons=auto *$1* \
-    && print "$FX[bold]count: $(eza --long --all --treat-dirs-as-files *$1* | wc --lines )$FX[off]"
+    && print "$FX[bold]count: $(eza --long --all --treat-dirs-as-files *$1* | wc --lines )$FX[no-bold]"
 }
 
 [ $commands[broot] ] && xb() {
