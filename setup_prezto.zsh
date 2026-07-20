@@ -11,6 +11,7 @@ bp=${HOMEBREW_PREFIX:-$(brew --prefix 2>/dev/null)}
 zpath=${bp:+$bp/bin/zsh}
 [[ -x $zpath ]] || zpath=${commands[zsh]}
 
+echo "\nINFO & sudo: Changing login shell to $zpath and extending sshd config with IntelliJ env var transfer"
 if sudo -v; then
   grep -qxF "$zpath" /etc/shells ||
     echo "\n$zpath" | sudo tee -a /etc/shells >/dev/null
