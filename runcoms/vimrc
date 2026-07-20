@@ -113,3 +113,6 @@ call plug#end()
 set updatetime=100
 let g:gitgutter_highlight_lines = 1
 let g:mapleader=" "
+
+:highlight ExtraWhitespace ctermbg=red guibg=red
+:match ExtraWhitespace /\s\+$/
