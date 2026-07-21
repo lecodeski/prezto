@@ -409,7 +409,8 @@ u() {
   local -x HOMEBREW_BUNDLE_FILE=${ZPREZTODIR:-${ZDOTDIR:-$HOME}/.zprezto}/modules/homebrew/Brewfile
   [[ -s $HOMEBREW_BUNDLE_FILE ]] || { echo "ERROR: Brewfile empty or missing - check env vars and working copy state. Aborting." >&2; return 1; }
 
-  HOMEBREW_NO_AUTO_UPDATE=1 brew bundle dump --force
+  HOMEBREW_NO_AUTO_UPDATE=1 brew bundle dump --force ||
+    { echo "ERROR: could not dump current Brewfile" >&2; return 1; }
 
   print -P '%B🍻 Updating Prezto:%b'
   zprezto-update || { echo "ERROR: could not update Prezto - check its working copy state. Aborting." >&2; return 1; }
