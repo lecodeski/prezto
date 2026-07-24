@@ -137,8 +137,6 @@ if [[ $commands[brew] ]]; then
   alias bu='brew uses --installed'
 fi
 
-alias c=cd
-
 if (( $+commands[claude] )); then
   alias ca='claude attach'
   alias cc='claude'
@@ -364,6 +362,8 @@ cl() {
   [[ -d $target ]] || target=${target:h}  # if it's a file, take its directory
   cd -- "$target"
 }
+
+c() { cd "$@" && x } && compdef c=cd
 
 datestamp() {
   # Args (day month year); omitted fields default to today. Pads to ISO YYYY-MM-DD
