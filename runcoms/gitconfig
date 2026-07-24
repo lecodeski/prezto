@@ -17,7 +17,7 @@
 	co = checkout
 	d = difftool
 	f = fetch
-	l = log --all --graph --date-order --format='%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%C(green)%ar%C(auto)%d %s %C(cyan)%h'
+	l = log --exclude=refs/stash --all --graph --date-order --format='%<(19,trunc)%C(yellow)%an %<(33)%Cblue%aD%<(16)%C(green)%ar%C(auto)%d %s %C(cyan)%h'
 	m = merge
 	p = pull
 	pu = push
