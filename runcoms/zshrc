@@ -379,6 +379,7 @@ datestamp() {
 
 unalias gsw  # git module's `git stash save` alias would shadow the function
 gsw() { git switch "${@:--}" } && compdef _git gsw=git-switch
+gcd() { git rebase --onto "$1^" "$1" } && compdef _git gcd=git-rebase
 
 fancy-ctrl-z() {
   if [[ $#BUFFER -eq 0 ]]; then
