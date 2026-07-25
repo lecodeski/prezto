@@ -159,7 +159,9 @@ alias cwd='echo \"$(pwd)\" | cpy'
 alias du=dua
 
 alias f='fd --no-follow --hidden --no-ignore'
-alias fr='_ fd --no-follow --hidden --no-ignore --search-path /'
+alias fd="${aliases[f]} --type d"
+alias ff="${aliases[f]} --type f"
+alias fr="${aliases[_]} ${aliases[f]} --search-path /"
 
 alias g=git
 alias gA='git add --patch'
