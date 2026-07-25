@@ -245,6 +245,7 @@ alias rr='rm -I --recursive'
 alias scr='scp -r'
 [ $commands[subl] ] && alias sl=subl
 
+[ $commands[abtop] ] && alias tap='abtop'
 [ $commands[btop] ] && alias top='btop'
 [ $commands[traceroute] ] && alias tracert=traceroute
 
