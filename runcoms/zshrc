@@ -235,6 +235,7 @@ alias psd='cd -P -- ${(Q)"$(pst)"}'
 [ !$commands[pst] ] && alias pst=pbpaste
 alias py=python3
 
+alias r='zprezto-restart'
 alias rd='rmdir -v'
 
 # Add this compdef workaround because the gnu generic completion breaks when providing
@@ -242,6 +243,7 @@ alias rd='rmdir -v'
 alias rg='batgrep --terminal-width=$(tput cols)' && compdef batgrep=rg
 (( $+commands[rga] )) && alias rga='rga --line-number'
 alias rgp="${commands[rg]}"
+
 alias rm="${aliases[rm]} --verbose"
 alias rr='rm -I --recursive'
 
