@@ -51,6 +51,10 @@ Sets general shell options and defines environment variables.
 
 Maintains a frequently used file and directory list for fast access.
 
+## fzf
+
+Integrates fzf, fzf-tab and fzf-git into Prezto.
+
 ## Git
 
 Enhances the Git distributed version control system by providing aliases,
@@ -156,6 +160,10 @@ Defines tmux aliases and provides for auto launching it at start-up.
 ## Utility
 
 Defines general aliases and functions.
+
+## Vendored Completions
+
+Installs and refreshes third-party completion files from raw upstream URLs.
 
 ## Wake-on-LAN
 

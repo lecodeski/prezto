@@ -1,0 +1,178 @@
+#
+# Refreshes vendored third-party completion files from their upstream URLs
+# and hot-reloads them into the current shell (no exec zsh needed).
+# See the module README.
+#
+# Configured via zstyle in zpreztorc (see this module's init.zsh, which joins
+# the install dir to fpath before the completion module runs compinit):
+#   zstyle ':prezto:module:vendored-completions' completions 'https://…/_foo'
+# The install name is each URL's last path segment (${url:t}), so the URL must
+# end in the completion's own _name — nothing to restate or mistype.
+# Invoked by zprezto-update (which re-sources zpreztorc first, so this list is
+# fresh), which in turn may be invoked by u() or standalone (without refreshed
+# zstyle).
+#
+#
+# Authors:
+#   Big Lecodeski
+#
+
+# reset options + IFS (Internal Field Separator) to zsh defaults for the run
+# immune to leaked ambient state, local, auto-restored (SH_WORD_SPLIT, KSH_ARRAYS, a mangled IFS, …)
+emulate -L zsh
+local name url file tmp first stale state IFS
+unset IFS
+local -a header shadow urls bound
+local -A seen
+local -i failed=0 rescan=0 changed flagged
+
+print -P '%B🍻 Updating Vendored Completions:%b'
+
+zstyle -a ':prezto:module:vendored-completions' completions urls
+
+if (( ! $#urls )); then
+  print "$0: no completions configured — add URLs in zpreztorc:" >&2
+  print "  zstyle ':prezto:module:vendored-completions' completions https://…/_foo ..." >&2
+  print "  or drop 'vendored-completions' from the pmodule list if you don't use it." >&2
+  return 1
+fi
+if (( ! $+commands[curl] )); then
+  print "$0: curl not found — cannot fetch completions" >&2
+  return 1
+fi
+
+# vet install names before any download: reject non-_name/junk URLs and name collisions up front
+for url in "$urls[@]"; do
+  name="${url:t}"
+  if [[ $name != _* || $name == *[^A-Za-z0-9_.+-]* ]]; then
+    print -r "$0: '$url' does not end in a completion filename (_name)" >&2
+    return 1
+  fi
+  if (( $+seen[$name] )); then
+    print -r "$0: two URLs resolve to the same name '$name'" >&2
+    return 1
+  fi
+  seen[$name]=1
+done
+
+# always-block at end releases lock only if acquired here - the outer holder keeps it
+local -i parent_lock=$+_zprezto_update_lock_fd
+zprezto-update-trylock || return
+{
+  mkdir -p "$_vendored_completions_dir" || return
+  # hardening target folder; group/others-writable dir → compinit nag on every new shell
+  chmod 700 "$_vendored_completions_dir"
+
+  for url in "$urls[@]"; do
+    name="${url:t}"
+    file="$_vendored_completions_dir/$name"
+    # leading dot hides a stranded temp from compinit's scan
+    tmp="${file:h}/.$name.new.$$"
+
+    # successful curl + read = not empty one-liner + no CRLF + valid header + syntax check
+    if ! { curl -fsSL --connect-timeout 5 --max-time 10 -o "$tmp" "$url" &&
+      read -r first < "$tmp" &&
+      [[ $first != *$'\r' ]] &&
+      header=(${=first}) &&
+      (( $#header >= 2 )) &&
+      [[ $header[1] == '#compdef' ]] && {
+        flagged=0
+        [[ $header[2] == -[pPkK](n|) ]] && flagged=1
+        (( ! flagged || $#header >= 3 )) } &&
+      zsh -n "$tmp" 2> /dev/null }
+    then
+      [[ -e $file ]] && state='kept previous version' || state='not installed'
+      print "  💥 validation failed: $name ($state)" >&2
+      failed=1
+      continue
+    fi
+
+    # install if content changed
+    changed=0
+    if ! cmp -s "$tmp" "$file"; then
+      mv -f "$tmp" "$file" ||
+        { print "  💥 $name (mv failed, kept previous version)" >&2; failed=1; continue }
+      changed=1
+      rescan=1
+    fi
+
+    # fail loudly if an earlier fpath dir shadows our copy (checked every run, not just on change)
+    shadow=(${^fpath}/$name(N))
+    if (( ! $#shadow )); then
+      print "  💥 $name (installed, but $_vendored_completions_dir is not in this shell's fpath)" >&2
+      failed=1
+      continue
+    elif [[ $shadow[1] != $file ]]; then
+      print "  💥 $name (shadowed by $shadow[1])" >&2
+      failed=1
+      continue
+    fi
+
+    if (( ! changed && $+functions[$name] )); then
+      print "  🛌 $name (unchanged)"
+      continue
+    fi
+
+    # happy path: installation
+
+    # autoload no-ops on a defined function — drop the stale body first
+    unfunction "$name" 2> /dev/null
+    autoload -Uz "$name"
+
+    # header dialect → compdef dialect:
+    # mirror compinit's leading flag option (matched once, in validation), else it binds as a command name
+    if (( flagged )); then
+      header=($header[2] $name $header[3,-1])
+    else
+      header=($name $header[2,-1])
+    fi
+
+    # final compdef; probe _comps not compdef — the completion module stubs compdef in compinit-less shells
+    if (( ! $+_comps )); then
+      print "  🍺 $name (compdef skipped: no compinit in this shell - new shells rebind automatically)"
+    elif compdef $header; then
+      print "  🍺 $name"
+    else
+      print "  💥 $name (installed, but compdef failed in this shell — reason above)" >&2
+      failed=1
+    fi
+  done
+
+  # prune de-configured completions (leftovers keep autoloading)
+  for stale in "$_vendored_completions_dir"/_*(N); do
+    name="${stale:t}"
+    (( $+seen[$name] )) && continue
+
+    if ! rm -f "$stale"; then
+      print "  💥 $name (no longer configured, but could not remove)" >&2
+      failed=1
+      continue
+    fi
+
+    unfunction "$name" 2> /dev/null
+    shadow=(${^fpath}/$name(N))
+
+    if (( $#shadow )); then
+      # re-autoload a de-shadowed system copy
+      autoload -Uz "$name"
+    else
+      # gone for good: unbind the reverse lookup (otherwise Tab dispatches to the vanished function)
+      bound=(${(k)_comps[(Re)$name]})
+      (( $#bound )) && compdef -d $bound
+    fi
+
+    rescan=1
+    print "  🗑  $name (removed; no longer configured)"
+  done
+
+  # final cleanup
+  rm -f "$_vendored_completions_dir"/.*.new.*(N)
+
+  # force next shell's compinit to rescan fpath; hardcoded, not $_comp_dumpfile (a bare compinit call repoints that at ~/.zcompdump)
+  (( rescan )) && rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/prezto/zcompdump"{,.zwc}
+
+} always {
+  (( ! parent_lock )) && zprezto-update-unlock
+}
+
+return $failed

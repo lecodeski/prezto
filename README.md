@@ -6,9 +6,14 @@ and prompt themes.
 
 ## Fork
 
-This fork of the original upstream repo renders my customizations and adjustments in the Prezto framework to my favours as advised upstream. This way this repo can be used also as an example, template, or simply inspiration on how to customize the Prezto framework, how to add new modules, etc.  
-Or go ahead and simply install my variant of prezto as documented below. Whatever floats your boat. =)
-****
+This fork of the original upstream repo renders my (opinionated)
+customizations and adjustments in the Prezto framework to my favours as advised
+upstream. This way this repo can be used also as an example, template, or simply
+inspiration on how to customize the Prezto framework, how to add new modules,
+etc.  
+Or go ahead and simply install my variant of prezto as documented below.
+Whatever floats your boat. =)
+
 ## Installation
 
 ### Manual
@@ -22,8 +27,10 @@ version is **4.3.11**.
     git clone --recursive --shallow-submodules https://github.com/lecodeski/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
     ```
 
-2. Run **one** of two setup scripts (**not as root** — they use `sudo` only where needed)
-    1. Either run Homebrew & Prezto setup script (installs the CLI tools listed in `${ZDOTDIR:-$HOME}/.zprezto/setup_Brewfile`):
+2. Run **one** of two setup scripts (**not as root** — they use `sudo` only
+   where needed)
+    1. Either run Homebrew & Prezto setup script (installs the CLI tools listed
+       in `${ZDOTDIR:-$HOME}/.zprezto/setup_Brewfile`):
         ```console
         ${ZDOTDIR:-$HOME}/.zprezto/setup_homebrew_prezto.sh
         ```
@@ -32,14 +39,15 @@ version is **4.3.11**.
         ${ZDOTDIR:-$HOME}/.zprezto/setup_prezto.zsh
         ```
         1. <details><summary><em>Optional: If Zsh is absent or you lack `sudo` (the script only sets it as login shell when both are present), manually set Zsh as your default shell on demand</em></summary>
-       
+
            ```console
            chsh -s /bin/zsh
            ```
-           
+
            </details>
 
-    Both scripts back up conflicting dotfiles to `<dotfile>.bak-<timestamp>` and finish in a fresh login shell.
+   Both scripts back up conflicting dotfiles to `<dotfile>.bak-<timestamp>` and
+   finish in a fresh login shell.
 
 ### Troubleshooting
 
@@ -49,12 +57,26 @@ terminal window or tab.
 
 ## Updating
 
-Run `zprezto-update` to automatically check if there is an update to Prezto.
-If there are no file conflicts, Prezto and its submodules will be automatically
-updated. If there are conflicts you will be instructed to go into the
-`$ZPREZTODIR` directory and resolve them yourself.
+`zprezto-update` (this fork's own, in _`init.zsh`_) updates the framework from
+your origin, then reloads the shell via [`zprezto-restart`](#restarting) if
+something was pulled. It
 
-To pull the latest changes and update submodules manually:
+- stashes dirty state, fast-forwards `main`, syncs submodules, pops the stash
+- rebases a checked-out feature branch onto `main` and force-pushes it
+  `--force-with-lease` (only when that branch pushes to `origin` — a local-only
+  or e.g. `upstream`-tracking branch is rebased but left unpushed)
+- re-sources `zpreztorc` and refreshes [vendored completions][11] on every
+  successful run
+
+If the reload is undesired, `--skip-restart` suppresses it. It also makes a
+failed completions refresh fatal, since a direct run can simply be repeated.
+
+Anything it will not resolve on its own — a non-fast-forwardable `main`, a
+detached HEAD, a missing `main`/`origin/main` — it refuses and tells you to fix
+manually. So are concurrent runs from other shells or alongside a suspended
+(_CTRL+Z_) one; the refusal names the recovery.
+
+All git handling happens isolated in a subshell. To pull manually:
 
 ```console
 cd $ZPREZTODIR
@@ -62,6 +84,15 @@ git pull
 git submodule sync --recursive
 git submodule update --init --recursive
 ```
+
+## Restarting
+
+`zprezto-restart`, the companion to [`zprezto-update`](#updating), also works
+standalone. It `exec`s a fresh zsh, keeping the login flag and the directory
+stack. Safer than a bare `exec zsh`: it refuses while suspended or background
+jobs exist (`exec` would silently kill them), and no-ops wherever `exec` would
+hit the wrong process or leave the new shell without a terminal — a subshell, a
+pipeline, redirected stdin / stdout, a non-interactive shell.
 
 ## Usage
 
@@ -81,8 +112,8 @@ accompanying README files to learn about what is available.
 03. Load the theme you like in _`${ZDOTDIR:-$HOME}/.zpreztorc`_ and then
     open a new Zsh terminal window or tab.
 
-    ![sorin theme][2]
-    Note that the [_`git`_][11] module may be required for special symbols to
+    ![sorin theme][2]  
+    Note that the [_`git`_][10] module may be required for special symbols to
     appear, such as those on the right of the above image. Add `'git'` to the
     `pmodule` list (under `zstyle ':prezto:load' pmodule \` in your
     _`${ZDOTDIR:-$HOME}/.zpreztorc`_) to enable this module.
@@ -116,23 +147,13 @@ The [Zsh Reference Card][7] and the [zsh-lovers][8] man page are indispensable.
 This project is licensed under the MIT License.
 
 [1]: https://www.zsh.org
-
 [2]: https://i.imgur.com/nrGV6pg.png "sorin theme"
-
 [3]: https://git-scm.com
-
 [4]: https://github.com
-
 [5]: https://gitimmersion.com
-
 [6]: https://git.github.io/git-reference/
-
 [7]: http://www.bash2zsh.com/zsh_refcard/refcard.pdf
-
 [8]: https://grml.org/zsh/zsh-lovers.html
-
-[9]: modules#readme
-
-[10]: runcoms#readme
-
-[11]: modules/git#readme
+[9]: modules/README.md
+[10]: modules/git/README.md
+[11]: modules/vendored-completions/README.md

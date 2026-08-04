@@ -46,6 +46,7 @@ zstyle ':prezto:load' pmodule \
   'command-not-found' \
   'git' \
   'osx' \
+  'vendored-completions' \
   'completion' \
   'fzf' \
   'autosuggestions' \
@@ -66,6 +67,15 @@ zstyle ':prezto:load' pmodule \
 # Set the entries to ignore in static '/etc/hosts' for host completion.
 # zstyle ':prezto:module:completion:*:hosts' etc-host-ignores \
 #   '0.0.0.0' '127.0.0.1'
+
+# Vendored third-party completion files (raw URLs; the install name is the
+# URL's last path segment), installed by the vendored-completions module and
+# refreshed by its update-vendored-completions function.
+# (zprezto-update re-sources zpreztorc before refreshing, so a pulled change to
+# this list takes effect on the same run, even before it restarts the shell.)
+#
+zstyle ':prezto:module:vendored-completions' completions \
+  'https://github.com/wbingli/zsh-claudecode-completion/raw/refs/heads/main/_claude'
 
 #
 # Editor

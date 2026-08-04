@@ -17,67 +17,175 @@ if ! autoload -Uz is-at-least || ! is-at-least "$min_zsh_version"; then
 fi
 unset min_zsh_version
 
-# zprezto convenience updater
-# The function is surrounded by ( ) instead of { } so it starts in a subshell
-# and won't affect the environment of the calling shell
-function zprezto-update {
-  (
-    function cannot-fast-forward {
-      local STATUS="$1"
-      [[ -n "${STATUS}" ]] && printf "%s\n" "${STATUS}"
-      printf "Unable to fast-forward the changes. You can fix this by "
-      printf "running\ncd '%s' and then\n'git pull' " "${ZPREZTODIR}"
-      printf "to manually pull and possibly merge in changes\n"
-    }
-    builtin cd -q -- "${ZPREZTODIR}" || return 7
+# restore the dirstack carried across zprezto-restart's exec (producer below)
+if (( $+_ZPREZTO_DIRSTACK )); then
+  dirstack=(${(ps:\n:)_ZPREZTO_DIRSTACK})
+  unset _ZPREZTO_DIRSTACK
+fi
 
-    git fetch --all -q || return "$?"
-    local LOCAL=$(git rev-parse main)
-    local REMOTE=$(git rev-parse origin/main)
+# lock helper for concurrency control; the acquired fd lands in $_zprezto_update_lock_fd
+# (no concurrent writers by construction: the lock itself serializes)
+_zprezto_update_lock="${XDG_CACHE_HOME:-$HOME/.cache}/prezto/update.lock"
+function zprezto-update-trylock {
+  # a set marker reenters for genuinely nested calls only (caller has a caller)
+  # at top level it means a suspended update or its leftover → refuse
+  if (( $+_zprezto_update_lock_fd )); then
+    (( $#funcstack > 2 )) && return 0
+  else
+    zmodload zsh/system && mkdir -p "${_zprezto_update_lock:h}" && : >>| "$_zprezto_update_lock" || {
+      print "💥 cannot create lock anchor $_zprezto_update_lock" >&2
+      return 1
+    }
+    zsystem flock -t 0 -f _zprezto_update_lock_fd "$_zprezto_update_lock" 2> /dev/null && return 0
+  fi
+  print "💥 another update is already running (suspended or other shell? check jobs / tabs; a leftover clears via exec zsh)" >&2
+  return 1
+}
+
+# release + required unset in one place
+function zprezto-update-unlock {
+  zsystem flock -u $_zprezto_update_lock_fd
+  unset _zprezto_update_lock_fd
+}
+
+# zprezto convenience updater
+# The git work runs in a ( ) subshell; the tail runs in the calling shell
+# re-sources zpreztorc, refreshes completions, may exec-restart
+function zprezto-update {
+  # untyped: must stay empty when unassigned — ${RESTART:+…} depends on it (-i would pin 0, non-empty)
+  local RESTART
+
+  case $1 in
+    '') RESTART=1 ;;
+    --skip-restart) ;;
+    *) print "usage: zprezto-update [--skip-restart]" >&2; return 1 ;;
+  esac
+
+  (
+    # an inherited GIT_DIR outranks both cd and git -C, pointing every git call below at a foreign repo
+    unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
+
+    function cannot-fast-forward {
+      [[ -n $1 ]] && print $1
+      print "💥 Unable to fast-forward the changes. You can fix this by running"
+      print "cd '$ZPREZTODIR', check the condition of your working copy and probably then"
+      print "'git switch main && git pull'"
+      print "to manually pull and possibly merge in changes and then re-run your last update command"
+    } >&2
+
+    function pull-update {
+      local orig_branch=$1
+      local -i dirty=$2
+      local -i off_main=0
+
+      [[ $orig_branch != main ]] && off_main=1
+      (( off_main )) && { git switch main || return }
+
+      # the already-fetched ref the gate compared, not whatever branch.main.merge points at
+      git merge --ff-only origin/main || {
+        cannot-fast-forward
+        return 1
+      }
+      print "🍺 Syncing submodules" &&
+        git submodule sync --recursive &&
+        git submodule foreach --recursive 'git fetch --tags' &&
+        git submodule update --init --recursive || return
+
+      if (( off_main )) && ! {
+        git switch $orig_branch &&
+        git rebase main &&
+        # check for branch's remote is origin before FORCE-pushing
+        { [[ $(git rev-parse --abbrev-ref @{push} 2> /dev/null) != origin/* ]] ||
+          git push --force-with-lease --force-if-includes } }
+      then
+        print "💥 Update pulled, but restoring '$orig_branch' (switch/rebase/push) failed — resolve manually; not restarting." >&2
+        return 1
+      fi
+      if (( dirty )); then git stash pop || return; fi
+    }
+
+    # lock lives only in subshell and is auto-released
+    zprezto-update-trylock || return
+
+    builtin cd -q -- "$ZPREZTODIR" || return 7
+
+    git fetch --all -q || return 1
+    local ORIG_BRANCH="$(git branch --show-current)"
+    local LOCAL=$(git rev-parse --verify --quiet main)
+    local REMOTE=$(git rev-parse --verify --quiet origin/main)
     local BASE=$(git merge-base main origin/main)
 
-    if [[ $LOCAL == $REMOTE ]]; then
-      printf "There are no updates.\n"
+    git diff --quiet --diff-filter=U
+    if (( $? == 1 )); then # rc 1 is "unmerged paths found" — anything else is a git error, not a conflict
+      cannot-fast-forward "💥 unresolved merge — resolve it (git status) first"
+    elif [[ -z $ORIG_BRANCH ]]; then
+      cannot-fast-forward "💥 detached HEAD — check out a branch first"
+    elif [[ -z $LOCAL ]]; then
+      cannot-fast-forward "💥 no local 'main' branch"
+    elif [[ -z $REMOTE ]]; then
+      cannot-fast-forward "💥 no 'origin/main' — check the remote"
+    elif [[ $LOCAL == $REMOTE ]]; then
+      print "🛌 There are no updates${RESTART:+, skipping restart}."
       return 0
 
     elif [[ $LOCAL == $BASE ]]; then
-      printf "There is an update available. Trying to pull.\n\n"
+      print "🍺 There is an update available. Trying to pull.\n"
 
-      local orig_branch="$(git branch --show-current)"
-      [[ "$orig_branch" != "main" ]] && local off_main=$orig_branch
-      [[ $(git diff --stat) != '' ]] && local dirty=1
+      local -i DIRTY=0
+      [[ -n $(git status --porcelain --ignore-submodules) ]] && DIRTY=1
+      (( DIRTY )) && { git stash push --include-untracked || return 1 }
 
-      if [ $dirty ]; then git stash push --include-untracked || return $?; fi
-      if [ $off_main ]; then git switch main || return $?; fi
+      pull-update "$ORIG_BRANCH" $DIRTY && return 42 # arbitrary "pulled" marker for the parent
 
-      if git pull --ff-only; then
-        printf "Syncing submodules\n"
-        git submodule sync --recursive || return $?
-        git submodule foreach --recursive 'git fetch --tags' || return $?
-        git submodule update --init --recursive || return $?
-        if [ $off_main ]; then
-          git switch $orig_branch && git rebase main && git push --force-with-lease --force-if-includes || return $?
-        fi
-        if [ $dirty ]; then git stash pop || return $?; fi
-        return 0
-
-      else
-        cannot-fast-forward
-        return 1
-      fi
+      (( DIRTY )) && print "💡 Note: your local changes are still stashed."
+      local CUR_BRANCH="${$(git branch --show-current):-detached}"
+      [[ $CUR_BRANCH != $ORIG_BRANCH ]] &&
+        print "💡 Note: HEAD is now on '$CUR_BRANCH' (started on '$ORIG_BRANCH')."
 
     elif [[ $REMOTE == $BASE ]]; then
-      cannot-fast-forward "Commits in main that aren't in upstream."
-      return 1
-
+      cannot-fast-forward "💥 Commits in main that aren't in upstream."
     else
-      cannot-fast-forward "Upstream and local have diverged."
-      return 1
+      cannot-fast-forward "💥 Upstream and local have diverged."
     fi
 
     return 1
   )
+  local ret=$?   # 42=pulled, 0=up-to-date, else git failure; capture before anything consumes it
+  (( ret != 42 && ret != 0 )) && return $ret
+
+  # re-source for new vendored-completion URLs before the restart (pure zstyle, idempotent)
+  [[ -s "${ZDOTDIR:-$HOME}/.zpreztorc" ]] && source "${ZDOTDIR:-$HOME}/.zpreztorc"
+  zprezto-dumb-term-overrides
+  if zstyle -t ':prezto:module:vendored-completions' loaded && ! update-vendored-completions && (( !RESTART )); then
+    print "ERROR: vendored-completions refresh failed (see above)." >&2
+    return 1
+  fi
+
+  if (( RESTART && ret == 42 )); then
+    zprezto-restart
+  fi
 }
+
+# Reload the shell in place
+function zprezto-restart {
+  # exec would replace a subshell, or hand the new shell non-tty stdio (a non-tty
+  # stdin makes it start non-interactive, read EOF and exit — killing the session)
+  [[ -o interactive && -t 0 && -t 1 ]] && (( ZSH_SUBSHELL == 0 )) || return 0
+
+  if ! zmodload zsh/parameter; then
+    print "ERROR: cannot load zsh/parameter to check for jobs." >&2
+    return 2
+  fi
+  if (( $#jobstates )); then
+    print "💥 Not restarting - background/suspended jobs would be killed." >&2
+    return 1
+  fi
+  print "♻️ Restarting shell"
+  export _ZPREZTO_DIRSTACK=${(pj:\n:)dirstack}
+  [[ -o login ]] && exec zsh -l
+  exec zsh
+}
+
 #
 # Module Loader
 #
@@ -184,11 +292,13 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zpreztorc" ]]; then
   source "${ZDOTDIR:-$HOME}/.zpreztorc"
 fi
 
-# Disable color and theme in dumb terminals.
-if [[ $TERM == dumb ]]; then
+# Disable color and theme in dumb terminals (re-applied wherever zpreztorc is re-sourced).
+function zprezto-dumb-term-overrides {
+  [[ $TERM == dumb ]] || return 0
   zstyle ':prezto:*:*' color 'no'
   zstyle ':prezto:module:prompt' theme 'off'
-fi
+}
+zprezto-dumb-term-overrides
 
 # Load Zsh modules.
 zstyle -a ':prezto:load' zmodule 'zmodules'

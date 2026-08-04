@@ -14,9 +14,9 @@ not defined, Zsh will use the user's home directory.
 
 This repo follows the strong ambition to keep stuff alphabetically sorted as
 much as possible (aside from upstream to maintain conflict-free mergeability).
-Hence, all list stuff like aliases, functions, env vars, completion
-definitions, etc. are sorted alphabetically here in the runcoms, too (aside
-from some minor exceptions for readability or proper placement / grouping).
+Hence, all list stuff like aliases, functions, env vars, completion definitions,
+etc. are sorted alphabetically here in the runcoms, too (aside from some minor
+exceptions for readability or proper placement / grouping).
 
 ## File Descriptions
 
@@ -70,14 +70,40 @@ bindings. It should not change the shell environment.
 This file is sourced by login shells during logout. It should be used for
 displaying messages and for deletion of files.
 
+## Fork Additions
+
+### zshrc: `u()`
+
+One-shot system updater, defined when `brew` exists. In order:
+
+- snapshots the current brew state into the repo's `modules/homebrew/Brewfile`
+- runs [`zprezto-update --skip-restart`][5]
+- upgrades brew bundle / formulae / casks
+- and ends in one [`zprezto-restart`][6] so everything goes live at once.
+
+It refuses up front on
+
+- a missing / empty `Brewfile`
+- an unresolved merge in the repo
+- concurrent runs from other shells or alongside a suspended (_CTRL+Z_) one
+
+The refusal names the recovery.
+
+**Every step is fatal:** the first failure aborts the run.
+
 ## Authors
 
-_The authors of these files should be contacted via the [issue tracker][5]._
+_The authors of these files should be contacted via the [issue tracker][7]
+and [upstream issue tracker][8]._
 
+- [Big Lecodeski](https://github.com/lecodeski)
 - [Sorin Ionescu](https://github.com/sorin-ionescu)
 
 [1]: http://zsh.sourceforge.net/Intro/intro_3.html#SEC3
 [2]: https://www.kornshell.com
 [3]: https://en.wikipedia.org/wiki/Fortune_(Unix)
 [4]: https://www.manpagez.com/man/1/msgs
-[5]: https://github.com/sorin-ionescu/prezto/issues
+[5]: ../README.md#updating
+[6]: ../README.md#restarting
+[7]: https://github.com/lecodeski/prezto/issues
+[8]: https://github.com/sorin-ionescu/prezto/issues

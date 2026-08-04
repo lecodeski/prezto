@@ -8,6 +8,8 @@
 
 # Return if requirements are not found.
 if [[ $TERM == dumb ]]; then
+  # no compinit here — stub compdef so later modules' and zshrc's bindings degrade silently
+  compdef() { }
   return 1
 fi
 
@@ -50,9 +52,8 @@ LS_COLORS=${LS_COLORS:-'di=34:ln=35:so=32:pi=33:ex=31:bd=36;01:cd=33;01:su=31;40
 # Initialization
 #
 
-# Load and initialize the completion system ignoring insecure directories with a
-# cache time of 20 hours, so it should almost always regenerate the first time a
-# shell is opened each day.
+# Load and initialize the completion system with a cache time of 20 hours, so it
+# should almost always regenerate the first time a shell is opened each day.
 autoload -Uz compinit
 _comp_path="${XDG_CACHE_HOME:-$HOME/.cache}/prezto/zcompdump"
 # #q expands globs in conditional expressions
@@ -61,9 +62,8 @@ if [[ $_comp_path(#qNmh-20) ]]; then
   compinit -C -d "$_comp_path"
 else
   mkdir -p "$_comp_path:h"
-  compinit -i -d "$_comp_path"
-  # Keep $_comp_path younger than cache time even if it isn't regenerated.
-  touch "$_comp_path"
+  # keep dump younger than cache time (success-gated: avoid empty dump when declining insecure dirs)
+  if compinit -d "$_comp_path"; then touch "$_comp_path"; else compdef() { }; fi
 fi
 unset _comp_path
 
