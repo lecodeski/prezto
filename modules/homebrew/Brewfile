@@ -64,6 +64,8 @@ brew "ffmpeg"
 brew "figlet"
 # Collection of GNU find, xargs, and locate
 brew "findutils"
+# Library for manipulating fonts
+brew "fonttools"
 # Infamous electronic fortune-cookie generator
 brew "fortune"
 # Terminal JSON viewer
@@ -314,6 +316,8 @@ cask "jameica"
 cask "key-codes"
 # Productivity tool
 cask "launchbar"
+# Markdown previewer with bundled Quick Look extension
+cask "markdown-preview"
 # Online collaborative whiteboard platform
 cask "miro"
 # Minecraft modding platform
