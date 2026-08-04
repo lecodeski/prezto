@@ -361,7 +361,7 @@ captioned-delimiter() {
 }
 
 if (( $+commands[claude] )); then
-  ci() { claude --print --no-session-persistence "$@" | glow --width 120 }
+  ci() { claude --print "$@" | glow --width 120 }
   cih() { ci --model=Haiku "$@" }
   cis() { ci --model=Sonnet "$@" }
 fi
