@@ -207,7 +207,7 @@ alias gst='git stash push --include-untracked'
 alias gsT='git stash push --patch'
 alias gw='git-open'
 
-[ $commands[idea] ] && alias iiff='idea diff' && alias i=idea && alias it='idea --temp-project'
+[ $commands[idea] ] && alias iiff='idea diff' && alias i='idea --edit' && alias ip='idea'
 
 zstyle -t ':prezto:module:fasd' loaded && alias j=fasd_cd && alias jj='fasd_cd -i'
 
