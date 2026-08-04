@@ -141,9 +141,7 @@ if [[ $commands[brew] ]]; then
 fi
 
 if (( $+commands[claude] )); then
-  alias ca='claude attach'
   alias cc='claude'
-  alias cg='claude agents'
   alias cmp='cm && git push'
   alias compare='\cmp'
   alias cr='claude --resume'
@@ -364,6 +362,40 @@ if (( $+commands[claude] )); then
   ci() { claude --print "$@" | glow --width 120 }
   cih() { ci --model=Haiku "$@" }
   cis() { ci --model=Sonnet "$@" }
+
+  ca() {
+    if [[ $1 == -- ]]; then
+      claude attach "${@:2}"
+    elif [[ $1 == [^-]* ]]; then
+      claude attach "$@"
+    else
+      claude agents "$@"
+    fi
+  }
+
+  # Runs `_claude` once per injected subcommand word, chosen per cursor slot;
+  # only the still-open first arg needs both, whose matches then accumulate
+  (( $+functions[_claude] )) && _ca() {
+    local -a orig=("${words[@]}") rest=("${(@)words[2,-1]}") subs
+    local cur=$CURRENT
+    if (( CURRENT > 2 )) && [[ $rest[1] == -- ]]; then
+      shift rest; (( cur-- )); subs=(attach)  # else _arguments eats it as the session id
+    elif [[ -z $rest[1] ]]; then
+      subs=(attach agents)
+    elif [[ $rest[1] == -* ]]; then
+      subs=(agents)
+    else
+      subs=(attach)
+    fi
+    local -a words  # shadow, not redundant: _main_complete can rerun this completer
+    local CURRENT sub ret=1
+    for sub in $subs; do
+      words=("$orig[1]" "$sub" "${(@)rest}")
+      CURRENT=$(( cur + 1 ))
+      _claude && ret=0
+    done
+    return ret
+  } && compdef _ca ca
 fi
 
 cl() {
