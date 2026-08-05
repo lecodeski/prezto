@@ -68,13 +68,19 @@ something was pulled. It
 - re-sources `zpreztorc` and refreshes [vendored completions][11] on every
   successful run
 
-If the reload is undesired, `--skip-restart` suppresses it. It also makes a
-failed completions refresh fatal, since a direct run can simply be repeated.
+### Killswitch
 
-Anything it will not resolve on its own — a non-fast-forwardable `main`, a
-detached HEAD, a missing `main`/`origin/main` — it refuses and tells you to fix
-manually. So are concurrent runs from other shells or alongside a suspended
-(_CTRL+Z_) one; the refusal names the recovery.
+Anything it will not resolve on its own (a non-fast-forwardable `main`, a
+detached HEAD, a missing `main`/`origin/main`) it refuses and tells you to fix
+manually — likewise concurrent runs from other shells or alongside a suspended
+(_CTRL+Z_) one. The refusal names the recovery.
+
+### Skipping the restart
+
+If the reload is undesired, `-s` / `--skip-restart` suppresses it. It also makes
+a failed completions refresh fatal, since a direct run can simply be repeated.
+
+`-h` / `--help` prints the usage page.
 
 All git handling happens isolated in a subshell. To pull manually:
 

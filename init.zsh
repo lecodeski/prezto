@@ -55,10 +55,34 @@ function zprezto-update {
   # untyped: must stay empty when unassigned — ${RESTART:+…} depends on it (-i would pin 0, non-empty)
   local RESTART
 
+  (( $# > 1 )) && { print -u2 -r -- "$0: extra operand '$2'
+Try '$0 --help' for more information." ; return 1 }
   case $1 in
     '') RESTART=1 ;;
-    --skip-restart) ;;
-    *) print "usage: zprezto-update [--skip-restart]" >&2; return 1 ;;
+    -s|--skip-restart) ;;
+    -h|--help) print -r -- \
+'Usage: zprezto-update [OPTION]
+
+Update the Prezto fork; in order:
+- stash dirty state, including untracked files
+- fast-forward main onto origin/main
+- sync submodules
+- rebase and force-push a checked-out feature branch
+- pop the stash, or say so and stop if it is left stashed
+- re-source zpreztorc
+- refresh vendored completions
+- restart the shell if anything was pulled.
+Refuses whatever it cannot resolve alone and names the recovery.
+
+Options:
+  -s, --skip-restart  pull without reloading the shell, for callers that
+                      restart once at the end themselves; also makes a failed
+                      completions refresh fatal, since a direct run can simply
+                      be repeated
+  -h, --help          display this help and exit'
+      return 0 ;;
+    *) print -u2 -r -- "$0: unrecognized option '$1'
+Try '$0 --help' for more information." ; return 1 ;;
   esac
 
   (

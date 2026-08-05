@@ -29,7 +29,8 @@ compdef _gnu_generic \
   reveal-md \
   rga \
   tig \
-  unar
+  unar \
+  zprezto-update
 
 (( $+commands[herdr] )) && source <(herdr completion zsh)
 (( $+commands[ipinfo] )) && source <(ipinfo completion zsh)
