@@ -72,14 +72,16 @@ displaying messages and for deletion of files.
 
 ## Fork Additions
 
-### zshrc: `u()`
+### zshrc: `u`
 
-One-shot system updater, defined when `brew` exists. In order:
+One-shot system updater function, defined when `brew` exists. In order:
 
 - snapshots the current brew state into the repo's `modules/homebrew/Brewfile`
 - runs [`zprezto-update --skip-restart`][5]
 - upgrades brew bundle / formulae / casks
 - and ends in one [`zprezto-restart`][6] so everything goes live at once.
+
+#### Killswitch
 
 It refuses up front on
 
@@ -89,7 +91,18 @@ It refuses up front on
 
 The refusal names the recovery.
 
+#### Override: `u -f` / `u --force` (alias `uf`)
+
+Skips the snapshot, so the **pulled** `Brewfile` is the one that gets applied:
+`brew bundle upgrade --force-cleanup` restores it as recorded state —
+**installing** what the pull added and **uninstalling** what it dropped.  
+Deliberately not the default: It is the **hard override** of your machine's
+state that lets the repo win (e.g. after upstream or another machine changed the
+`Brewfile`).
+
 **Every step is fatal:** the first failure aborts the run.
+
+`-h` / `--help` prints the usage page.
 
 ## Authors
 

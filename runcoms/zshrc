@@ -29,6 +29,7 @@ compdef _gnu_generic \
   reveal-md \
   rga \
   tig \
+  u \
   unar \
   zprezto-update
 
@@ -449,6 +450,29 @@ konfigmerge() {
 } && compdef p=bat
 
 (( $+commands[brew] )) && u() {
+  local -i force=0
+  (( $# > 1 )) && { print -u2 -r -- "$0: extra operand '$2'
+Try '$0 --help' for more information." ; return 1 }
+  case $1 in
+    '') ;;
+    -f|--force) force=1 ;;
+    -h|--help) print -r -- \
+'Usage: u [OPTION]
+
+One-shot system updater: snapshot the installed brew state into the repo
+Brewfile, update Prezto, upgrade brew bundle, formulae and casks, then restart
+the shell once at the end. Every step is fatal - the first failure aborts.
+
+Options:
+  -f, --force  no Brewfile dump first, so the Brewfile pulled by the Prezto
+               update wins over the installed package set, which otherwise
+               wins by being snapshotted over it before the pull
+  -h, --help   display this help and exit'
+      return 0 ;;
+    *) print -u2 -r -- "$0: unrecognized option '$1'
+Try '$0 --help' for more information." ; return 1 ;;
+  esac
+
   local brewfile=${ZPREZTODIR:-${ZDOTDIR:-$HOME}/.zprezto}/modules/homebrew/Brewfile
   [[ -s $brewfile ]] || {
     print "ERROR: Brewfile under $brewfile empty or missing - check Prezto working copy state. Aborting." >&2
@@ -465,7 +489,7 @@ konfigmerge() {
   local -i parent_lock=$+_zprezto_update_lock_fd
   zprezto-update-trylock || return
   {
-    HOMEBREW_NO_AUTO_UPDATE=1 brew bundle dump --force --file=$brewfile || {
+    (( force )) || HOMEBREW_NO_AUTO_UPDATE=1 brew bundle dump --force --file=$brewfile || {
       print "ERROR: could not dump current Brewfile" >&2
       return 1
     }
@@ -491,7 +515,7 @@ konfigmerge() {
   } always {
     (( ! parent_lock )) && zprezto-update-unlock
   }
-}
+} && alias uf='u --force'
 
 # by Leah Neukirchen (http://leahneukirchen.org/dotfiles/.zshrc)
 # wat - a better and recursive which/whence
