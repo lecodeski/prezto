@@ -125,7 +125,10 @@ Try '$0 --help' for more information." ; return 1 ;;
         print "💥 Update pulled, but restoring '$orig_branch' (switch/rebase/push) failed — resolve manually; not restarting." >&2
         return 1
       fi
-      if (( dirty )); then git stash pop || return; fi
+      if (( dirty )); then
+        print "💡 restoring your stashed local changes."
+        git stash pop || return
+      fi
     }
 
     # lock lives only in subshell and is auto-released
@@ -157,14 +160,15 @@ Try '$0 --help' for more information." ; return 1 ;;
 
       local -i DIRTY=0
       [[ -n $(git status --porcelain --ignore-submodules) ]] && DIRTY=1
-      (( DIRTY )) && { git stash push --include-untracked || return 1 }
+      (( DIRTY )) && { print "💡 dirty working copy - stashing your local changes, including untracked files."
+        git stash push --include-untracked || return 1 }
 
       pull-update "$ORIG_BRANCH" $DIRTY && return 42 # arbitrary "pulled" marker for the parent
 
-      (( DIRTY )) && print "💡 Note: your local changes are still stashed."
+      (( DIRTY )) && print "💡 your local changes are still stashed."
       local CUR_BRANCH="${$(git branch --show-current):-detached}"
       [[ $CUR_BRANCH != $ORIG_BRANCH ]] &&
-        print "💡 Note: HEAD is now on '$CUR_BRANCH' (started on '$ORIG_BRANCH')."
+        print "💡 HEAD is now on '$CUR_BRANCH' (started on '$ORIG_BRANCH')."
 
     elif [[ $REMOTE == $BASE ]]; then
       cannot-fast-forward "💥 Commits in main that aren't in upstream."
