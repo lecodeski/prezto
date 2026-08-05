@@ -33,12 +33,12 @@ function zprezto-update-trylock {
     (( $#funcstack > 2 )) && return 0
   else
     zmodload zsh/system && mkdir -p "${_zprezto_update_lock:h}" && : >>| "$_zprezto_update_lock" || {
-      print "💥 cannot create lock anchor $_zprezto_update_lock" >&2
+      print "  💥 cannot create lock anchor $_zprezto_update_lock" >&2
       return 1
     }
     zsystem flock -t 0 -f _zprezto_update_lock_fd "$_zprezto_update_lock" 2> /dev/null && return 0
   fi
-  print "💥 another update is already running (suspended or other shell? check jobs / tabs; a leftover clears via exec zsh)" >&2
+  print "  💥 another update is already running (suspended or other shell? check jobs / tabs; a leftover clears via exec zsh)" >&2
   return 1
 }
 
@@ -91,10 +91,10 @@ Try '$0 --help' for more information." ; return 1 ;;
 
     function cannot-fast-forward {
       [[ -n $1 ]] && print $1
-      print "💥 Unable to fast-forward the changes. You can fix this by running"
-      print "cd '$ZPREZTODIR', check the condition of your working copy and probably then"
-      print "'git switch main && git pull'"
-      print "to manually pull and possibly merge in changes and then re-run your last update command"
+      print "  💥 Unable to fast-forward the changes. You can fix this by running"
+      print "  cd '$ZPREZTODIR', check the condition of your working copy and probably then"
+      print "  'git switch main && git pull'"
+      print "  to manually pull and possibly merge in changes and then re-run your last update command"
     } >&2
 
     function pull-update {
@@ -110,7 +110,7 @@ Try '$0 --help' for more information." ; return 1 ;;
         cannot-fast-forward
         return 1
       }
-      print "🍺 Syncing submodules" &&
+      print "  🍺 Syncing submodules" &&
         git submodule sync --recursive &&
         git submodule foreach --recursive 'git fetch --tags' &&
         git submodule update --init --recursive || return
@@ -122,11 +122,11 @@ Try '$0 --help' for more information." ; return 1 ;;
         { [[ $(git rev-parse --abbrev-ref @{push} 2> /dev/null) != origin/* ]] ||
           git push --force-with-lease --force-if-includes } }
       then
-        print "💥 Update pulled, but restoring '$orig_branch' (switch/rebase/push) failed — resolve manually; not restarting." >&2
+        print "  💥 Update pulled, but restoring '$orig_branch' (switch/rebase/push) failed — resolve manually; not restarting." >&2
         return 1
       fi
       if (( dirty )); then
-        print "💡 restoring your stashed local changes."
+        print "  💡 restoring your stashed local changes."
         git stash pop || return
       fi
     }
@@ -155,22 +155,22 @@ Try '$0 --help' for more information." ; return 1 ;;
     elif [[ -z $REMOTE ]]; then
       cannot-fast-forward "💥 no 'origin/main' — check the remote"
     elif [[ $LOCAL == $REMOTE ]]; then
-      print "🛌 There are no updates${RESTART:+, skipping restart}."
-      (( DIRTY )) && { print "💡 Prezto working copy dirty; check $ZPREZTODIR" }
+      print "  🛌 There are no updates${RESTART:+, skipping restart}."
+      (( DIRTY )) && { print "  💡 Prezto working copy dirty; check $ZPREZTODIR" }
       return 0
 
     elif [[ $LOCAL == $BASE ]]; then
-      print "🍺 There is an update available. Trying to pull.\n"
+      print "  🍺 There is an update available. Trying to pull.\n"
 
-      (( DIRTY )) && { print "💡 dirty working copy - stashing your local changes, including untracked files."
+      (( DIRTY )) && { print "  💡 dirty working copy - stashing your local changes, including untracked files."
         git stash push --include-untracked || return 1 }
 
       pull-update "$ORIG_BRANCH" $DIRTY && return 42 # arbitrary "pulled" marker for the parent
 
-      (( DIRTY )) && print "💡 your local changes are still stashed."
+      (( DIRTY )) && print "  💡 your local changes are still stashed."
       local CUR_BRANCH="${$(git branch --show-current):-detached}"
       [[ $CUR_BRANCH != $ORIG_BRANCH ]] &&
-        print "💡 HEAD is now on '$CUR_BRANCH' (started on '$ORIG_BRANCH')."
+        print "  💡 HEAD is now on '$CUR_BRANCH' (started on '$ORIG_BRANCH')."
 
     elif [[ $REMOTE == $BASE ]]; then
       cannot-fast-forward "💥 Commits in main that aren't in upstream."
@@ -207,7 +207,7 @@ function zprezto-restart {
     return 2
   fi
   if (( $#jobstates )); then
-    print "💥 Not restarting - background/suspended jobs would be killed." >&2
+    print "  💥 Not restarting - background/suspended jobs would be killed." >&2
     return 1
   fi
   print "♻️ Restarting shell"

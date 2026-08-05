@@ -26,18 +26,18 @@ local -a header shadow urls bound
 local -A seen
 local -i failed=0 rescan=0 changed flagged
 
-print -P '%B🍻 Updating Vendored Completions:%b'
+print -P '  %B🍻 Updating Vendored Completions:%b'
 
 zstyle -a ':prezto:module:vendored-completions' completions urls
 
 if (( ! $#urls )); then
-  print "$0: no completions configured — add URLs in zpreztorc:" >&2
-  print "  zstyle ':prezto:module:vendored-completions' completions https://…/_foo ..." >&2
-  print "  or drop 'vendored-completions' from the pmodule list if you don't use it." >&2
+  print "  $0: no completions configured — add URLs in zpreztorc:" >&2
+  print "    zstyle ':prezto:module:vendored-completions' completions https://…/_foo ..." >&2
+  print "    or drop 'vendored-completions' from the pmodule list if you don't use it." >&2
   return 1
 fi
 if (( ! $+commands[curl] )); then
-  print "$0: curl not found — cannot fetch completions" >&2
+  print "  $0: curl not found — cannot fetch completions" >&2
   return 1
 fi
 
@@ -82,7 +82,7 @@ zprezto-update-trylock || return
       zsh -n "$tmp" 2> /dev/null }
     then
       [[ -e $file ]] && state='kept previous version' || state='not installed'
-      print "  💥 validation failed: $name ($state)" >&2
+      print "    💥 validation failed: $name ($state)" >&2
       failed=1
       continue
     fi
@@ -91,7 +91,7 @@ zprezto-update-trylock || return
     changed=0
     if ! cmp -s "$tmp" "$file"; then
       mv -f "$tmp" "$file" ||
-        { print "  💥 $name (mv failed, kept previous version)" >&2; failed=1; continue }
+        { print "    💥 $name (mv failed, kept previous version)" >&2; failed=1; continue }
       changed=1
       rescan=1
     fi
@@ -99,17 +99,17 @@ zprezto-update-trylock || return
     # fail loudly if an earlier fpath dir shadows our copy (checked every run, not just on change)
     shadow=(${^fpath}/$name(N))
     if (( ! $#shadow )); then
-      print "  💥 $name (installed, but $_vendored_completions_dir is not in this shell's fpath)" >&2
+      print "    💥 $name (installed, but $_vendored_completions_dir is not in this shell's fpath)" >&2
       failed=1
       continue
     elif [[ $shadow[1] != $file ]]; then
-      print "  💥 $name (shadowed by $shadow[1])" >&2
+      print "    💥 $name (shadowed by $shadow[1])" >&2
       failed=1
       continue
     fi
 
     if (( ! changed && $+functions[$name] )); then
-      print "  🛌 $name (unchanged)"
+      print "    🛌 $name (unchanged)"
       continue
     fi
 
@@ -129,11 +129,11 @@ zprezto-update-trylock || return
 
     # final compdef; probe _comps not compdef — the completion module stubs compdef in compinit-less shells
     if (( ! $+_comps )); then
-      print "  🍺 $name (compdef skipped: no compinit in this shell - new shells rebind automatically)"
+      print "    🍺 $name (compdef skipped: no compinit in this shell - new shells rebind automatically)"
     elif compdef $header; then
-      print "  🍺 $name"
+      print "    🍺 $name"
     else
-      print "  💥 $name (installed, but compdef failed in this shell — reason above)" >&2
+      print "    💥 $name (installed, but compdef failed in this shell — reason above)" >&2
       failed=1
     fi
   done
@@ -144,7 +144,7 @@ zprezto-update-trylock || return
     (( $+seen[$name] )) && continue
 
     if ! rm -f "$stale"; then
-      print "  💥 $name (no longer configured, but could not remove)" >&2
+      print "    💥 $name (no longer configured, but could not remove)" >&2
       failed=1
       continue
     fi
@@ -162,7 +162,7 @@ zprezto-update-trylock || return
     fi
 
     rescan=1
-    print "  🗑  $name (removed; no longer configured)"
+    print "    🗑  $name (removed; no longer configured)"
   done
 
   # final cleanup

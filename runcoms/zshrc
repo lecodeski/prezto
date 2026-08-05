@@ -498,18 +498,18 @@ Try '$0 --help' for more information." ; return 1 ;;
       print "💥 Could not update Prezto - check its working copy state and framework config. Aborting." >&2
       return 1
     }
-    print -P '%B🍻 Brew upgrades:%b'
+    print -P '\n%B🍻 Brew upgrades:%b'
     brew update --quiet && brew bundle upgrade --force-cleanup --quiet --file=$brewfile && brew upgrade || {
       print "ERROR: could not upgrade Brew packages. Aborting." >&2
       return 1
     }
-    print -P '%BBrew upgrades finished 🍻%b'
+    print -P '%BBrew upgrades finished 🍻%b\n'
 
     brew cu ${commands[mas]:+--include-mas} --no-brew-update --all --quiet --yes || {
       print "ERROR: could not upgrade Brew casks. Aborting." >&2
       return 1
     }
-    print -P '%BBrew cask upgrades finished 🍻%b'
+    print -P '%BBrew cask upgrades finished 🍻%b\n'
 
     zprezto-restart
   } always {
