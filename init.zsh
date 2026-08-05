@@ -142,6 +142,9 @@ Try '$0 --help' for more information." ; return 1 ;;
     local REMOTE=$(git rev-parse --verify --quiet origin/main)
     local BASE=$(git merge-base main origin/main)
 
+    local -i DIRTY=0
+    [[ -n $(git status --porcelain --ignore-submodules) ]] && DIRTY=1
+
     git diff --quiet --diff-filter=U
     if (( $? == 1 )); then # rc 1 is "unmerged paths found" — anything else is a git error, not a conflict
       cannot-fast-forward "💥 unresolved merge — resolve it (git status) first"
@@ -153,13 +156,12 @@ Try '$0 --help' for more information." ; return 1 ;;
       cannot-fast-forward "💥 no 'origin/main' — check the remote"
     elif [[ $LOCAL == $REMOTE ]]; then
       print "🛌 There are no updates${RESTART:+, skipping restart}."
+      (( DIRTY )) && { print "💡 Prezto working copy dirty; check $ZPREZTODIR" }
       return 0
 
     elif [[ $LOCAL == $BASE ]]; then
       print "🍺 There is an update available. Trying to pull.\n"
 
-      local -i DIRTY=0
-      [[ -n $(git status --porcelain --ignore-submodules) ]] && DIRTY=1
       (( DIRTY )) && { print "💡 dirty working copy - stashing your local changes, including untracked files."
         git stash push --include-untracked || return 1 }
 
