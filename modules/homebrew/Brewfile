@@ -328,8 +328,6 @@ cask "nightfall"
 cask "open-webui"
 # Replacement for Docker Desktop
 cask "orbstack"
-# Desktop virtualization software
-cask "parallels"
 # Control your Sonos system
 cask "sonos"
 # Text editor for code, markup and prose
@@ -339,7 +337,6 @@ mas "AllMyBatteries", id: 1621263412
 mas "Bee DICOM Viewer", id: 1590273176
 mas "Blue Planet", id: 418903397
 mas "DaisyDisk", id: 411643860
-mas "GarageBand", id: 682658836
 mas "ICE Buddy", id: 1595947689
 mas "iMovie", id: 408981434
 mas "Keynote", id: 361285480
