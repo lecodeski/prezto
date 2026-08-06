@@ -270,7 +270,8 @@ alias ä="cd ${ZDOTDIR:-$HOME} &&
   vim + .zsh_history &&
   command cp -v .zsh_history .zsh_history.bak &&
   arc .zsh_history.txz .zsh_history &&
-  mv -f .zsh_history.txz iCloud/ &
+  command cp -v .zsh_history.txz iCloud/ &&
+  mv -f .zsh_history.txz cloud/ &
   popd 2> /dev/null"
 
 ### Functions
