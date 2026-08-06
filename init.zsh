@@ -33,12 +33,12 @@ function zprezto-update-trylock {
     (( $#funcstack > 2 )) && return 0
   else
     zmodload zsh/system && mkdir -p "${_zprezto_update_lock:h}" && : >>| "$_zprezto_update_lock" || {
-      print "  💥 cannot create lock anchor $_zprezto_update_lock" >&2
+      print -u2 "  💥 cannot create lock anchor $_zprezto_update_lock"
       return 1
     }
     zsystem flock -t 0 -f _zprezto_update_lock_fd "$_zprezto_update_lock" 2> /dev/null && return 0
   fi
-  print "  💥 another update is already running (suspended or other shell? check jobs / tabs; a leftover clears via exec zsh)" >&2
+  print -u2 "  💥 another update is already running (suspended or other shell? check jobs / tabs; a leftover clears via exec zsh)"
   return 1
 }
 
@@ -122,7 +122,7 @@ Try '$0 --help' for more information." ; return 1 ;;
         { [[ $(git rev-parse --abbrev-ref @{push} 2> /dev/null) != origin/* ]] ||
           git push --force-with-lease --force-if-includes } }
       then
-        print "  💥 Update pulled, but restoring '$orig_branch' (switch/rebase/push) failed — resolve manually; not restarting." >&2
+        print -u2 "  💥 Update pulled, but restoring '$orig_branch' (switch/rebase/push) failed — resolve manually; not restarting."
         return 1
       fi
       if (( dirty )); then
@@ -187,7 +187,7 @@ Try '$0 --help' for more information." ; return 1 ;;
   [[ -s "${ZDOTDIR:-$HOME}/.zpreztorc" ]] && source "${ZDOTDIR:-$HOME}/.zpreztorc"
   zprezto-dumb-term-overrides
   if zstyle -t ':prezto:module:vendored-completions' loaded && ! update-vendored-completions && (( !RESTART )); then
-    print "ERROR: vendored-completions refresh failed (see above)." >&2
+    print -u2 "ERROR: vendored-completions refresh failed (see above)."
     return 1
   fi
 
@@ -203,11 +203,11 @@ function zprezto-restart {
   [[ -o interactive && -t 0 && -t 1 ]] && (( ZSH_SUBSHELL == 0 )) || return 0
 
   if ! zmodload zsh/parameter; then
-    print "ERROR: cannot load zsh/parameter to check for jobs." >&2
+    print -u2 "ERROR: cannot load zsh/parameter to check for jobs."
     return 2
   fi
   if (( $#jobstates )); then
-    print "  💥 Not restarting - background/suspended jobs would be killed." >&2
+    print -u2 "  💥 Not restarting - background/suspended jobs would be killed."
     return 1
   fi
   print "♻️ Restarting shell"

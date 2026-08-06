@@ -31,13 +31,13 @@ print -P '  %B🍻 Updating Vendored Completions:%b'
 zstyle -a ':prezto:module:vendored-completions' completions urls
 
 if (( ! $#urls )); then
-  print "  $0: no completions configured — add URLs in zpreztorc:" >&2
-  print "    zstyle ':prezto:module:vendored-completions' completions https://…/_foo ..." >&2
-  print "    or drop 'vendored-completions' from the pmodule list if you don't use it." >&2
+  print -u2 "  $0: no completions configured — add URLs in zpreztorc:"
+  print -u2 "    zstyle ':prezto:module:vendored-completions' completions https://…/_foo ..."
+  print -u2 "    or drop 'vendored-completions' from the pmodule list if you don't use it."
   return 1
 fi
 if (( ! $+commands[curl] )); then
-  print "  $0: curl not found — cannot fetch completions" >&2
+  print -u2 "  $0: curl not found — cannot fetch completions"
   return 1
 fi
 
@@ -45,11 +45,11 @@ fi
 for url in "$urls[@]"; do
   name="${url:t}"
   if [[ $name != _* || $name == *[^A-Za-z0-9_.+-]* ]]; then
-    print -r "$0: '$url' does not end in a completion filename (_name)" >&2
+    print -ru2 "$0: '$url' does not end in a completion filename (_name)"
     return 1
   fi
   if (( $+seen[$name] )); then
-    print -r "$0: two URLs resolve to the same name '$name'" >&2
+    print -ru2 "$0: two URLs resolve to the same name '$name'"
     return 1
   fi
   seen[$name]=1
@@ -82,7 +82,7 @@ zprezto-update-trylock || return
       zsh -n "$tmp" 2> /dev/null }
     then
       [[ -e $file ]] && state='kept previous version' || state='not installed'
-      print "    💥 validation failed: $name ($state)" >&2
+      print -u2 "    💥 validation failed: $name ($state)"
       failed=1
       continue
     fi
@@ -91,7 +91,7 @@ zprezto-update-trylock || return
     changed=0
     if ! cmp -s "$tmp" "$file"; then
       mv -f "$tmp" "$file" ||
-        { print "    💥 $name (mv failed, kept previous version)" >&2; failed=1; continue }
+        { print -u2 "    💥 $name (mv failed, kept previous version)"; failed=1; continue }
       changed=1
       rescan=1
     fi
@@ -99,11 +99,11 @@ zprezto-update-trylock || return
     # fail loudly if an earlier fpath dir shadows our copy (checked every run, not just on change)
     shadow=(${^fpath}/$name(N))
     if (( ! $#shadow )); then
-      print "    💥 $name (installed, but $_vendored_completions_dir is not in this shell's fpath)" >&2
+      print -u2 "    💥 $name (installed, but $_vendored_completions_dir is not in this shell's fpath)"
       failed=1
       continue
     elif [[ $shadow[1] != $file ]]; then
-      print "    💥 $name (shadowed by $shadow[1])" >&2
+      print -u2 "    💥 $name (shadowed by $shadow[1])"
       failed=1
       continue
     fi
@@ -133,7 +133,7 @@ zprezto-update-trylock || return
     elif compdef $header; then
       print "    🍺 $name"
     else
-      print "    💥 $name (installed, but compdef failed in this shell — reason above)" >&2
+      print -u2 "    💥 $name (installed, but compdef failed in this shell — reason above)"
       failed=1
     fi
   done
@@ -144,7 +144,7 @@ zprezto-update-trylock || return
     (( $+seen[$name] )) && continue
 
     if ! rm -f "$stale"; then
-      print "    💥 $name (no longer configured, but could not remove)" >&2
+      print -u2 "    💥 $name (no longer configured, but could not remove)"
       failed=1
       continue
     fi

@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-(( EUID )) || { echo "ERROR: don't run this script as root - bad things can happen" >&2; exit 1; }
+(( EUID )) || { print -u2 "ERROR: don't run this script as root - bad things can happen"; exit 1; }
 setopt EXTENDED_GLOB
 err=0
 for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
