@@ -443,6 +443,44 @@ konfigmerge() {
   delta ~/.kube/config.bak ~/.kube/config
 }
 
+mh() {
+  local archive=${${1:-${ZDOTDIR:-$HOME}/iCloud/.zsh_history.txz}:A}
+  [[ -r $archive ]] || { print -u2 "💥 cannot read $archive"; return 1 }
+  [[ -r $HISTFILE ]] || { print -u2 "💥 no history file at ${HISTFILE:-\$HISTFILE}"; return 1 }
+  # the . survives $()'s trailing-newline stripping, which would eat an entry's final newline
+  local imported; imported=$(tar xOf $archive && print -n .) ||
+    { print -u2 "💥 could not extract $archive:t"; return 1 }
+  imported=${imported%.}
+  [[ -n $imported ]] || { print -u2 "💥 no history inside $archive:t"; return 1 }
+  [[ $imported == *$'\n' ]] || imported+=$'\n'
+
+  # one entry spans lines until one not ending in \ — zsh stores a literal trailing \ as "\ "
+  local -a entries; local f line entry= src; local -i own=0 bare=0
+  for f in $HISTFILE =(print -rn -- "$imported"); do  # =() temp file: zsh drops it after the loop
+    while IFS= read -r line || [[ -n $line ]]; do
+      [[ -z $line && -z $entry ]] && continue  # stray blank line, not a continuation
+      entry+="$line"$'\n'
+      [[ $line == *\\ ]] || { entries+=("$entry"); entry= }
+    done < $f
+    [[ $entry == *\\$'\n' ]] && entry="${entry%$'\n'} "$'\n'  # truncated file: re-escape
+    [[ -n $entry ]] && { entries+=("$entry"); entry= }
+    src=$archive:t; [[ $f == "$HISTFILE" ]] && { src=$HISTFILE:t; own=${#${(u)entries[@]}} }
+    (( bare = ${#${entries[@]:#: *}} )) && { print -u2 "💥 $src: timestampless entries ($bare) - aborting"; return 1 }
+  done
+  # numeric: a 9-digit epoch must not sort behind the 10-digit ones
+  entries=("${(oun)entries[@]}")
+
+  (( $#entries <= own )) && { print "🕰️ nothing new in $archive:t"; return 0 }
+
+  # printf, not print: entries carry their own \n and must not be escape-expanded
+  ( umask 077; printf '%s' "${entries[@]}" >| $HISTFILE.new ) &&
+    command cp $HISTFILE{,.bak} && command mv $HISTFILE{.new,} ||
+      { command rm -f $HISTFILE.new; return 1 }
+
+  print "🕰️ merged $archive:t: $own → $#entries entries, backup in $HISTFILE:t.bak"
+  zprezto-restart
+}
+
 [[ $commands[glow] ]] && [[ $commands[bat] ]] && unalias p && 'p'() {
   if [[ $1 == *.md || $1 == *.markdown || -z $1 ]] && [[ -t 0 ]]; then
     glow --pager --width 120 --line-numbers --all $1
