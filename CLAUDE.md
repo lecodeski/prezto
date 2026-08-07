@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## What this is
 
 Personal fork of [sorin-ionescu/prezto](https://github.com/sorin-ionescu/prezto) (zsh config framework). Remote `origin` = lecodeski/prezto, `upstream` = sorin-ionescu/prezto. Default branch: `main`.
@@ -12,9 +14,12 @@ No build or test suite. Instead:
 
 - syntax-check a zsh file: `zsh -n <file>`
 - verify a change: fresh shell — `zsh -ic 'exit'` catches startup errors
-- update fork + submodules: `zprezto-update` — fork-custom, defined in
-  `init.zsh`; semantics in [README](README.md#updating)
+- apply a change to the running shell: `zprezto-restart` (`exec`s zsh; refuses while
+  jobs exist)
+- update fork + submodules: `zprezto-update` (`-s` skips the restart) — fork-custom,
+  defined in `init.zsh`; semantics in [README](README.md#updating)
 - submodules after checkout: `git submodule update --init --recursive`
+- re-fetch vendored completion files: `update-vendored-completions`
 
 ## Commit convention
 
@@ -25,8 +30,9 @@ No build or test suite. Instead:
 Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) → `zlogin`.
 
 - `init.zsh` — loader. Reads `zstyle ':prezto:load' pmodule` from `runcoms/zpreztorc` and sources each `modules/<name>/init.zsh` **in listed order** (order matters: `syntax-highlighting` before `history-substring-search`, `completion` before `autosuggestions`, `prompt` late). Also defines the fork's `zprezto-update` + `zprezto-restart`.
-- `modules/<name>/` — `init.zsh` plus optional `functions/` (autoloaded) and `external/` (git submodules of third-party plugins). Fork additions: `fzf` module (fzf-tab, fzf-git), `vendored-completions` module, `utility/bin/` (`cm`, `cpy`, `pst` — on PATH).
-- `runcoms/` — zsh startup files plus non-zsh dotfiles symlinked too (`gitconfig`, `vimrc`, `batrc`, `ripgreprc`, `p10k.zsh`, `p10k-intellij.zsh`). Bulk of personal aliases/keybindings: `runcoms/zshrc` (~500 added lines vs upstream).
+- `runcoms/zpreztorc` — the switchboard: module list plus every `zstyle ':prezto:*'` setting (including the vendored-completion URLs). A module reads its own settings; it does not read the list.
+- `modules/<name>/` — `init.zsh` plus optional `functions/` (autoloaded, `_*`/`README*` skipped), `bin/` (module puts it on PATH itself — only `utility` does), and `external/` (git submodules of third-party plugins). Fork additions: `fzf` module (fzf-tab, fzf-git), `vendored-completions` module, `utility/bin/` (`cm`, `cpy`, `pst`).
+- `runcoms/` — zsh startup files plus non-zsh dotfiles symlinked too (`gitconfig`, `vimrc`, `batrc`, `ripgreprc`, `p10k.zsh`, `p10k-intellij.zsh`). Bulk of personal aliases/keybindings: `runcoms/zshrc` (~500 added lines vs upstream), grouped by `###` section headers.
 - `setup_homebrew_prezto.sh` / `setup_prezto.zsh` — one-time machine bootstrap; rarely touched.
 
 ## Fork policies & gotchas
@@ -34,5 +40,8 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 - never patch files under `modules/*/external/` (vendored submodules) — upstream is the only source of truth; bump the submodule instead
 - keep divergence from `upstream` minimal and rebase-friendly; `zprezto-update` assumes ff-only pulls on `main`
 - upstream sync is automated: `.github/pull.yml` lets pull[bot] merge `sorin-ionescu:master` into GitHub `main`; never merge/rebase upstream manually — just ff-pull what the bot produced
+- vendored completions install to `$XDG_DATA_HOME/prezto-vendored-completions`, outside the repo, so a refresh never dirties the tree that `zprezto-update` stashes — keep them out
+- `cm` authenticates with `ANTHROPIC_API_KEY` or the Claude Code OAuth token, and falls back to `claude -p`
 - `cmp` is aliased to `cm && git push` in `zshrc` — use `\cmp` or `command cmp` for the real binary
 - in `runcoms/gitconfig`, the `env -u GIT_DIR` wrapper and absolute difftool paths are load-bearing (IntelliJ Settings Sync can otherwise wipe repos on cold start) — don't "simplify" them away
+- style per `.editorconfig`: 2-space indent, LF, final newline, no trailing whitespace
