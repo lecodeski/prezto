@@ -1,3 +1,5 @@
+Documentation
+
 # IntelliJ
 .idea
 *.ipr
@@ -14,7 +16,5 @@
 # patch
 *.orig
 *.rej
-
-Documentation
 
 **/.claude/settings.local.json
