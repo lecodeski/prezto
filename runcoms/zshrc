@@ -209,8 +209,6 @@ alias gw='git-open'
 
 [ $commands[idea] ] && alias iiff='idea diff' && alias i='idea --edit' && alias io='idea'
 
-zstyle -t ':prezto:module:fasd' loaded && alias j=fasd_cd && alias jj='fasd_cd -i'
-
 [ $commands[kubectl] ] && alias k=kubectl && [ $commands[kubectx] ] && alias kc='kubectx' && alias -- -='kubectx -' || alias kc='kubectl config use-context'
 [ -f ~/Projekte/Perl/SandBox/krazy-kase.pl ] && alias kk='perl ~/Projekte/Perl/SandBox/krazy-kase.pl'
 [ -x ~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh ] && alias kkc=~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh
@@ -434,6 +432,11 @@ fancy-ctrl-z() {
     zle push-input
   fi
 } && zle -N fancy-ctrl-z
+
+zstyle -t ':prezto:module:fasd' loaded &&
+  j() { fasd_cd "$@" && x } &&
+  jj() { fasd_cd -i "$@" && x } &&
+  compdef _fasd_zsh_word_complete_d j jj
 
 konfigmerge() {
   export KUBECONFIG=~/.kube/config:$(realpath $1)

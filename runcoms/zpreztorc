@@ -94,6 +94,11 @@ zstyle ':prezto:module:editor' key-bindings 'emacs'
 #zstyle ':prezto:module:editor' ps-context 'yes'
 
 #
+# fasd
+#
+zstyle ':prezto:module:fasd:alias' skip 'yes'
+
+#
 # Git
 #
 
