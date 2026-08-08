@@ -402,13 +402,14 @@ if (( $+commands[claude] )); then
   } && compdef _ca ca
 fi
 
+c() { cd "$@" && x } && compdef c=cd
+
 cl() {
   local target=${1:A}          # resolve symlink to absolute real path
   [[ -d $target ]] || target=${target:h}  # if it's a file, take its directory
   cd -- "$target"
 }
 
-c() { cd "$@" && x } && compdef c=cd
 
 datestamp() {
   # Args (day month year); omitted fields default to today. Pads to ISO YYYY-MM-DD
