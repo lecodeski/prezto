@@ -3,6 +3,7 @@ tap "artginzburg/tap", "https://github.com/artginzburg/homebrew-tap.git"
 tap "bellicose100xp/tap"
 tap "bradyjoslin/sharewifi"
 tap "buo/cask-upgrade", trusted: true
+tap "datahub-project/tap"
 tap "homebrew/core"
 tap "lecodeski/maple-font"
 tap "sikarugir-app/sikarugir", "https://github.com/Sikarugir-App/homebrew-sikarugir", trusted: true
@@ -274,6 +275,8 @@ brew "artginzburg/tap/wifi-pass", trusted: true
 brew "bellicose100xp/tap/jiq", trusted: true
 # Quickly share Wi-Fi connection info
 brew "bradyjoslin/sharewifi/sharewifi", trusted: true
+# CLI for DataHub, the open-source context platform for humans and AI agents
+brew "datahub-project/tap/datahub", trusted: true
 # Enable Windows-like alt-tab
 cask "alt-tab"
 # Allows connection to a computer remotely
