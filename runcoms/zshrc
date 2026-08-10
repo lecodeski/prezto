@@ -229,7 +229,7 @@ alias ncdu='_ ncdu --extended --color dark'
 [ $commands[bat] ] && alias p=bat
 [ $commands[prettyping] ] && alias ping=prettyping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
-alias psd='cd -P -- ${(Q)"$(pst)"}'
+alias psd='c ${(Q)"$(pst)"}'
 alias py=python3
 
 alias r='zprezto-restart'
