@@ -52,6 +52,8 @@ brew "git-recent"
 brew "glab"
 # Render markdown on the CLI
 brew "glow"
+# System and service manager
+brew "systemd"
 # GNU Privacy Guard (OpenPGP)
 brew "gnupg"
 # Ping, but with a graph
