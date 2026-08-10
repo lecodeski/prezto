@@ -118,11 +118,17 @@ Plug 'andymass/vim-matchup'
 Plug 'tomtom/tcomment_vim'
 call plug#end()
 
-:colorscheme catppuccin
-:highlight Normal NONE
-:highlight LineNr guifg=green
-:highlight LineNrAbove guifg=#f9e2af
-:highlight LineNrBelow guifg=#a6e3a1
+" late OSC 11 reply over ssh flips 'background' and re-sources the scheme — plain :highlight gets wiped
+augroup theme_overrides
+  autocmd!
+  autocmd ColorScheme catppuccin
+    \   highlight Normal NONE
+    \ | highlight LineNr guifg=green
+    \ | highlight LineNrAbove guifg=#f9e2af
+    \ | highlight LineNrBelow guifg=#a6e3a1
+augroup END
+
+colorscheme catppuccin
 
 " gitgutter settings
 ":highlight SignColumn ctermbg=none
