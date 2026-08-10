@@ -288,9 +288,6 @@ alias ä="cd ${ZDOTDIR:-$HOME} &&
   vim + .zsh_history &&
   chmod 600 .zsh_history &&
   command cp -v .zsh_history{,.bak} &&
-  archive .zsh_history.txz .zsh_history &&
-  command cp -v .zsh_history.txz iCloud/ &&
-  mv -f .zsh_history.txz cloud/ &
   cd \"\$OLDPWD\""
 
 ### Functions
