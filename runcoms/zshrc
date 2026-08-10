@@ -296,10 +296,7 @@ alias ä="cd ${ZDOTDIR:-$HOME} &&
   vim + .zsh_history &&
   chmod 600 .zsh_history &&
   command cp -v .zsh_history{,.bak} &&
-  tar cJf - .zsh_history | gpg -e --default-recipient-self >| .zsh_history.txz.gpg &&
-    command cp -v .zsh_history.txz.gpg iCloud/ &&
-    mv -f .zsh_history.txz.gpg cloud/ &
-    cd \"\$OLDPWD\""
+  cd \"\$OLDPWD\""
 
 ### Functions
 #############
