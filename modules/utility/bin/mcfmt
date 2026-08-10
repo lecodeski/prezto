@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# mcfmt — mark up a Minecraft server MOTD with § formatting codes.
+# The sibling `haiku` script does the model call.
+#
+
+set -u -o pipefail
+
+me=${0##*/}
+
+if [[ -z ${1:-} ]]; then
+  echo "usage: $me <motd text>" >&2
+  exit 1
+fi
+
+request="Mark up the Minecraft server MOTD below with § formatting codes.
+
+<motd_text>
+$1
+</motd_text>
+
+Follow every rule below exactly.
+
+<output>
+Output only the marked-up MOTD as one single line: no preamble, no
+explanation, no quotes, and no code fences.
+</output>
+
+<codes>
+- Colors: §0-§9 and §a-§f (§4 dark red, §6 gold, §a green, §b aqua, §c red,
+  §d light purple, §e yellow, §f white, ...).
+- Styles: §l bold, §o italic, §n underline, §m strikethrough, §k obfuscated.
+- §r resets color and style.
+</codes>
+
+<markup>
+- Keep every word of the text exactly as given; only insert § codes.
+- A color code clears active styles, so write the color first, then styles.
+- Be creative: vary colors and styles to match the mood of the text.
+- Highlight a few key words; do not format every word differently.
+- Use §k on at most one short token, if at all.
+</markup>"
+
+# sibling lookup first: works even when the bin dir is not on PATH
+haiku_bin=${0%/*}/haiku
+[[ -x $haiku_bin ]] || haiku_bin=haiku
+
+msg=$("$haiku_bin" "$request") || exit 1
+
+# a stray newline in the reply would corrupt server.properties
+printf '%s\n' "${msg//$'\n'/ }"
