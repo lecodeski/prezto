@@ -587,6 +587,8 @@ Try '$0 --help' for more information." ; return 1 ;;
       print -P '%BCargo upgrades finished 🍻%b\n'
     fi
 
+    ferium upgrade
+
     zprezto-restart
   } always {
     (( ! parent_lock )) && zprezto-update-unlock
