@@ -572,6 +572,8 @@ Try '$0 --help' for more information." ; return 1 ;;
     }
     print -P '%BBrew cask upgrades finished 🍻%b\n'
 
+    ferium upgrade
+
     zprezto-restart
   } always {
     (( ! parent_lock )) && zprezto-update-unlock
