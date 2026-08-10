@@ -66,7 +66,23 @@ set shiftwidth=2 smarttab
 set number
 set relativenumber
 set ruler
-set clipboard=unnamed
+
+set clipboard=unnamedplus
+
+if has('clipboard_provider')
+  func s:Copy(reg, type, lines)
+    call system('cpy', a:lines)
+  endfunc
+  func s:Paste(reg)
+    return ['', systemlist('pst')]
+  endfunc
+  let v:clipproviders.cpy = {
+    \   'copy':  {'+': function('s:Copy'), '*': function('s:Copy')},
+    \   'paste': {'+': function('s:Paste'), '*': function('s:Paste')},
+    \ }
+  set clipmethod^=cpy
+endif
+
 set nobackup
 set noundofile
 set ignorecase
