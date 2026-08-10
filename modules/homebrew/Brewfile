@@ -171,6 +171,8 @@ brew "oath-toolkit"
 brew "ollama"
 # Open client for Cisco AnyConnect VPN
 brew "openconnect"
+# OpenBSD freely-licensed SSH connectivity tools
+brew "openssh"
 # 7-Zip (high compression file archiver) implementation
 brew "p7zip"
 # Swiss-army knife of markup format conversion
