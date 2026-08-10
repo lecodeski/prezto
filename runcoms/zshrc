@@ -732,10 +732,17 @@ alias stop='sudo systemctl stop xandaria'
 alias restart='sudo systemctl restart xandaria'
 
 save () {
-  cd /home/ec2-user/xandaria
   stop
+  cd /home/ec2-user/xandaria
+  local old new
+  old=$(sed -n 's/^motd=//p' server.properties)
+  new=$(mcfmt "$1") || return 1
+  local -a lines=("${(@f)$(<server.properties)}")
+  # java properties: double the backslashes; unescape them for the commit
+  lines=("${lines[@]/#motd=*/motd=${new//\\/\\\\}}")
+  print -rl -- "${lines[@]}" >| server.properties
   gaa
-  gcma $1
+  gcma "${old//\\\\/\\}"
   gpu
 }
 
