@@ -270,6 +270,7 @@ alias rm="${aliases[rm]:-rm} --verbose"
 alias rp="${aliases[rd]} --parents"
 alias rr='rm -I --recursive'
 
+alias s=systemctl
 alias scr='scp -r'
 alias sf="functions | ${aliases[rg]}"
 [ $commands[subl] ] && alias sl=subl
