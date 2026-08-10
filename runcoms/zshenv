@@ -19,3 +19,7 @@ export _FASD_NOCASE=true
 export FERIUM_CONFIG_FILE="${ZDOTDIR:-$HOME}/xandaria/config/ferium/config.json"
 export RIPGREP_CONFIG_PATH="${ZDOTDIR:-$HOME}/.ripgreprc"
 export ZLE_RPROMPT_INDENT=0
+
+
+# OS completions (_systemctl, _journalctl, ...) - brew's zsh omits this dir; must precede compinit
+fpath=(/usr/share/zsh/site-functions(/N) $fpath)
