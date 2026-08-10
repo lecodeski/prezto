@@ -707,7 +707,7 @@ setopt globdots
 
 ### Xandaria
 ############
-alias console='pushd /home/ec2-user/xandaria && java -Xmx3G -jar ~/xandaria/fabric-server-mc.1.21.11-loader.0.18.4-launcher.1.1.1.jar nogui && popd'
+alias console='pushd /home/ec2-user/xandaria && java -Xmx3G  -XX:+UseZGC -jar ~/xandaria/fabric-server-mc.1.21.11-loader.0.19.3-launcher.1.1.2.jar nogui && popd'
 alias log='journalctl -fu xandaria'
 alias stat='systemctl status xandaria'
 alias start='sudo systemctl start xandaria'
