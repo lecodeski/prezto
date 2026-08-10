@@ -150,6 +150,7 @@ if (( $+commands[claude] )); then
   alias cw='claude --worktree'
 fi
 
+alias cl="c -P"
 alias cp="${aliases[cp]} --verbose"
 alias cpr="${aliases[cp]} --recursive"
 alias cwd='echo \"$(pwd)\" | cpy'
@@ -399,13 +400,6 @@ if (( $+commands[claude] )); then
 fi
 
 c() { cd "$@" && x } && compdef c=cd
-
-cl() {
-  local target=${1:A}          # resolve symlink to absolute real path
-  [[ -d $target ]] || target=${target:h}  # if it's a file, take its directory
-  cd -- "$target"
-}
-
 
 datestamp() {
   # Args (day month year); omitted fields default to today. Pads to ISO YYYY-MM-DD
