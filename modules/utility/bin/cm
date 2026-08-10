@@ -2,16 +2,12 @@
 #
 # ai-commit — generate a commit message for the staged diff and commit it.
 # Portable bash (macOS, Linux, Windows/Git Bash).
-# Fast path: one direct Haiku API call, authenticated via ANTHROPIC_API_KEY
-# or the unexpired Claude Code OAuth token (macOS Keychain, or
-# ~/.claude/.credentials.json on Linux/Windows).
-# Fallback: `claude -p` with MCP servers stripped (uses Claude Code auth).
-# Pass -t/--time to print per-step timings (api call, fallback) to stderr.
+# The sibling `haiku` script does the model call (direct API call with
+# `claude -p` fallback); -t/--time forwards its per-step timings.
 #
 
 set -u -o pipefail
 
-model=claude-haiku-4-5
 me=${0##*/}
 
 timing=0
@@ -19,12 +15,6 @@ if [[ ${1:-} == -t || ${1:-} == --time ]]; then
   timing=1
   shift
 fi
-
-# EPOCHREALTIME needs bash >= 5; fall back to whole seconds elsewhere
-now() {
-  if [[ -n ${EPOCHREALTIME:-} ]]; then printf '%s' "$EPOCHREALTIME"; else date +%s; fi
-}
-elapsed() { awk -v a="$1" -v b="$2" 'BEGIN { printf "%.2f", b - a }'; }
 
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "$me: not a repository work tree: $PWD" >&2
@@ -104,96 +94,14 @@ Decide whether to write a body from the size and complexity of the staged diff:
   trailers. Describing AI functionality that the diff itself implements is fine.
 </content>"
 
-# python 3 for the direct API call; the version probe also weeds out
-# broken installs and the Windows Store python stub
-py=''
-for cand in python3 python; do
-  if command -v "$cand" >/dev/null 2>&1 \
-      && "$cand" -c 'import sys; sys.exit(sys.version_info[0] < 3)' >/dev/null 2>&1; then
-    py=$cand
-    break
-  fi
-done
+# sibling lookup first: works even when the bin dir is not on PATH
+haiku_bin=${0%/*}/haiku
+[[ -x $haiku_bin ]] || haiku_bin=haiku
 
-# Auth resolution: API key > unexpired Claude Code OAuth token > claude -p.
-# OAuth token lives in the Keychain on macOS, in ~/.claude/.credentials.json
-# on Linux and Windows.
-auth_mode='' secret=''
-if [[ -n $py ]]; then
-  if [[ -n ${ANTHROPIC_API_KEY:-} ]]; then
-    auth_mode=apikey secret=$ANTHROPIC_API_KEY
-  else
-    creds=''
-    if command -v security >/dev/null 2>&1; then
-      creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
-    fi
-    creds_file=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.credentials.json
-    [[ -z $creds && -r $creds_file ]] && creds=$(cat "$creds_file")
-    if [[ -n $creds ]]; then
-      secret=$(printf '%s' "$creds" | "$py" -c 'import json, sys, time
-c = json.load(sys.stdin)["claudeAiOauth"]
-e = c.get("expiresAt")
-if e and e / 1000 <= time.time():
-    sys.exit(1)
-print(c["accessToken"])' 2>/dev/null | tr -d '\r')
-      [[ -n $secret ]] && auth_mode=oauth
-    fi
-  fi
-fi
-
-msg='' t0=''
-if [[ -n $auth_mode ]]; then
-  (( timing )) && t0=$(now)
-  msg=$(AIC_AUTH_MODE=$auth_mode AIC_SECRET=$secret AIC_MODEL=$model "$py" - "$request" <<'PY' | tr -d '\r'
-import json, os, sys, urllib.request
-
-headers = {"anthropic-version": "2023-06-01", "content-type": "application/json"}
-if os.environ["AIC_AUTH_MODE"] == "oauth":
-    headers["Authorization"] = "Bearer " + os.environ["AIC_SECRET"]
-    headers["anthropic-beta"] = "oauth-2025-04-20"
-else:
-    headers["x-api-key"] = os.environ["AIC_SECRET"]
-
-req = urllib.request.Request(
-    "https://api.anthropic.com/v1/messages",
-    data=json.dumps({
-        "model": os.environ["AIC_MODEL"],
-        "max_tokens": 400,
-        "messages": [{"role": "user", "content": sys.argv[1]}],
-    }).encode(),
-    headers=headers,
-)
-try:
-    resp = json.load(urllib.request.urlopen(req, timeout=30))
-    print(next(b["text"] for b in resp["content"] if b["type"] == "text").strip())
-except Exception as e:
-    print(f"ai-commit: API call failed ({e}), falling back", file=sys.stderr)
-    sys.exit(1)
-PY
-)
-  if (( timing )); then
-    [[ -n $msg ]] && ok=ok || ok=failed
-    printf '%s: api call (%s, %s) %s: %ss\n' \
-      "$me" "$model" "$auth_mode" "$ok" "$(elapsed "$t0" "$(now)")" >&2
-  fi
-fi
-
-if [[ -z $msg ]]; then
-  (( timing )) && t0=$(now)
-  # request via stdin: --mcp-config is variadic and would swallow a trailing arg
-  # --setting-sources user: skip workspace settings — untrusted dirs warn otherwise
-  msg=$(printf '%s\n' "$request" | claude -p --model "$model" --no-session-persistence \
-    --setting-sources user --strict-mcp-config --mcp-config '{"mcpServers":{}}' | tr -d '\r') || {
-    echo "$me: claude -p failed" >&2
-    exit 1
-  }
-  (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
-    "$me" "$model" "$(elapsed "$t0" "$(now)")" >&2
-fi
-
-if [[ -z $msg ]]; then
-  echo "$me: empty message from model" >&2
-  exit 1
+if (( timing )); then
+  msg=$("$haiku_bin" -t "$request") || exit 1
+else
+  msg=$("$haiku_bin" "$request") || exit 1
 fi
 
 git commit -qm "$msg" || exit 1
