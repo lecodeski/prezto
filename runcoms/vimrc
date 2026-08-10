@@ -42,7 +42,7 @@ augroup vimrcEx
 augroup END
 
 " DEPRECATED: Old, manual package manager
-" 
+"
 " Add optional packages.
 "
 " The matchit plugin makes the % command work better, but it is not backwards
