@@ -150,7 +150,6 @@ if (( $+commands[claude] )); then
   alias cw='claude --worktree'
 fi
 
-[ !$commands[cpy] ] && alias cpy=pbcopy
 alias cp="${aliases[cp]} --verbose"
 alias cpr="${aliases[cp]} --recursive"
 alias cwd='echo \"$(pwd)\" | cpy'
@@ -230,7 +229,6 @@ alias ncdu='_ ncdu --extended --color dark'
 [ $commands[prettyping] ] && alias ping=prettyping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
 alias psd='cd -P -- ${(Q)"$(pst)"}'
-[ !$commands[pst] ] && alias pst=pbpaste
 alias py=python3
 
 alias r='zprezto-restart'
