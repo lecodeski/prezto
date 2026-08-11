@@ -181,8 +181,9 @@ fi
 if [[ -z $msg ]]; then
   (( timing )) && t0=$(now)
   # request via stdin: --mcp-config is variadic and would swallow a trailing arg
+  # --setting-sources user: skip workspace settings — untrusted dirs warn otherwise
   msg=$(printf '%s\n' "$request" | claude -p --model "$model" --no-session-persistence \
-    --strict-mcp-config --mcp-config '{"mcpServers":{}}' | tr -d '\r') || {
+    --setting-sources user --strict-mcp-config --mcp-config '{"mcpServers":{}}' | tr -d '\r') || {
     echo "$me: claude -p failed" >&2
     exit 1
   }
