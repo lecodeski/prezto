@@ -249,6 +249,7 @@ alias rm="${aliases[rm]} --verbose"
 alias rr='rm -I --recursive'
 
 alias scr='scp -r'
+alias sf="functions | ${aliases[rg]}"
 [ $commands[subl] ] && alias sl=subl
 
 [ $commands[abtop] ] && alias toa='abtop'
