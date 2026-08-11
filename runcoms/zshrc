@@ -161,7 +161,7 @@ alias cwd='echo \"$(pwd)\" | cpy'
 [ $commands[doggo] ] && alias dog=doggo
 alias du=dua
 
-alias f='fd --no-follow --hidden --no-ignore'
+alias f='command fd --no-follow --hidden --no-ignore'
 alias fd="${aliases[f]} --type d"
 alias ff="${aliases[f]} --type f"
 alias fr="${aliases[_]} ${aliases[f]} --search-path /"
