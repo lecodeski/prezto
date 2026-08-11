@@ -207,7 +207,11 @@ alias gst='git stash push --include-untracked'
 alias gsT='git stash push --patch'
 alias gw='git-open'
 
-[ $commands[idea] ] && alias iiff='idea diff' && alias i='idea --edit' && alias io='idea'
+[ -d '/Applications/IntelliJ IDEA.app' ] &&
+  idea() { open -na 'IntelliJ IDEA' --args "$@" } &&
+  i() { idea -e ${argv:A} } && compdef _files i &&
+  iiff() { idea diff ${argv:A} } && compdef _files iiff &&
+  io() { idea ${${1:-.}:A} } && compdef _directories io
 
 [ $commands[kubectl] ] && alias k=kubectl && [ $commands[kubectx] ] && alias kc='kubectx' && alias -- -='kubectx -' || alias kc='kubectl config use-context'
 [ -f ~/Projekte/Perl/SandBox/krazy-kase.pl ] && alias kk='perl ~/Projekte/Perl/SandBox/krazy-kase.pl'
