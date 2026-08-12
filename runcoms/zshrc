@@ -666,16 +666,21 @@ wat() {
     fi
 } && compdef xb=broot
 
-zshaddhistory() {
-  # Always save variable assignments (e.g., FOO=bar)
-  [[ "$1" =~ '^[A-Za-z_][A-Za-z0-9_]*=' ]] && return 0
-
-  # Reject unknown first words; auto_cd makes bare directories valid
-  local -a words=(${(z)1})
-  whence $words[1] >| /dev/null 2>&1 || [[ -d ${~words[1]} ]] || return 1
-
-  return 0
+# Keep mistyped commands out of the history file: every accepted line stays
+# internal-only (return 2) until precmd persists it, unless it exited 127.
+_history-stash() {
+  [[ $1 == ' '* ]] && return 2  # print -s would bypass HIST_IGNORE_SPACE
+  [[ $1 == '#'* ]] && return 0  # comment lines keep the previous $?
+  _history_last=$1
+  return 2
 }
+_history-save() {
+  (( $? != 127 )) && [[ -n $_history_last ]] && print -sr -- ${_history_last%$'\n'}
+  _history_last=
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook zshaddhistory _history-stash
+add-zsh-hook precmd _history-save
 
 ### ZSH Options
 ###########
