@@ -670,8 +670,9 @@ zshaddhistory() {
   # Always save variable assignments (e.g., FOO=bar)
   [[ "$1" =~ '^[A-Za-z_][A-Za-z0-9_]*=' ]] && return 0
 
-  # Run the command through zsh syntax check; reject if invalid
-  whence ${${(z)1}[1]} >| /dev/null 2>&1 || return 1
+  # Reject unknown first words; auto_cd makes bare directories valid
+  local -a words=(${(z)1})
+  whence $words[1] >| /dev/null 2>&1 || [[ -d ${~words[1]} ]] || return 1
 
   return 0
 }
