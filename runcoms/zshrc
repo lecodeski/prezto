@@ -666,7 +666,7 @@ wat() {
     fi
 } && compdef xb=broot
 
-# Keep mistyped commands out of the history file: every line saves natively
+# Hook when adding to zsh history: every line saves natively + in var for next hook
 # (start timestamp intact), then precmd deletes it again when it exited 127.
 zmodload -F zsh/stat b:zstat
 _history-mark() {
@@ -674,12 +674,16 @@ _history-mark() {
   _history_line=${${1%$'\n'}//$'\n'/\\$'\n'}  # histfile multiline encoding
   _history_fsize=$(zstat +size $HISTFILE)
 }
+# Keep mistyped commands out of the history file: scrub if failed
 _history-scrub() {
   # tail must be exactly the entry zsh appended at accept (elapsed is always
   # 0 there) — any mismatch (foreign append, metafied bytes) skips deletion
-  if (( $? == 127 )) && [[ -n $_history_line ]] &&
-     [[ "$(tail -c +$(( _history_fsize + 1 )) $HISTFILE)" == ': '<->':0;'"$_history_line" ]]; then
-    command dd if=/dev/null of=$HISTFILE bs=1 seek=$_history_fsize 2> /dev/null
+  if (( $? == 127 )) && [[ -n $_history_line ]]; then
+    if [[ "$(tail -c +$(( _history_fsize + 1 )) $HISTFILE)" == ': '<->':0;'"$_history_line" ]]; then
+      command dd if=/dev/null of=$HISTFILE bs=1 seek=$_history_fsize 2> /dev/null
+    else
+      print -rlu2 -- "💥 histfile tail mismatch — scrub skipped, this line stays:" "$_history_line"
+    fi
   fi
   _history_line=
 }
