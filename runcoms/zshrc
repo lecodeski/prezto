@@ -666,21 +666,26 @@ wat() {
     fi
 } && compdef xb=broot
 
-# Keep mistyped commands out of the history file: every accepted line stays
-# internal-only (return 2) until precmd persists it, unless it exited 127.
-_history-stash() {
-  [[ $1 == ' '* ]] && return 2  # print -s would bypass HIST_IGNORE_SPACE
+# Keep mistyped commands out of the history file: every line saves natively
+# (start timestamp intact), then precmd deletes it again when it exited 127.
+zmodload -F zsh/stat b:zstat
+_history-mark() {
   [[ $1 == '#'* ]] && return 0  # comment lines keep the previous $?
-  _history_last=$1
-  return 2
+  _history_line=${${1%$'\n'}//$'\n'/\\$'\n'}  # histfile multiline encoding
+  _history_fsize=$(zstat +size $HISTFILE)
 }
-_history-save() {
-  (( $? != 127 )) && [[ -n $_history_last ]] && print -sr -- ${_history_last%$'\n'}
-  _history_last=
+_history-scrub() {
+  # tail must be exactly the entry zsh appended at accept (elapsed is always
+  # 0 there) — any mismatch (foreign append, metafied bytes) skips deletion
+  if (( $? == 127 )) && [[ -n $_history_line ]] &&
+     [[ "$(tail -c +$(( _history_fsize + 1 )) $HISTFILE)" == ': '<->':0;'"$_history_line" ]]; then
+    command dd if=/dev/null of=$HISTFILE bs=1 seek=$_history_fsize 2> /dev/null
+  fi
+  _history_line=
 }
 autoload -Uz add-zsh-hook
-add-zsh-hook zshaddhistory _history-stash
-add-zsh-hook precmd _history-save
+add-zsh-hook zshaddhistory _history-mark
+add-zsh-hook precmd _history-scrub
 
 ### ZSH Options
 ###########
