@@ -14,6 +14,15 @@ valid line is unrecoverable. Every rule below errs toward junk.
   `SHARE_HISTORY` visibility.
 - Current shape: certify at accept time. Stash only uncertifiable lines.
   Decide those by exit status at precmd.
+- Scrubbing the histfile in place (`_history-scrub`, `d1f4e292`..`1538dd18`)
+  is rejected. It preserved native timestamps and multiline entries, but it
+  re-implemented zsh-private internals: metafication bytes 0x83-0xa2, the
+  `EXTENDED_HISTORY` line layout, multiline backslash encoding. It needed
+  `zsystem flock`, and it still lost: the typo stayed on the internal list,
+  so `fc -W` resurrected it and `SHARE_HISTORY` peers imported it during
+  the accept-to-scrub window. `HIST_IGNORE_DUPS` also false-alarmed the
+  tail check on every repeated typo. Deferring only the marked lines keeps
+  native handling for ~100% of entries and needs none of that apparatus.
 - The withhold return code is 1, not 2. Return 2 keeps the line internal,
   and `HIST_IGNORE_DUPS` then swallows the precmd `print -s` copy as a dup.
 - The precmd check scans `pipestatus` for 127 or 130, not `$?`. `typo | wc -l`
@@ -44,7 +53,17 @@ valid line is unrecoverable. Every rule below errs toward junk.
   `$(…)` cannot execute. `\cmp` certifies as `cmp`. `\typo` and `"typo"`
   drop.
 - Pure assignments are always kept. `BAR=$(exit 127)` is a valid line with
-  status 127. Withholding lost it.
+  status 127. Withholding lost it. The strip pattern anchors a full
+  identifier and includes `+=`. The loose `[A-Za-z_]*=*` stripped
+  `LC-ALL=C` and unmarked the typo behind it.
+- `=` is in the certifiable set. A `=`-word that survives the assignment
+  strip is malformed, zsh execs it as a command, and `whence` gives a true
+  verdict: `LC-ALL=C true` withholds and drops on its 127.
+- The hook sets `nonomatch` locally. A typo named dir (`~porj/src`) made
+  `${~word}` abort the whole hook, and the line vanished from history
+  with no recall — the exact loss class the prime rule forbids. With
+  `nonomatch` the word stays literal, fails certification, and self-heals
+  on its non-127 exit.
 - Array assignments are always kept. `(z)` splits `FOO=(a b) cmd` into
   fragments, so the hook would certify the wrong word.
 - Tilde words certify via `-x ${~word}`. Tilde expansion is deterministic
