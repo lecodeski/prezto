@@ -4,6 +4,8 @@ tap "buo/cask-upgrade", trusted: true
 brew "glibc"
 # GNU compiler collection
 brew "gcc"
+# Unprivileged sandboxing tool for Linux
+brew "bubblewrap"
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
 # Bash scripts that integrate bat with various command-line tools
@@ -90,6 +92,8 @@ brew "ripgrep"
 brew "ripgrep-all"
 # Intuitive find & replace CLI
 brew "sd"
+# SOcket CAT: netcat on steroids
+brew "socat"
 # Terminal image and video viewer
 brew "timg"
 # Official tldr client written in Rust
