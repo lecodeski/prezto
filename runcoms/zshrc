@@ -719,6 +719,7 @@ save () {
   cd /home/ec2-user/xandaria
   local old new
   old=$(sed -n 's/^motd=//p' server.properties)
+  old=${old//§[0-9a-fk-orA-FK-OR]/}
   new=$(mcfmt "$1") || return 1
   local -a lines=("${(@f)$(<server.properties)}")
   # java properties: double the backslashes; unescape them for the commit
