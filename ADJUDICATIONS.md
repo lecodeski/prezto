@@ -16,8 +16,24 @@ valid line is unrecoverable. Every rule below errs toward junk.
   Decide those by exit status at precmd.
 - The withhold return code is 1, not 2. Return 2 keeps the line internal,
   and `HIST_IGNORE_DUPS` then swallows the precmd `print -s` copy as a dup.
-- The precmd check scans `pipestatus` for 127, not `$?`. `typo | wc -l`
+- The precmd check scans `pipestatus` for 127 or 130, not `$?`. `typo | wc -l`
   ends with status 0. zsh restores `pipestatus` per precmd hook (verified).
+- 130 on a withheld line means Ctrl-C during the not-found advice. The
+  command itself cannot be running: certification already proved the word
+  does not resolve, and the Homebrew handler only prints advice. Without
+  the 130 rule, Ctrl-C on the slow advice re-added the typo (reproduced
+  with a real pty via zpty). Keyboard SIGINT hits the process group, so
+  130 lands in `pipestatus`.
+- A typo Ctrl-C and an availability probe (run the bare name, cancel) are
+  the same bytes and the same statuses. Intent is not detectable. The 130
+  rule makes Ctrl-C match the wait-it-out outcome: both drop. Probe with
+  `command -v x` instead — that line certifies and stays.
+- Wrapping `command_not_found_handler` with `trap 'return 127' INT` is
+  rejected. The trap converts the status only when trap and child share a
+  function frame (verified). The Homebrew handler nests two frames deep,
+  and the interrupt unwinds the outer frames to 130 anyway.
+- Signaling only the shell pid (not the group) leaves 130 out of
+  `pipestatus`, and the typo survives. No keyboard produces this. Accepted.
 
 ### Certification rules
 
@@ -61,8 +77,3 @@ valid line is unrecoverable. Every rule below errs toward junk.
   Only typos take this path.
 - Re-added lines carry precmd timestamps and zero duration under
   `EXTENDED_HISTORY`.
-
-### Open
-
-- Ctrl-C (status 130) during the slow Homebrew command-not-found handler
-  re-adds the typo. Plausible, unverified.
