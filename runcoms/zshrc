@@ -667,18 +667,23 @@ wat() {
 } && compdef xb=broot
 
 # Keep mistyped commands out of history: withhold a line whose first word does
-# not resolve, then re-add it in precmd unless the line exited 127.
+# not resolve, then re-add it in precmd unless a pipeline component exited 127.
 _history-mark() {
   [[ $1 == [#\ ]* ]] && return 0  # comment keeps the previous $?, space line never hits the file
-  local -a words=(${(z)1})
-  while [[ $words[1] == [A-Za-z_]*=* ]]; do words[1]=(); done
-  { whence -- $words[1] || [[ -d ${~words[1]} ]] } >| /dev/null &&
+  local -a words=(${(Q)${(z)1}})  # (Q): let \cmd and "cmd" certify as cmd
+  while [[ $words[1] == [A-Za-z_]*=* ]]; do
+    [[ $words[1] == *\(* ]] && return 0  # (z) splits an array assignment into fragments
+    words[1]=()
+  done
+  (( $#words )) || return 0  # pure assignment
+  [[ $words[1] == *[^[:alnum:]/_.+~-]* ]] && return 0  # $var etc.: whence sees them literally, a real 127 would drop a valid line
+  { whence -- $words[1] || [[ -d ${~words[1]} || $words[1] == */* && -x ${~words[1]} ]] } >| /dev/null &&  # auto_cd dir, or pathed x-bit: bare `x.sh` sans ./ stays a typo
     return 0  # resolvable first word: a later 127 is propagated by a child, keep the line
   _history_line=$1
   return 1  # not 2: hist_ignore_dups would swallow the print -s copy as a dup
 }
 _history-save() {
-  (( $? != 127 )) && [[ -n $_history_line ]] && print -sr -- ${_history_line%$'\n'}
+  (( ! ${pipestatus[(I)127]} )) && [[ -n $_history_line ]] && print -sr -- ${_history_line%$'\n'}
   _history_line=
 }
 autoload -Uz add-zsh-hook
