@@ -666,42 +666,24 @@ wat() {
     fi
 } && compdef xb=broot
 
-# Keep mistyped commands out of the histfile: mark each line at accept, scrub it on exit 127.
-zmodload -F zsh/stat b:zstat
-zmodload -F zsh/system b:zsystem
-setopt hist_fcntl_lock  # scrub's flock and zsh's own appends must share fcntl locks
+# Keep mistyped commands out of history: withhold a line whose first word does
+# not resolve, then re-add it in precmd unless the line exited 127.
 _history-mark() {
   [[ $1 == [#\ ]* ]] && return 0  # comment keeps the previous $?, space line never hits the file
   local -a words=(${(z)1})
   while [[ $words[1] == [A-Za-z_]*=* ]]; do words[1]=(); done
   { whence -- $words[1] || [[ -d ${~words[1]} ]] } >| /dev/null &&
     return 0  # resolvable first word: a later 127 is propagated by a child, keep the line
-  _history_line=${${1%$'\n'}//$'\n'/\\$'\n'}  # histfile multiline encoding
-  zstat -A _history_fsize +size -- $HISTFILE 2> /dev/null || _history_fsize=0
+  _history_line=$1
+  return 1  # not 2: hist_ignore_dups would swallow the print -s copy as a dup
 }
-_history-scrub() {
-  if (( $? == 127 )) && [[ -n $_history_line ]]; then
-    setopt localoptions nomultibyte
-    local fd line=$_history_line
-    local -i b
-    for (( b = 0x83; b <= 0xa2; b++ )); do  # histfile metafication: Meta 0x83, then byte^0x20
-      line=${line//${(#):-$b}/$'\203'${(#):-$(( b ^ 0x20 ))}}
-    done
-    # tail must be exactly the entry zsh appended at accept (elapsed is always 0 there)
-    if ! zsystem flock -t 1 -f fd $HISTFILE 2> /dev/null; then
-      print -rlu2 -- "💥 histfile lock timeout — scrub skipped, this line stays:" "$_history_line"
-    elif [[ "$(tail -c +$(( _history_fsize + 1 )) $HISTFILE)" != ': '<->':0;'"$line" ]]; then
-      print -rlu2 -- "💥 histfile tail mismatch — scrub skipped, this line stays:" "$_history_line"
-    elif ! command dd if=/dev/null of=$HISTFILE bs=1 seek=$_history_fsize 2> /dev/null; then
-      print -rlu2 -- "💥 histfile truncate failed — this line stays:" "$_history_line"
-    fi
-    [[ -n $fd ]] && zsystem flock -u $fd
-  fi
+_history-save() {
+  (( $? != 127 )) && [[ -n $_history_line ]] && print -sr -- ${_history_line%$'\n'}
   _history_line=
 }
 autoload -Uz add-zsh-hook
 add-zsh-hook zshaddhistory _history-mark
-add-zsh-hook precmd _history-scrub
+add-zsh-hook precmd _history-save
 
 ### ZSH Options
 ###########
