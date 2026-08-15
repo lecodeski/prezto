@@ -41,6 +41,10 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 ## Fork policies & gotchas
 
 - design decisions and rejected alternatives live in [ADJUDICATIONS.md](ADJUDICATIONS.md) — route new rationale there, never inline
+- before flagging option-dependent zsh behavior (`no_clobber`, `share_history`,
+  `extended_glob`, …): the effective options live in each loaded module's
+  `init.zsh` plus `runcoms/zshrc` `### ZSH Options` — authoritative dump:
+  `zsh -ic 'setopt'`
 - never patch files under `modules/*/external/` (vendored submodules) — upstream is the only source of truth; bump the submodule instead
 - keep divergence from `upstream` minimal and rebase-friendly; `zprezto-update` assumes ff-only pulls on `main`
 - upstream sync is automated: `.github/pull.yml` lets pull[bot] merge `sorin-ionescu:master` into GitHub `main`; never merge/rebase upstream manually — just ff-pull what the bot produced
