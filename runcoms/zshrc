@@ -542,7 +542,7 @@ Try '$0 --help' for more information." ; return 1 ;;
       return 1
     }
     print -P '\n%B🍻 Brew upgrades:%b'
-    brew update --quiet && brew bundle upgrade --force-cleanup --quiet --file=$brewfile && brew upgrade || {
+    brew bundle cleanup --force --file=$brewfile && brew bundle install --no-upgrade --quiet --file=$brewfile && brew upgrade || {
       print -u2 "ERROR: could not upgrade Brew packages. Aborting."
       return 1
     }
