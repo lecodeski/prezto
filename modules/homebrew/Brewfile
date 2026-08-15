@@ -4,7 +4,6 @@ tap "bellicose100xp/tap"
 tap "bradyjoslin/sharewifi"
 tap "buo/cask-upgrade", trusted: true
 tap "datahub-project/tap"
-tap "homebrew/core"
 tap "lecodeski/maple-font"
 tap "sikarugir-app/sikarugir", "https://github.com/Sikarugir-App/homebrew-sikarugir", trusted: true
 # Securely store and access AWS credentials in development environments
