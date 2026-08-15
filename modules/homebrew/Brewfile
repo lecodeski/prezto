@@ -2,6 +2,8 @@ tap "bellicose100xp/tap"
 tap "buo/cask-upgrade", trusted: true
 # GNU C Library
 brew "glibc"
+# General-purpose data compression with high compression ratio
+brew "xz"
 # GNU compiler collection
 brew "gcc"
 # Unprivileged sandboxing tool for Linux
