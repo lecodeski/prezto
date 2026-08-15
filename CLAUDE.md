@@ -14,6 +14,9 @@ No build or test suite. Instead:
 
 - syntax-check a zsh file: `zsh -n <file>`
 - verify a change: fresh shell — `zsh -ic 'exit'` catches startup errors
+- no-tty runs of `zsh -ic 'exit'` (sandboxes, CI, pipes) print benign noise:
+  `can't change option: monitor`/`zle`, a gitstatus init failure, `gstty` device
+  errors — only other output indicates a real startup error
 - apply a change to the running shell: `zprezto-restart` (`exec`s zsh; refuses while
   jobs exist)
 - update fork + submodules: `zprezto-update` (`-s` skips the restart) — fork-custom,
