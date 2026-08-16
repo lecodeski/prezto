@@ -2,116 +2,125 @@
 
 Design decisions with their rejected alternatives. Newest section first.
 
-## History hooks: mark & re-add (`runcoms/zshrc`, 2026-08-14)
+## History hook: certify & reject (`runcoms/zshrc`, 2026-08-16)
 
-**Prime rule: junk > data loss.** A kept typo costs one junk entry. A lost
-valid line is unrecoverable. Every rule below errs toward junk.
+**Prime rule: linger only > junk > real data loss — wrong lines only.**
+The ladder ranks outcomes for typos, parse errors, and abandoned drafts.
+A correct line has exactly one acceptable outcome: permanent persistence
+in the histfile. Anything less breaks zsh's history function itself, so
+certification exists to keep correct lines off the ladder entirely.
+Real loss means not saved and not lingering — no recall path at all.
+Every rule below errs up the ladder.
 
 ### Architecture
 
+- One hook, one moment: `zshaddhistory` certifies every command head at
+  accept time — the first word plus the word after each `|`, `|&`, `;`,
+  `&&`, `||`, `&`, `&!`, `&|`. A certified line saves natively. An
+  uncertified head rejects the line with return 1. `echo hi | grpe x`
+  and `cd /tmp && gti status` reject. The env-prefix strip runs per
+  head (`… | LC_ALL=C sort`).
+- No precommand table is needed for separator heads: `whence` certifies
+  every reserved word that can follow a separator (`do`, `done`,
+  `then`, `else`, `elif`, `fi`, `esac`, `repeat`, `until`, `select`,
+  `foreach`, `end` — verified). `in` never follows a separator, and
+  `((` fails the charset check and skips.
+- `(z)` yields `;` tokens for embedded newlines (verified), so the
+  bodies of multiline constructs get judged too.
+- Every rejected line lingers as the newest ring entry until the next
+  line is read (verified). ↑ reaches it for one cycle — the
+  fix-and-retry window. Rejection is never instant loss.
+- The reject code is 1, not 2. Return 2 pins the line on the internal
+  list for the whole session and never writes the file (verified). A
+  rejected typo would stay a ring entry — and a substring-search hit —
+  all session, with no removal primitive.
+- Certified heads keep the line under every exit status. A later 127
+  comes from a child or from the command's own semantics. The line
+  itself is correct user input.
+- We reject the judge machinery (mark & re-add, `d1f4e292`..the state
+  before this section): withhold uncertified lines, judge them at
+  precmd by `pipestatus` (127/130/146) plus a preexec ran-flag, re-add
+  survivors with `print -s`. It predates the linger discovery —
+  rejection looked like instant loss, so every uncertain shape needed a
+  rescue path. Its whole net effect over certify & reject: it persisted
+  withheld lines that ran clean (`typo; true`, `typo || fallback`) —
+  junk tier where linger was available. It paid with three hooks of
+  state, a shell-death loss window, precmd timestamps on re-adds, a
+  SIGINT-precmd misjudge window, and the 127/130/146 forensics (^C
+  during not-found advice, trap frames).
 - We reject withhold-everything (stash/save, `f5a7be0e`). It gave every
-  line the shell-death loss window. It stamped every line with precmd
-  time. It delayed `SHARE_HISTORY` visibility.
-- We reject in-place histfile scrubbing (`_history-scrub`,
-  `d1f4e292`..`1538dd18`). It preserved native timestamps and multiline
-  entries. But it re-implemented zsh-private internals: metafication
-  bytes 0x83-0xa2, the `EXTENDED_HISTORY` line layout, multiline
-  backslash encoding. It needed `zsystem flock` and still lost. The typo
-  stayed on the internal list. `fc -W` resurrected it, and
-  `SHARE_HISTORY` peers imported it before the scrub. `HIST_IGNORE_DUPS`
-  also false-alarmed the tail check on every repeated typo.
-- Current shape: certify at accept time. Stash only uncertifiable lines.
-  Judge those at precmd. Deferring only the marked lines keeps native
-  handling for ~100% of entries.
-- A certified first word keeps the line under every exit status. A later
-  127 comes from a child or from the command's own semantics. The line
-  itself is valid user input.
-- The withhold return code is 1, not 2. Return 2 keeps the line internal.
-  `HIST_IGNORE_DUPS` then swallows the precmd `print -s` copy as a dup.
-- The precmd check scans `pipestatus` for 127, 130, or 146 — not `$?`.
-  `typo | wc -l` ends with status 0. zsh restores `pipestatus` per precmd
-  hook (verified).
-- A `preexec` flag marks real execution. A withheld line without the flag
-  never ran: parse error, abandoned PS2 draft. The hook re-adds it, so it
-  stays recallable like in native zsh. A stale status from an earlier
-  command must not judge it (verified in both directions).
-- 130/146 on an executed withheld line means ^C/^Z during the not-found
-  advice. Certification proves the word does not resolve, so only the
-  advice can be running. The Homebrew handler only prints advice and
-  always returns 127. The rule makes ^C match the wait-it-out outcome:
-  both drop. A typo ^C and an availability probe are the same bytes.
-  Intent is not detectable. Probe with `command -v x` instead — that line
-  certifies and stays.
-- We reject wrapping `command_not_found_handler` with
-  `trap 'return 127' INT`. The trap converts the status only when trap
-  and child share a frame (verified). The Homebrew handler nests two
-  frames deep. The interrupt unwinds the outer frames to 130 anyway.
+  line the shell-death loss window and precmd timestamps. It delayed
+  `SHARE_HISTORY` visibility.
+- We reject in-place histfile scrubbing (`d1f4e292`..`1538dd18`). It
+  re-implemented zsh-private internals: metafication bytes 0x83-0xa2,
+  the `EXTENDED_HISTORY` line layout, multiline backslash encoding. It
+  needed `zsystem flock` and still lost: `fc -W` resurrected the typo,
+  `SHARE_HISTORY` peers imported it first, and `HIST_IGNORE_DUPS`
+  false-alarmed the tail check on every repeated typo.
 
 ### Certification rules
 
-- The hook certifies only plain first words (alnum, `/ _ . + ~ = -`).
-  `whence` sees `$var`, quotes, and operators literally and gives no
-  verdict. The hook keeps such lines.
-- `${(Q)}` unquotes the words first. Quote removal evaluates nothing, so
-  `$(…)` cannot execute. `\cmp` certifies as `cmp`. `\typo` and `"typo"`
-  drop.
-- A function definition certifies by its second `(z)` token `()`. A
-  funcdef runs without an update to `pipestatus`, so a stale 127 judged
-  it (verified loss). A define-and-call compound (`f() { … }; f`)
-  genuinely runs, and its own 127/130 judged it. Both are valid user
-  input and now stay.
-- The hook always keeps pure assignments. `BAR=$(exit 127)` is a valid
-  line with status 127. Withholding lost it. The strip pattern anchors a
-  full identifier and includes `+=`. The loose `[A-Za-z_]*=*` stripped
-  `LC-ALL=C` and unmarked the typo behind it.
+- The hook judges only plain heads (alnum, `/ _ . + ~ = -`). `whence`
+  sees `$var`, quotes, and operators literally and gives no verdict.
+  Such heads pass — an uncertified correct line would fall to the
+  linger and die after one command.
+- `${(Q)}` unquotes each judged head. Quote removal evaluates nothing,
+  so `$(…)` cannot execute. `\cmp` certifies as `cmp`. `\typo` and
+  `"typo"` reject. Stage detection runs on raw `(z)` tokens — unquoting
+  first would turn the argument `"|"` (`grep "|" file`) into a stage
+  boundary and judge `file` as a head, a false reject.
+- A function definition certifies by its second `(z)` token `()`. The
+  name resolves only after the definition runs, so `whence` has no
+  verdict at accept time.
+- The hook always certifies pure assignments. The strip pattern anchors
+  a full identifier and includes `+=`. The loose `[A-Za-z_]*=*`
+  stripped `LC-ALL=C` and hid the typo behind it.
 - A stripped `PATH=`/`path=` prefix stops certification. The line
-  resolves against a PATH the hook cannot see. The hook keeps the line.
-- `=` is in the certifiable set. A `=`-word that survives the assignment
-  strip is malformed. zsh execs it as a command, so `whence` gives a true
-  verdict: `LC-ALL=C true` drops on its 127. A leading-`=` word
-  (`=grep`, alias bypass like `\cmd`) certifies via `-x ${~word}`.
+  resolves against a PATH the hook cannot see. The line certifies.
+- `=` is in the certifiable set. A `=`-word that survives the
+  assignment strip is malformed — zsh execs it as a command, so
+  `whence` gives a true verdict: `LC-ALL=C true` rejects. A leading-`=`
+  word (`=grep`, alias bypass) certifies via `-x ${~word}`.
   Equals-expansion evaluates nothing.
-- The hook sets `nonomatch` locally. A typo named dir (`~porj/src`) made
-  `${~word}` abort the whole hook. The line vanished with no recall — the
-  loss class the prime rule forbids.
-- The hook keeps an uncertified `~name` or `=cmd` word. Such a word can
-  die at expansion, before execution, and updates no status (verified:
-  `$?` and `pipestatus` both stay stale). A stale bad status from an
-  earlier command would then judge it.
-- A tilde word certifies via `-x ${~word}`. Tilde expansion is
-  deterministic and evaluates nothing. `-d` alone missed `~/bin/tool`,
-  and a real 127 then dropped the valid line. The x-bit covers
-  executables and cd-able dirs.
+- The hook sets `nonomatch` locally. A typo named dir (`~porj/src`)
+  makes `${~word}` abort the hook. The abort also rejects, but with a
+  hook error on stderr. `nonomatch` keeps the reject silent.
+- A tilde or pathed word certifies via `-x ${~word}`. Tilde expansion
+  is deterministic and evaluates nothing. `-d` alone missed
+  `~/bin/tool`. We reject `-e`: it rescues `./script.sh` before its
+  `chmod +x`, but it also persists every existing non-executable file
+  typed as a command (`/path/data.txt`, 126). The rescue costs one
+  retype after the chmod. The junk class is broader than the rescue.
 - `-x` vouches only for equals-words and pathed words (`=*`, `*/*`). A
-  bare x-bit name (`test.sh` without `./`) never execs from the cwd. It
-  is a typo by construction. `-d` still covers bare auto_cd dirs.
-- `$var` first words stay blanket-kept. `${(e)}` executes embedded
-  `$(…)`: unsafe, we reject it. `${(P)NAME}` is safe but covers only the
-  bare `$NAME` shape. The value can be multi-word. We reject it as YAGNI.
-  The miss direction is junk, which is safe.
+  bare x-bit name (`test.sh` without `./`) never execs from the cwd.
+  It is a typo by construction. `-d` still covers bare auto_cd dirs.
+- The mark & re-add era kept uncertified `~name`/`=cmd` words to guard
+  them against stale-status conviction. No conviction exists anymore —
+  such words reject into the linger, the right tier for junk.
+- `$var` first words stay blanket-certified. `${(e)}` executes embedded
+  `$(…)`: unsafe, we reject it. `${(P)NAME}` is safe but covers only
+  the bare `$NAME` shape. The value can be multi-word. We reject it as
+  YAGNI. The miss direction is junk, which is acceptable.
 
 ### Verified non-problems
 
-- Non-executable pathed files need no rule. `/path/data.txt` runs into
-  126, not 127. The withheld path re-adds it.
 - Relative pathed words stay consistent. Certification runs at accept
-  time in the execution cwd. A later recall certifies and runs under the
-  same new cwd.
-- Earlier precmd hooks do not corrupt the check. zsh restores `$?` and
-  `pipestatus` for each hook.
-- `print -sr` does not re-enter the zshaddhistory hooks. No recursion.
-- `NO_CLOBBER` exempts `/dev/null` (a device). Plain `>` suffices in the
-  hook (verified against this repo's `unsetopt CLOBBER`).
+  time in the execution cwd. A later recall certifies and runs under
+  the same new cwd.
+- Multiline constructs certify by their reserved first word — `whence`
+  gives a verdict on `for`, `while`, `if` (verified) — and keep zsh's
+  native multiline history handling.
+- `NO_CLOBBER` exempts `/dev/null` (a device). Plain `>` suffices in
+  the hook (verified against this repo's `unsetopt CLOBBER`).
 
 ### Accepted costs
 
-- `typo &` and `typo; true` re-add. The parent status hides the 127.
-- The shell loses a withheld typo that execs or dies with the terminal.
-  Only true typos take this path.
-- Re-added lines carry precmd timestamps and zero duration under
-  `EXTENDED_HISTORY`.
-- SIGINT during an earlier precmd hook skips `_history-save` for one
-  cycle, and one line gets misjudged. The trigger needs a blocked tty
-  plus an unstick ^C. No fix exists inside our hook.
-- SIGINT to the bare shell pid (no process group) leaves 130 out of
-  `pipestatus`, and the typo re-adds. No keyboard produces this.
+- A rejected wrong line survives one ↑ cycle, then it is gone — next
+  command or shell exit. Native zsh would persist parse errors and
+  drafts. Uncertified means near-certain junk, so the short window
+  costs nothing real.
+- A compound line behind a typo head (`typo || fallback`, `typo; work`)
+  rejects whole. The executed tail work is not persisted.
+- A typo chained behind a certified head (`sudo typo`, `time typo`,
+  `then qwerty`) persists. Only the first word of each command position
+  gets judged. Junk, accepted.

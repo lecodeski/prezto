@@ -17,6 +17,15 @@ No build or test suite. Instead:
 - no-tty runs of `zsh -ic 'exit'` (sandboxes, CI, pipes) print benign noise:
   `can't change option: monitor`/`zle`, a gitstatus init failure, `gstty` device
   errors — only other output indicates a real startup error
+- test interactive behavior by piping lines: `print -rl '<lines>' | ZDOTDIR=<scratch> zsh -i`
+  — always `-rl`: plain `print -l` interprets escapes, and a `\c` in a test line
+  silently truncates the whole feed
+- give every test shell an isolated `ZDOTDIR` with its own `HISTFILE` — this repo
+  is the live config, a stray test writes into the real history
+- the live config sets `unsetopt CLOBBER` and Claude's shell inherits it: `>` to an
+  existing file fails with `file exists` — use `>|` in test commands
+- a fed line that reads stdin (`cat`, `read`) can swallow the rest of the feed —
+  redirect its stdin or put it last
 - apply a change to the running shell: `zprezto-restart` (`exec`s zsh; refuses while
   jobs exist)
 - update fork + submodules: `zprezto-update` (`-s` skips the restart) — fork-custom,
