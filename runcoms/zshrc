@@ -276,7 +276,7 @@ alias ä="cd ${ZDOTDIR:-$HOME} &&
   archive .zsh_history.txz .zsh_history &&
   command cp -v .zsh_history.txz iCloud/ &&
   mv -f .zsh_history.txz cloud/ &
-  popd 2> /dev/null"
+  cd \"\$OLDPWD\""
 
 ### Functions
 #############
