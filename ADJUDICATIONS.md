@@ -27,26 +27,29 @@ Every rule below errs up the ladder.
 - A certified first word keeps the line under every exit status. A
   later 127 comes from a child or from the command's own semantics.
 - We reject judging further `(z)` token positions (pipe-stage heads,
-  separator heads). `(z)` yields lexemes without grammar. Case
-  alternation and heredoc bodies emit bare `|` tokens (verified).
-  Embedded newlines become `;` tokens (verified). A code review
-  confirmed seven false rejects of correct lines: heredocs, `[[ … ]]`,
-  case patterns, funcdef shapes, define-then-use, post-`cd` relative
-  paths, `cdable_vars`. Each construct needs its own guard. The
-  construct set is open-ended. Every miss is a lost correct line — the
-  forbidden tier. Judging token positions is parsing without a parser.
+  separator heads). `(z)` yields lexemes without grammar. Judging
+  token positions is parsing without a parser.
+  - Case alternation and heredoc bodies emit bare `|` tokens
+    (verified). Embedded newlines become `;` tokens (verified).
+  - A code review confirmed seven false rejects of correct lines:
+    heredocs, `[[ … ]]`, case patterns, funcdef shapes,
+    define-then-use, post-`cd` relative paths, `cdable_vars`.
+  - Each construct needs its own guard. The construct set is
+    open-ended. Every miss is a lost correct line — the forbidden
+    tier.
 - We reject the judge machinery (mark & re-add). It withheld
   first-word-uncertified lines. It judged them at precmd by
-  `pipestatus` (127/130/146) plus a preexec ran-flag. It is the most
-  grammar-correct native option: execution is zsh's own parser, so
-  none of the seven false rejects can exist under it. It also
-  self-heals certification gaps by outcome — it persisted
-  `cdable_vars` lines and pre-chmod `./script.sh` (126) without
-  special rules. We reject it for its temporal tail, not its verdicts.
-  A withheld line dies with the shell (`exec`, crash) before precmd.
-  SIGINT during an earlier precmd hook misjudges one line. Re-adds
-  carry precmd timestamps. No fix exists inside the hook for any of
-  the three.
+  `pipestatus` (127/130/146) plus a preexec ran-flag.
+  - It is the most grammar-correct native option. Execution is zsh's
+    own parser, so none of the seven false rejects can exist under
+    it. It also self-heals certification gaps by outcome — it
+    persisted `cdable_vars` lines and pre-chmod `./script.sh` (126)
+    without special rules.
+  - We reject it for its temporal tail, not its verdicts. A withheld
+    line dies with the shell (`exec`, crash) before precmd. SIGINT
+    during an earlier precmd hook misjudges one line. Re-adds carry
+    precmd timestamps. No fix exists inside the hook for any of the
+    three.
 - We reject withhold-everything (stash/save). Every line gets the
   shell-death window and precmd timestamps. `SHARE_HISTORY` visibility
   lags one cycle. Prior art exists (scarff.id.au, 2019) with a
@@ -84,6 +87,15 @@ Every rule below errs up the ladder.
 - The hook always certifies pure assignments. The strip pattern
   anchors a full identifier and includes `+=`. The loose
   `[A-Za-z_]*=*` stripped `LC-ALL=C` and hid the typo behind it.
+- An assignment token that ends in `=(` stops certification. `(z)`
+  fragments an array assignment into `name=(` plus elements, so later
+  tokens carry no judgeable head. The looser `*\(*` also matched
+  scalar `$( )` values — `LOG=$(date) grpe x` certified and hid the
+  typo (review finding, verified).
+- Hook locals carry a `_zah_` prefix. `${(P)}` resolves any name in
+  scope, so plain `words`/`w` locals shadowed same-named user
+  parameters. With `words=~/work`, bare `words` cds correctly, yet
+  the hook rejected the line (review finding, verified).
 - A stripped `PATH=`/`path=` prefix stops certification. The line
   resolves against a PATH the hook cannot see. The line certifies.
 - `=` is in the certifiable set. A `=`-word that survives the
@@ -105,9 +117,15 @@ Every rule below errs up the ladder.
   cwd. It is a typo by construction. `-d` still covers bare auto_cd
   dirs.
 - A bare identifier certifies when its parameter value is a directory
-  (`-d ${(P)w}`). The live config sets `CDABLE_VARS`, so bare `proj`
-  cds to `$proj`. The arm also certifies relative-valued parameters
-  that `cd` refuses. That miss is junk-direction and acceptable.
+  (the `${(P)}` arm). The live config sets `CDABLE_VARS`, so bare
+  `proj` cds to `$proj`. The arm also certifies relative-valued
+  parameters that `cd` refuses. That miss is junk-direction and
+  acceptable.
+- The `-d` arm resolves bare dirs against the cwd only. A `cdpath`
+  entry would let a bare dir cd while the hook rejects it — a latent
+  correct-line loss (verified). Unreachable today: `runcoms/zprofile`
+  keeps `cdpath` commented out, and a warning there routes back here.
+  Enabling `cdpath` needs a cdpath arm first.
 - `$var` first words stay blanket-certified. `${(e)}` executes
   embedded `$(…)`: unsafe, we reject it. Resolving via `${(P)NAME}`
   covers only the bare `$NAME` shape, and the value can be multi-word.
@@ -138,7 +156,7 @@ Every rule below errs up the ladder.
   certified first word saves them, like native zsh does.
 - Space-prefixed lines need no rule. `HIST_IGNORE_SPACE` applies
   natively. The hook has no `print -s` left to bypass it.
-- The `${(P)w}` arm cannot abort. The identifier pattern guards the
+- The `${(P)}` arm cannot abort. The identifier pattern guards the
   substitution. A non-dir or array value just fails `-d`.
 
 ### Accepted costs
@@ -148,7 +166,7 @@ Every rule below errs up the ladder.
   drafts. Uncertified means near-certain junk, so the short window
   costs nothing real.
 - A compound line behind a typo head (`typo || fallback`, `typo; work`)
-  rejects whole. The executed tail work is not persisted.
+  rejects whole. The hook drops the executed tail work.
 - A typo after the first word persists: `echo hi | grpe x`,
   `cd /tmp && gti status`, `sudo typo`. Junk, accepted. The
   escalation path above convicts such lines at recall instead.

@@ -40,6 +40,7 @@ fi
 typeset -gU cdpath fpath mailpath path
 
 # Set the list of directories that cd searches.
+# before enabling: zshaddhistory in zshrc checks bare dirs against the cwd only — add a cdpath arm first (ADJUDICATIONS.md)
 # cdpath=(
 #   $cdpath
 # )

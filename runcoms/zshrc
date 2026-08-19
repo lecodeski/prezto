@@ -670,20 +670,20 @@ wat() {
 # not resolve — zsh then keeps it on ↑ for one fix-and-retry cycle.
 zshaddhistory() {
   setopt localoptions extendedglob nonomatch  # nonomatch: a bad ~name must not abort the hook
-  local -a words=(${(z)1})
-  (( ${words[(Ie)()]} )) && return 0  # funcdef (any bare `()` token): the name resolves only after the definition runs
-  while [[ $words[1] == [A-Za-z_][A-Za-z0-9_]#(|+)=* ]]; do
-    [[ $words[1] == *\(* ]] && return 0  # (z) splits an array assignment into fragments
-    [[ $words[1] == (PATH|path)(|+)=* ]] && return 0  # whence would judge against the wrong PATH
-    words[1]=()
+  local -a _zah_words=(${(z)1})  # _zah_: the ${(P)} arm below must not resolve the hook's own locals
+  (( ${_zah_words[(Ie)()]} )) && return 0  # funcdef: any bare `()` token
+  while [[ $_zah_words[1] == [A-Za-z_][A-Za-z0-9_]#(|+)=* ]]; do
+    [[ $_zah_words[1] == *=\( ]] && return 0  # array assignment: (z) fragments it into `name=(` + elements
+    [[ $_zah_words[1] == (PATH|path)(|+)=* ]] && return 0  # whence would judge against the wrong PATH
+    _zah_words[1]=()
   done
-  (( $#words )) || return 0  # pure assignment
-  local w=${(Q)words[1]}  # (Q): \cmd and "cmd" certify as cmd; evaluates nothing
-  [[ $w == *[^[:alnum:]/_.+~=-]* ]] && return 0  # $var etc.: whence has no verdict
-  whence -- $w > /dev/null ||
-    [[ -d ${~w} || $w == (=*|*/*) && -x ${~w} ]] ||  # auto_cd dir, or x-bit after ~/= expansion
-    [[ $w == [A-Za-z_][A-Za-z0-9_]# && -d ${(P)w} ]] ||  # cdable_vars: bare param whose value is a dir
-    return 1  # 2 would pin the line in the session ring
+  (( $#_zah_words )) || return 0  # pure assignment
+  local _zah_w=${(Q)_zah_words[1]}  # (Q): \cmd and "cmd" certify as cmd
+  [[ $_zah_w == *[^[:alnum:]/_.+~=-]* ]] && return 0  # $var etc.: whence has no verdict
+  whence -- $_zah_w > /dev/null ||
+    [[ -d ${~_zah_w} || $_zah_w == (=*|*/*) && -x ${~_zah_w} ]] ||  # auto_cd dir, or x-bit after ~/= expansion
+    [[ $_zah_w == [A-Za-z_][A-Za-z0-9_]# && -d ${(P)_zah_w} ]] ||  # cdable_vars: bare param whose value is a dir
+    return 1
 }
 
 ### ZSH Options

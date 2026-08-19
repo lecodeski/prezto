@@ -22,8 +22,9 @@ No build or test suite. Instead:
   silently truncates the whole feed
 - give every test shell an isolated `ZDOTDIR` with its own `HISTFILE` — this repo
   is the live config, a stray test writes into the real history
-- the live config sets `unsetopt CLOBBER` and Claude's shell inherits it: `>` to an
-  existing file fails with `file exists` — use `>|` in test commands
+- Claude's shell inherits the live config's options — authoritative dump:
+  `zsh -ic 'setopt'`. Example: `unsetopt CLOBBER` makes `>` to an existing file
+  fail with `file exists` — use `>|` in test commands
 - a fed line that reads stdin (`cat`, `read`) can swallow the rest of the feed —
   redirect its stdin or put it last
 - apply a change to the running shell: `zprezto-restart` (`exec`s zsh; refuses while
@@ -49,10 +50,9 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 
 ## Fork policies & gotchas
 
-- design decisions and rejected alternatives live in [ADJUDICATIONS.md](ADJUDICATIONS.md) — route new rationale there, never inline
-- accepted costs, verified non-problems, and rejected designs in
-  [ADJUDICATIONS.md](ADJUDICATIONS.md) are settled — reviews must not re-flag
-  them; challenge them only with new verified facts
+- design rationale — decisions, rejected alternatives, accepted costs, verified
+  non-problems — lives in [ADJUDICATIONS.md](ADJUDICATIONS.md), never inline.
+  Its contents are settled — reviews re-flag them only with new verified facts
 - before flagging option-dependent zsh behavior (`no_clobber`, `share_history`,
   `extended_glob`, …): the effective options live in each loaded module's
   `init.zsh` plus `runcoms/zshrc` `### ZSH Options` — authoritative dump:
