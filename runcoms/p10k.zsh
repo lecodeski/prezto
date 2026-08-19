@@ -271,6 +271,11 @@
   typeset -g POWERLEVEL9K_DIR_TRUNCATE_BEFORE_MARKER=false
   # Don't shorten this many last directory segments. They are anchors.
   typeset -g POWERLEVEL9K_SHORTEN_DIR_LENGTH=1
+  # Treat the first directory below `~` (or another named directory) as an anchor, too: it's never
+  # shortened and it's colored with POWERLEVEL9K_DIR_ANCHOR_FOREGROUND, just like the first
+  # directory below `/` and the last directory of the path. Requires
+  # POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_unique.
+  typeset -g POWERLEVEL9K_DIR_ANCHOR_FIRST=true
   # Shorten directory if it's longer than this even if there is space for it. The value can
   # be either absolute (e.g., '80') or a percentage of terminal width (e.g, '50%'). If empty,
   # directory will be shortened only when prompt doesn't fit or when other parameters demand it
