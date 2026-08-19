@@ -666,32 +666,24 @@ wat() {
     fi
 } && compdef xb=broot
 
-# Keep mistyped commands out of history: reject a line when one of its command
-# heads does not resolve. zsh keeps a rejected line on ↑ until the next command
-# runs — one fix-and-retry window, never the histfile.
+# Keep mistyped commands out of history: reject a line whose first word does
+# not resolve — zsh then keeps it on ↑ for one fix-and-retry cycle.
 zshaddhistory() {
-  setopt localoptions extendedglob nonomatch  # nonomatch: a typo named dir (~porj) must reject silently, not abort the hook
-  local -a words=(${(z)1})  # raw tokens: (Q) here would turn a quoted "|" argument into a stage boundary
-  [[ $words[2] == '()' ]] && return 0  # funcdef: the name resolves only after the definition runs
-  local w
-  local -i i=1
-  while (( i <= $#words )); do
-    while [[ $words[i] == [A-Za-z_][A-Za-z0-9_]#(|+)=* ]]; do
-      [[ $words[i] == *\(* ]] && return 0  # (z) splits an array assignment into fragments
-      [[ $words[i] == (PATH|path)(|+)=* ]] && return 0  # the prefix changes resolution, whence would judge the wrong PATH
-      (( i++ ))
-    done
-    (( i > $#words )) && return 0  # pure assignment
-    w=${(Q)words[i]}  # (Q): let \cmd and "cmd" certify as cmd
-    if [[ $w != *[^[:alnum:]/_.+~=-]* ]]; then  # $var etc.: whence sees them literally and gives no verdict — skip the head
-      whence -- $w > /dev/null ||
-        [[ -d ${~w} || $w == (=*|*/*) && -x ${~w} ]] ||  # auto_cd dir, or x-bit after ~/= expansion: bare `x.sh` sans ./ stays a typo
-        return 1  # not 2: return 2 pins the rejected line in the session ring
-    fi
-    while (( i <= $#words )) && [[ $words[i] != ('|'|'|&'|';'|'&&'|'||'|'&'|'&!'|'&|') ]]; do (( i++ )); done  # skip args to the next command head; (z) yields `;` for embedded newlines
-    (( i++ ))
+  setopt localoptions extendedglob nonomatch  # nonomatch: a bad ~name must not abort the hook
+  local -a words=(${(z)1})
+  (( ${words[(Ie)()]} )) && return 0  # funcdef (any bare `()` token): the name resolves only after the definition runs
+  while [[ $words[1] == [A-Za-z_][A-Za-z0-9_]#(|+)=* ]]; do
+    [[ $words[1] == *\(* ]] && return 0  # (z) splits an array assignment into fragments
+    [[ $words[1] == (PATH|path)(|+)=* ]] && return 0  # whence would judge against the wrong PATH
+    words[1]=()
   done
-  return 0
+  (( $#words )) || return 0  # pure assignment
+  local w=${(Q)words[1]}  # (Q): \cmd and "cmd" certify as cmd; evaluates nothing
+  [[ $w == *[^[:alnum:]/_.+~=-]* ]] && return 0  # $var etc.: whence has no verdict
+  whence -- $w > /dev/null ||
+    [[ -d ${~w} || $w == (=*|*/*) && -x ${~w} ]] ||  # auto_cd dir, or x-bit after ~/= expansion
+    [[ $w == [A-Za-z_][A-Za-z0-9_]# && -d ${(P)w} ]] ||  # cdable_vars: bare param whose value is a dir
+    return 1  # 2 would pin the line in the session ring
 }
 
 ### ZSH Options
