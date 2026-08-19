@@ -50,6 +50,9 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 ## Fork policies & gotchas
 
 - design decisions and rejected alternatives live in [ADJUDICATIONS.md](ADJUDICATIONS.md) — route new rationale there, never inline
+- accepted costs, verified non-problems, and rejected designs in
+  [ADJUDICATIONS.md](ADJUDICATIONS.md) are settled — reviews must not re-flag
+  them; challenge them only with new verified facts
 - before flagging option-dependent zsh behavior (`no_clobber`, `share_history`,
   `extended_glob`, …): the effective options live in each loaded module's
   `init.zsh` plus `runcoms/zshrc` `### ZSH Options` — authoritative dump:

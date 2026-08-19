@@ -125,6 +125,21 @@ Every rule below errs up the ladder.
   never judged, so native multiline handling stays intact.
 - `NO_CLOBBER` exempts `/dev/null` (a device). Plain `>` suffices in
   the hook (verified against this repo's `unsetopt CLOBBER`).
+- `setopt CORRECT` needs no rule. The hook receives the corrected
+  line, not the typo (review-refuted candidate, verified).
+- A plain `zshaddhistory` function coexists with future
+  `add-zsh-hook zshaddhistory` consumers. zsh runs the function and
+  the hook array both (review-refuted candidate).
+- `(z)` keeps `(( … ))`, `$(( … ))`, `$( … )`, quoted words, and
+  parenthesized globs as single tokens (verified). Those constructs
+  never reach the judged position. Two plausible split claims proved
+  false under test — verify tokenization before building on it.
+- The hook fires for parse-error lines too (verified by trace). A
+  certified first word saves them, like native zsh does.
+- Space-prefixed lines need no rule. `HIST_IGNORE_SPACE` applies
+  natively. The hook has no `print -s` left to bypass it.
+- The `${(P)w}` arm cannot abort. The identifier pattern guards the
+  substitution. A non-dir or array value just fails `-d`.
 
 ### Accepted costs
 
