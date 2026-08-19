@@ -680,10 +680,11 @@ zshaddhistory() {
   (( $#_zah_words )) || return 0  # pure assignment
   local _zah_w=${(Q)_zah_words[1]}  # (Q): \cmd and "cmd" certify as cmd
   [[ $_zah_w == *[^[:alnum:]/_.+~=-]* ]] && return 0  # $var etc.: whence has no verdict
-  whence -- $_zah_w > /dev/null ||
-    [[ -d ${~_zah_w} || $_zah_w == (=*|*/*) && -x ${~_zah_w} ]] ||  # auto_cd dir, or x-bit after ~/= expansion
-    [[ $_zah_w == [A-Za-z_][A-Za-z0-9_]# && -d ${(P)_zah_w} ]] ||  # cdable_vars: bare param whose value is a dir
-    return 1
+  whence -- $_zah_w > /dev/null && return 0
+  [[ -d ${~_zah_w} || $_zah_w == (=*|*/*) && -x ${~_zah_w} ]] && return 0  # auto_cd dir, or x-bit after ~/= expansion
+  [[ $_zah_w == [A-Za-z_][A-Za-z0-9_]# && -d ${(P)_zah_w} ]] && return 0  # cdable_vars: bare param whose value is a dir
+  local _zah_d; for _zah_d ($cdpath) [[ -d $_zah_d/$_zah_w ]] && return 0  # auto_cd resolves bare dirs through cdpath too
+  return 1
 }
 
 ### ZSH Options

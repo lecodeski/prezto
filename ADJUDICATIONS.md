@@ -121,11 +121,13 @@ Every rule below errs up the ladder.
   `proj` cds to `$proj`. The arm also certifies relative-valued
   parameters that `cd` refuses. That miss is junk-direction and
   acceptable.
-- The `-d` arm resolves bare dirs against the cwd only. A `cdpath`
-  entry would let a bare dir cd while the hook rejects it — a latent
-  correct-line loss (verified). Unreachable today: `runcoms/zprofile`
-  keeps `cdpath` commented out, and a warning there routes back here.
-  Enabling `cdpath` needs a cdpath arm first.
+- A cdpath arm completes the `-d` check. auto_cd also resolves bare
+  dirs through `cdpath` (verified), so a cwd-only check falsely
+  rejected them — a latent correct-line loss while `cdpath` stays
+  commented out in `runcoms/zprofile`. A match is exact: the word
+  cds, so it is correct input, never junk. The arm costs one `stat`
+  per `cdpath` entry, only on the reject path, and nothing while
+  `cdpath` is empty.
 - `$var` first words stay blanket-certified. `${(e)}` executes
   embedded `$(…)`: unsafe, we reject it. Resolving via `${(P)NAME}`
   covers only the bare `$NAME` shape, and the value can be multi-word.
