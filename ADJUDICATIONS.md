@@ -2,6 +2,13 @@
 
 Design decisions with their rejected alternatives. Newest section first.
 
+## Prose: dash-chained telegraphese (repo docs, 2026-08-20)
+
+Dash-joined clauses count as separate STE sentence units. The 25-word
+cap and the one-idea rule apply per clause, not per period. The style
+matches the rule author's own writing. Reviews must not flag
+dash-chained bullets as STE violations.
+
 ## History hook: certify & reject, first word only (`runcoms/zshrc`, 2026-08-18)
 
 **Prime rule: linger only > junk > real data loss — wrong lines only.**
@@ -101,21 +108,22 @@ Every rule below errs up the ladder.
 - `=` is in the certifiable set. A `=`-word that survives the
   assignment strip is malformed — zsh execs it as a command, so
   `whence` gives a true verdict: `LC-ALL=C true` rejects. A
-  leading-`=` word (`=grep`, alias bypass) certifies via `-x ${~word}`.
-  Equals-expansion evaluates nothing.
+  leading-`=` word (`=grep`, alias bypass) certifies through the
+  expanded `whence`. Equals-expansion evaluates nothing.
 - The hook sets `nonomatch` locally. A typo named dir (`~porj/src`)
   makes `${~word}` abort the hook. The abort also rejects, but with a
   hook error on stderr. `nonomatch` keeps the reject silent.
-- A tilde or pathed word certifies via `-x ${~word}`. Tilde expansion
-  is deterministic and evaluates nothing. `-d` alone missed
-  `~/bin/tool`. We reject `-e`: it rescues `./script.sh` before its
-  `chmod +x`, but it also persists every existing non-executable file
-  typed as a command. The rescue costs one retype after the chmod.
-  The junk class is broader than the rescue.
-- `-x` vouches only for equals-words and pathed words (`=*`, `*/*`).
-  A bare x-bit name (`test.sh` without `./`) never execs from the
-  cwd. It is a typo by construction. `-d` still covers bare auto_cd
-  dirs.
+- One judge: `whence -- ${~word}`. `${~}` expands a leading `~` or `=`
+  deterministically and evaluates nothing. `whence` checks the x-bit
+  on pathed words and searches only PATH for bare words — a bare x-bit
+  `test.sh` never certifies, it is a typo by construction. This merged
+  away a parallel `(=*|*/*) && -x ${~word}` arm (review
+  simplification, behavior-identical, verified). `-d` still covers
+  dirs, which `whence` refuses.
+- We reject `-e`-style existence judging: it rescues `./script.sh`
+  before its `chmod +x`, but it persists every existing
+  non-executable file typed as a command. The rescue costs one retype
+  after the chmod. The junk class is broader than the rescue.
 - A bare identifier certifies when its parameter value is a directory
   (the `${(P)}` arm). The live config sets `CDABLE_VARS`, so bare
   `proj` cds to `$proj`. The arm also certifies relative-valued
@@ -124,10 +132,12 @@ Every rule below errs up the ladder.
 - A cdpath arm completes the `-d` check. auto_cd also resolves bare
   dirs through `cdpath` (verified), so a cwd-only check falsely
   rejected them — a latent correct-line loss while `cdpath` stays
-  commented out in `runcoms/zprofile`. A match is exact: the word
-  cds, so it is correct input, never junk. The arm costs one `stat`
-  per `cdpath` entry, only on the reject path, and nothing while
-  `cdpath` is empty.
+  commented out in `runcoms/zprofile`. cd consults `cdpath` only for
+  words without a `/`, `./`, or `../` prefix (verified, review
+  finding), so the arm gates on that shape. For gated words a match
+  is exact: the word cds, so it is correct input, never junk. The arm
+  costs one `stat` per `cdpath` entry, only on the reject path, and
+  nothing while `cdpath` is empty.
 - `$var` first words stay blanket-certified. `${(e)}` executes
   embedded `$(…)`: unsafe, we reject it. Resolving via `${(P)NAME}`
   covers only the bare `$NAME` shape, and the value can be multi-word.
@@ -160,6 +170,42 @@ Every rule below errs up the ladder.
   natively. The hook has no `print -s` left to bypass it.
 - The `${(P)}` arm cannot abort. The identifier pattern guards the
   substitution. A non-dir or array value just fails `-d`.
+- Suffix aliases need no rule. `whence` resolves them natively
+  (verified), so a `doc.pdf` line under `alias -s pdf=open`
+  certifies.
+- The arms need no option gates (`autocd`, `cdable_vars`, `cdpath`).
+  An arm only ever certifies, so a stale option costs one junk entry —
+  the line fails with command-not-found and persists. A gate can only
+  suppress a certify, so a gate that misreads option state rejects a
+  correct line — the forbidden tier. Gateless is the strictly safer
+  shape, and the options are invariants of this config anyway
+  (review-refuted candidate).
+- `shift _zah_words` needs no emptiness guard. `shift` errors on an
+  empty array, but the `while` condition matches element 1 against a
+  pattern, and an empty array yields an empty element that cannot
+  match. The loop body is unreachable with an empty array.
+- Short-form `for` binds the full `[[ … ]] && return 0` sublist as
+  its body (verified). The `return 0` fires per matching `cdpath`
+  entry, not after the loop.
+- The hook writes nothing to stderr on any input class (verified:
+  `-foo`, `+foo`, empty words, bad `~`-names, array-valued
+  parameters). `whence --` kills usage errors. `nonomatch` kills
+  expansion errors. The dropped `2>&1` hid nothing.
+- An empty first word (`""`) rejects. Such a line errors before it
+  runs anything, so the reject is junk-direction and harmless
+  (review-refuted candidate).
+- A `CDPATH=`/`cdpath=` prefix needs no `PATH=`-style bail. A
+  one-shot `CDPATH=/x dir` line does not auto_cd at all (verified),
+  so judging the next word against the live `cdpath` is correct.
+- `setopt localoptions extendedglob` fully covers the hook's `#`
+  patterns. Pattern evaluation happens at execution, not at function
+  parse (verified).
+- Performance is settled: ~23µs on the certify path, ~60µs on
+  reject, ~1ms for a 100KB paste, builtins only (measured). Caching
+  and speed-gating proposals are refuted in advance.
+- The surviving inline comments are deletion defenses. Each states a
+  fact whose absence invites a breaking simplification. Three review
+  rounds pruned the set — it is settled.
 
 ### Accepted costs
 
