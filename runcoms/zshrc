@@ -215,7 +215,12 @@ alias gw='git-open'
     [[ -d $t ]] && idea $t || idea -e ${argv:A}
   } && compdef _files i
 
-[ $commands[kubectl] ] && alias k=kubectl && [ $commands[kubectx] ] && alias kc='kubectx' && alias -- -='kubectx -' || alias kc='kubectl config use-context'
+[ $commands[kubectl] ] && alias k=kubectl &&
+  [ $commands[kubectx] ] &&
+  alias kc='kubectx' &&
+  alias -- -='kubectx -' ||
+  alias kc='kubectl config use-context'
+
 [ -f ~/Projekte/Perl/SandBox/krazy-kase.pl ] && alias kk='perl ~/Projekte/Perl/SandBox/krazy-kase.pl'
 [ -x ~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh ] && alias kkc=~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh
 
