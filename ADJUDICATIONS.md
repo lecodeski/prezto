@@ -24,8 +24,8 @@ Every rule below errs up the ladder.
 - One hook, one judged position: the first word at accept time. The
   line start is a command position by grammar definition. A certified
   line saves natively. An uncertified line rejects with return 1.
-- Every rejected line lingers as the newest ring entry until the next
-  line is read (verified). ↑ reaches it for one cycle — the
+- Every rejected line lingers as the newest ring entry until zsh
+  reads the next line (verified). ↑ reaches it for one cycle — the
   fix-and-retry window. Rejection is never instant loss.
 - The reject code is 1, not 2. Return 2 pins the line on the internal
   list for the whole session and never writes the file (verified). A
@@ -94,15 +94,32 @@ Every rule below errs up the ladder.
 - The hook always certifies pure assignments. The strip pattern
   anchors a full identifier and includes `+=`. The loose
   `[A-Za-z_]*=*` stripped `LC-ALL=C` and hid the typo behind it.
+- Identifier patterns use `[[:alpha:]_][[:IDENT:]]#`. The ASCII-only
+  `[A-Za-z_][A-Za-z0-9_]#` rejected the correct line `wörk=5` — `ö`
+  is alnum, so the charset arm gave no rescue (review finding,
+  verified).
+- The strip scan iterates by value with a break flag. `shift` and
+  array subscripting both cost O(n) per word in zsh. The old
+  shift loop froze accept for 4.2 s on a 100KB assignment run
+  (measured, review finding). The value scan takes 17 ms there
+  (measured).
+- The hook tokenizes with `${(Z+n+)}`: newlines count as whitespace,
+  not `;` tokens (verified). Plain `(z)` emitted a stray `;` for the
+  line's trailing newline, which kept the pure-assignment check dead —
+  pure assignments certified via the charset arm judging `;` instead
+  (review finding, verified). The flag also judges the real head of a
+  pasted multiline entry (`FOO=bar\ntypo` rejects — `(z)` certified
+  its `;`).
 - An assignment token that ends in `=(` stops certification. `(z)`
   fragments an array assignment into `name=(` plus elements, so later
   tokens carry no judgeable head. The looser `*\(*` also matched
   scalar `$( )` values — `LOG=$(date) grpe x` certified and hid the
   typo (review finding, verified).
-- Hook locals carry a `_zah_` prefix. `${(P)}` resolves any name in
-  scope, so plain `words`/`w` locals shadowed same-named user
-  parameters. With `words=~/work`, bare `words` cds correctly, yet
-  the hook rejected the line (review finding, verified).
+- Hook locals carry a `_zah_` prefix. Dynamic resolution sees every
+  name in scope, and plain `words`/`w` locals shadowed same-named
+  user parameters in the former `${(P)}` arm — a verified false
+  reject (review finding). The prefix keeps every arm
+  collision-free.
 - A stripped `PATH=`/`path=` prefix stops certification. The line
   resolves against a PATH the hook cannot see. The line certifies.
 - `=` is in the certifiable set. A `=`-word that survives the
@@ -112,32 +129,32 @@ Every rule below errs up the ladder.
   expanded `whence`. Equals-expansion evaluates nothing.
 - The hook sets `nonomatch` locally. A typo named dir (`~porj/src`)
   makes `${~word}` abort the hook. The abort also rejects, but with a
-  hook error on stderr. `nonomatch` keeps the reject silent.
+  hook error on stderr. `nonomatch` keeps the reject silent. `=typo`
+  likewise rejects silently (verified).
 - One judge: `whence -- ${~word}`. `${~}` expands a leading `~` or `=`
   deterministically and evaluates nothing. `whence` checks the x-bit
   on pathed words and searches only PATH for bare words — a bare x-bit
-  `test.sh` never certifies, it is a typo by construction. This merged
+  `test.sh` never certifies, a typo by construction. This merged
   away a parallel `(=*|*/*) && -x ${~word}` arm (review
-  simplification, behavior-identical, verified). `-d` still covers
+  simplification, behavior-identical, verified). The cd probe covers
   dirs, which `whence` refuses.
 - We reject `-e`-style existence judging: it rescues `./script.sh`
   before its `chmod +x`, but it persists every existing
   non-executable file typed as a command. The rescue costs one retype
   after the chmod. The junk class is broader than the rescue.
-- A bare identifier certifies when its parameter value is a directory
-  (the `${(P)}` arm). The live config sets `CDABLE_VARS`, so bare
-  `proj` cds to `$proj`. The arm also certifies relative-valued
-  parameters that `cd` refuses. That miss is junk-direction and
-  acceptable.
-- A cdpath arm completes the `-d` check. auto_cd also resolves bare
-  dirs through `cdpath` (verified), so a cwd-only check falsely
-  rejected them — a latent correct-line loss while `cdpath` stays
-  commented out in `runcoms/zprofile`. cd consults `cdpath` only for
-  words without a `/`, `./`, or `../` prefix (verified, review
-  finding), so the arm gates on that shape. For gated words a match
-  is exact: the word cds, so it is correct input, never junk. The arm
-  costs one `stat` per `cdpath` entry, only on the reject path, and
-  nothing while `cdpath` is empty.
+- Dir resolution is one subshell probe: `( builtin cd -q -- ${~word} )`.
+  cd itself is the auto_cd oracle — cwd dirs, `cdable_vars` params,
+  `hash -d` named dirs, user homes, `cdpath`, and the
+  plain-relative-words-only cdpath rule, all exact by construction.
+  No future cd feature can desynchronize the hook. `-q` suppresses
+  chpwd hooks, and the subshell isolates the chdir. The fork costs
+  ~1 ms, only on dir lines and the reject path.
+- The probe replaced four hand-rolled arms (`-d`, prefix gate,
+  `~word` retry, cdpath loop — review simplification). Their history:
+  a `${(P)}` params-only arm missed `hash -d` dirs that cd correctly
+  (review finding, verified). A cwd-only `-d` check missed `cdpath`
+  dirs (review finding, verified). `-d` also wrongly certified no-x
+  dirs that auto_cd refuses — the probe rejects them, more exact.
 - `$var` first words stay blanket-certified. `${(e)}` executes
   embedded `$(…)`: unsafe, we reject it. Resolving via `${(P)NAME}`
   covers only the bare `$NAME` shape, and the value can be multi-word.
@@ -151,8 +168,8 @@ Every rule below errs up the ladder.
   under the same new cwd. Only non-first positions broke this
   (`cd proj && ./build.sh`), and the hook no longer judges them.
 - Multiline constructs certify by their reserved first word — `whence`
-  gives a verdict on `for`, `while`, `if` (verified). Bodies are
-  never judged, so native multiline handling stays intact.
+  gives a verdict on `for`, `while`, `if` (verified). The hook never
+  judges bodies, so native multiline handling stays intact.
 - `NO_CLOBBER` exempts `/dev/null` (a device). Plain `>` suffices in
   the hook (verified against this repo's `unsetopt CLOBBER`).
 - `setopt CORRECT` needs no rule. The hook receives the corrected
@@ -168,8 +185,10 @@ Every rule below errs up the ladder.
   certified first word saves them, like native zsh does.
 - Space-prefixed lines need no rule. `HIST_IGNORE_SPACE` applies
   natively. The hook has no `print -s` left to bypass it.
-- The `${(P)}` arm cannot abort. The identifier pattern guards the
-  substitution. A non-dir or array value just fails `-d`.
+- The hook survives `setopt nounset` (verified: correct verdicts, no
+  error output). The former `${(P)}` arm aborted under it on unset
+  names (review finding). The cd probe resolves no parameter
+  dynamically.
 - Suffix aliases need no rule. `whence` resolves them natively
   (verified), so a `doc.pdf` line under `alias -s pdf=open`
   certifies.
@@ -180,10 +199,9 @@ Every rule below errs up the ladder.
   correct line — the forbidden tier. Gateless is the strictly safer
   shape, and the options are invariants of this config anyway
   (review-refuted candidate).
-- `shift _zah_words` needs no emptiness guard. `shift` errors on an
-  empty array, but the `while` condition matches element 1 against a
-  pattern, and an empty array yields an empty element that cannot
-  match. The loop body is unreachable with an empty array.
+- The value scan needs no emptiness guard. A `for` over an empty
+  array does not run. The pure-assignment default then certifies — an
+  empty token list never reaches the judge.
 - Short-form `for` binds the full `[[ … ]] && return 0` sublist as
   its body (verified). The `return 0` fires per matching `cdpath`
   entry, not after the loop.
@@ -191,9 +209,10 @@ Every rule below errs up the ladder.
   `-foo`, `+foo`, empty words, bad `~`-names, array-valued
   parameters). `whence --` kills usage errors. `nonomatch` kills
   expansion errors. The dropped `2>&1` hid nothing.
-- An empty first word (`""`) rejects. Such a line errors before it
-  runs anything, so the reject is junk-direction and harmless
-  (review-refuted candidate).
+- An empty first word (`""`) rejects via the explicit `-n` gate. Such
+  a line errors before it runs anything. Without the gate the cd
+  probe certifies it — `cd ''` goes to `$HOME` (verified). The
+  earlier `~`-retry and cdpath arms certified it too.
 - A `CDPATH=`/`cdpath=` prefix needs no `PATH=`-style bail. A
   one-shot `CDPATH=/x dir` line does not auto_cd at all (verified),
   so judging the next word against the live `cdpath` is correct.
@@ -201,15 +220,17 @@ Every rule below errs up the ladder.
   patterns. Pattern evaluation happens at execution, not at function
   parse (verified).
 - Performance is settled: ~23µs on the certify path, ~60µs on
-  reject, ~1ms for a 100KB paste, builtins only (measured). Caching
-  and speed-gating proposals are refuted in advance.
+  reject, 17 ms for a 100KB assignment run, builtins only (measured).
+  We refute caching and speed-gating proposals in advance.
+- `HIST_IGNORE_ALL_DUPS` does not delete an older correct entry when
+  a rejected duplicate lingers (verified).
 - The surviving inline comments are deletion defenses. Each states a
   fact whose absence invites a breaking simplification. Three review
   rounds pruned the set — it is settled.
 
 ### Accepted costs
 
-- A rejected wrong line survives one ↑ cycle, then it is gone — next
+- A rejected wrong line survives one ↑ cycle. Then it is gone — next
   command or shell exit. Native zsh would persist parse errors and
   drafts. Uncertified means near-certain junk, so the short window
   costs nothing real.

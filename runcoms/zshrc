@@ -669,23 +669,24 @@ wat() {
 # Keep mistyped commands out of history: reject a line whose first word does
 # not resolve — zsh then keeps it on ↑ for one fix-and-retry cycle.
 zshaddhistory() {
-  setopt localoptions extendedglob nonomatch  # nonomatch: a bad ~name must not abort the hook
-  local -a _zah_words=(${(z)1})  # _zah_: the ${(P)} arm below must not resolve the hook's own locals
+  setopt localoptions extendedglob nonomatch  # nonomatch: a bad ~name or =cmd must reject silently, not abort the hook
+
+  local -a _zah_words=(${(Z+n+)1})  # _zah_: locals must not shadow user params; Z+n+: newlines as whitespace
   (( ${_zah_words[(Ie)()]} )) && return 0  # funcdef: any bare `()` token
-  while [[ $_zah_words[1] == [A-Za-z_][A-Za-z0-9_]#(|+)=* ]]; do
-    [[ $_zah_words[1] == *=\( ]] && return 0  # array assignment: (z) fragments it into `name=(` + elements
-    [[ $_zah_words[1] == (PATH|path)(|+)=* ]] && return 0  # whence would judge against the wrong PATH
-    shift _zah_words
-  done
-  (( $#_zah_words )) || return 0  # pure assignment
-  local _zah_w=${(Q)_zah_words[1]}  # (Q): \cmd and "cmd" certify as cmd
+  local _zah_w; local -i _zah_pure_assignment=1
+
+  for _zah_w ($_zah_words) {  # value scan: shift and subscripting are both O(n) per word, O(n²) on assignment runs
+    [[ $_zah_w != [[:alpha:]_][[:IDENT:]]#(|+)=* ]] && { _zah_pure_assignment=0; break }
+    [[ $_zah_w == *=\( ]] && return 0  # array assignment: (z) fragments it into `name=(` + elements
+    [[ $_zah_w == (PATH|path)(|+)=* ]] && return 0  # whence would judge against the wrong PATH
+  }
+
+  (( _zah_pure_assignment )) && return 0
+  _zah_w=${(Q)_zah_w}  # (Q): \cmd and "cmd" certify as cmd
+  [[ -z $_zah_w ]] && return 1  # empty first word errors before running; `cd ''` below would certify it via $HOME
   [[ $_zah_w == *[^[:alnum:]/_.+~=-]* ]] && return 0  # $var etc.: whence has no verdict
   whence -- ${~_zah_w} > /dev/null && return 0  # ${~} expands a leading ~/= first: pathed x-bit files judge like commands, bare names stay PATH-only
-  [[ -d ${~_zah_w} ]] && return 0  # auto_cd dir
-  [[ $_zah_w == [A-Za-z_][A-Za-z0-9_]# && -d ${(P)_zah_w} ]] && return 0  # cdable_vars: bare param whose value is a dir
-  [[ $_zah_w == (/|./|../)* ]] && return 1  # cd consults cdpath for plain relative words only
-  local _zah_d; for _zah_d ($cdpath) [[ -d $_zah_d/$_zah_w ]] && return 0  # auto_cd resolves bare dirs through cdpath too
-  return 1
+  ( builtin cd -q -- ${~_zah_w} ) &> /dev/null  # auto_cd oracle (cwd dirs, cdable_vars, hash -d, cdpath): the probe's status is the verdict
 }
 
 ### ZSH Options
