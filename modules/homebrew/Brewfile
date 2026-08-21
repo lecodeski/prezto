@@ -86,6 +86,8 @@ brew "git"
 brew "git-delta"
 # Browse your latest git branches, formatted real fancy
 brew "git-recent"
+# Open-source GitLab command-line tool
+brew "glab"
 # Render markdown on the CLI
 brew "glow"
 # GNU implementation of the famous stream editor
