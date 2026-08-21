@@ -454,12 +454,11 @@ zstyle -t ':prezto:module:fasd' loaded &&
   compdef _fasd_zsh_word_complete_d j jj
 
 konfigmerge() {
-  export KUBECONFIG=~/.kube/config:$(realpath $1)
-  cp ~/.kube/config ~/.kube/config.bak
-  kubectl config view --flatten >| ~/.kube/merged
-  cp ~/.kube/merged ~/.kube/config
-  unset KUBECONFIG
-  delta ~/.kube/config.bak ~/.kube/config
+  local -x KUBECONFIG=~/.kube/config:${1:A}  # -x: exported for kubectl, gone when the function returns
+  cp ~/.kube/config ~/.kube/config.bak &&
+    kubectl config view --flatten >| ~/.kube/merged &&
+    cp ~/.kube/merged ~/.kube/config &&
+    delta ~/.kube/config.bak ~/.kube/config
 }
 
 mh() {
