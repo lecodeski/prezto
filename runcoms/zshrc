@@ -158,8 +158,8 @@ if (( $+commands[claude] )); then
 fi
 
 alias cl="c -P"
-alias cp="${aliases[cp]} --verbose"
-alias cpr="${aliases[cp]} --recursive"
+alias cp="${aliases[cp]:-cp} --verbose"  # :- — prezto's safe-ops default owns the base alias
+alias cpr="${aliases[cp]:-cp} --recursive"
 alias cwd='echo \"$(pwd)\" | cpy'
 
 [ $commands[docker] ] && alias dk=docker && alias di='docker images'
@@ -232,7 +232,7 @@ alias gw='git-open'
 [ -x ~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh ] && alias kkc=~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh
 
 alias l=locate
-alias ln="${aliases[ln]} --verbose"
+alias ln="${aliases[ln]:-ln} --verbose"
 alias lz='git -C ${ZDOTDIR:-$HOME}/.zprezto l'
 alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k l'
 
@@ -259,7 +259,7 @@ alias rg='batgrep --terminal-width=$(tput cols)' && compdef batgrep=rg
 (( $+commands[rga] )) && alias rga='rga --line-number'
 alias rgp="${commands[rg]}"
 
-alias rm="${aliases[rm]} --verbose"
+alias rm="${aliases[rm]:-rm} --verbose"
 alias rr='rm -I --recursive'
 
 alias scr='scp -r'
