@@ -52,8 +52,6 @@ brew "git-delta"
 brew "git-open"
 # Browse your latest git branches, formatted real fancy
 brew "git-recent"
-# Open-source GitLab command-line tool
-brew "glab"
 # Render markdown on the CLI
 brew "glow"
 # System and service manager
