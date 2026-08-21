@@ -666,15 +666,40 @@ wat() {
     fi
 } && compdef xb=broot
 
-zshaddhistory() {
-  # Always save variable assignments (e.g., FOO=bar)
-  [[ "$1" =~ '^[A-Za-z_][A-Za-z0-9_]*=' ]] && return 0
+# Keep mistyped commands out of history: reject a line whose head word
+# resolves to nothing, certify whatever it cannot judge — zsh then keeps a
+# rejected line on ↑ for one fix-and-retry cycle.
+_zah-certify() {
+  # nonomatch: a bad ~name or =cmd must reject silently, not abort the hook.
+  # no*nullglob: a head that expands to nothing would cd to $HOME, i.e. certify
+  # noksharrays: 0-based subscripts invert every index comparison below
+  setopt localoptions extendedglob nonomatch nonullglob nocshnullglob noksharrays
 
-  # Run the command through zsh syntax check; reject if invalid
-  whence ${${(z)1}[1]} >| /dev/null 2>&1 || return 1
+  local -a _zah_words=(${(Z+n+)1})  # _zah_: locals must not shadow user params; Z+n+: newlines as whitespace
+  (( ${_zah_words[(Ie)()]} )) && return 0  # funcdef: any bare `()` token
+  local -i _zah_head=${_zah_words[(i)^[[:alpha:]_][[:IDENT:]]#(|+)=*]}  # first non-assignment word, $#+1 when all are
 
-  return 0
+  (( _zah_head > $#_zah_words )) && return 0  # pure assignment, empty line
+
+  # array assignment ((Z) fragments it into `name=(` + elements), or a PATH= whence cannot see
+  (( _zah_head > 1 )) && (( _zah_head > ${_zah_words[(i)(*=\(|(PATH|path)(|+)=*)]} )) && return 0
+
+  local _zah_w=${(Q)_zah_words[_zah_head]}  # (Q): \cmd and "cmd" certify as cmd
+  [[ -z $_zah_w ]] && return 1  # empty head errors before running; `cd ''` below would certify it via $HOME
+  # sole certify for every non-plain head: $var, $(…), ((…)), [[, {, !, %1, #,
+  # redirect and separator words; whence has no verdict on any of them
+  [[ $_zah_w == *[^[:alnum:]/_.+~=-]* ]] && return 0
+
+  # ${~} expands a leading ~/= first: pathed x-bit files judge like commands
+  # and PATH_DIRS gives a slashed relative word a PATH search too
+  builtin whence -- ${~_zah_w} > /dev/null && return 0
+
+  # auto_cd oracle (cwd dirs, cdable_vars, hash -d, cdpath): the probe's status is the verdict
+  ( builtin cd -q -- ${~_zah_w} ) &> /dev/null && return 0
+  return 1
 }
+autoload -Uz add-zsh-hook
+add-zsh-hook zshaddhistory _zah-certify
 
 ### ZSH Options
 ###########
