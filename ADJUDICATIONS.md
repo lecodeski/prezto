@@ -82,11 +82,22 @@ Every rule below errs up the ladder.
   `whence` sees `$var`, quotes, and operators literally and gives no
   verdict. Such shapes certify — an uncertified correct line would
   fall to the linger and die after one command.
+- The charset set is policy, not a reimplementation: it names the
+  characters `whence` and the cd probe judge deterministically. We
+  reject the `[[ $w == ${(q)w} ]]` round-trip as a builtin substitute.
+  `(q)` quotes `~foo` and `=grep` (verified), the shapes the hook
+  judges through `${~}` on purpose.
+- No builtin classifies an assignment prefix. `zsh/parameter` exposes
+  resolution tables only, and `(z)`/`(Z)` tokenize without
+  classifying. The pattern `[[:alpha:]_][[:IDENT:]]#(|+)=*` is
+  necessary hand-rolling — hence `extendedglob` in the
+  `localoptions` line for its `#` operator.
 - `${(Q)}` unquotes the judged word. Quote removal evaluates nothing,
   so `$(…)` cannot execute. `\cmp` certifies as `cmp`. `\typo` and
   `"typo"` reject.
-- A function definition certifies by any bare `()` token (`(Ie)` exact
-  index). The name resolves only after the definition runs. A
+- No builtin detects a function definition either. The `(Ie)` token
+  search is the closest native primitive. A function definition
+  certifies by any bare `()` token (`(Ie)` exact index). The name resolves only after the definition runs. A
   `words[2]`-only check missed multi-name definitions
   (`foo bar() { … }`) and judged the first name — a false reject
   (review finding). A bare unquoted `()` has no other zsh meaning, and
