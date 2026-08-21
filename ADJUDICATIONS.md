@@ -109,11 +109,18 @@ Every rule below errs up the ladder.
   `[A-Za-z_][A-Za-z0-9_]#` rejected the correct line `wörk=5` — `ö`
   is alnum, so the charset arm gave no rescue (review finding,
   verified).
-- The strip scan iterates by value with a break flag. `shift` and
-  array subscripting both cost O(n) per word in zsh. The old
-  shift loop froze accept for 4.2 s on a 100KB assignment run
-  (measured, review finding). The value scan takes 17 ms there
-  (measured).
+- Pattern subscripts locate the head: `(i)` with a negated
+  assignment pattern yields the first non-assignment index, or
+  `$#+1` when every word is one (verified). The two bails compare
+  their own `(i)` index against that head, so a `PATH=` behind the
+  head does not count. One builtin scan each, no loop.
+- We reject loop scans for the head. A `shift` loop froze accept for
+  4.2 s on a 100KB assignment run (measured, review finding) — both
+  `shift` and per-word subscripting cost O(n) per word. A value scan
+  fixed the cost (17 ms) but left the loop variable doing double duty
+  as the judged word: a later `continue`, a second loop, or a hoisted
+  bail would silently judge the last token instead of the head
+  (review finding).
 - The hook tokenizes with `${(Z+n+)}`: newlines count as whitespace,
   not `;` tokens (verified). Plain `(z)` emitted a stray `;` for the
   line's trailing newline, which kept the pure-assignment check dead —
@@ -126,11 +133,12 @@ Every rule below errs up the ladder.
   tokens carry no judgeable head. The looser `*\(*` also matched
   scalar `$( )` values — `LOG=$(date) grpe x` certified and hid the
   typo (review finding, verified).
-- Hook locals carry a `_zah_` prefix. Dynamic resolution sees every
-  name in scope, and plain `words`/`w` locals shadowed same-named
-  user parameters in the former `${(P)}` arm — a verified false
-  reject (review finding). The prefix keeps every arm
-  collision-free.
+- Hook locals carry a `_zah_` prefix. cd resolves a bare word through
+  `cdable_vars`, and that lookup sees the hook's locals: with a
+  global `words=<dir>`, a plain `local -a words` made the probe cd to
+  the token list and falsely reject (verified). The former `${(P)}`
+  arm had the same collision (review finding). The prefix keeps the
+  probe reading user parameters only.
 - A stripped `PATH=`/`path=` prefix stops certification. The line
   resolves against a PATH the hook cannot see. The line certifies.
 - `=` is in the certifiable set. A `=`-word that survives the
@@ -185,9 +193,17 @@ Every rule below errs up the ladder.
   the hook (verified against this repo's `unsetopt CLOBBER`).
 - `setopt CORRECT` needs no rule. The hook receives the corrected
   line, not the typo (review-refuted candidate, verified).
-- A plain `zshaddhistory` function coexists with future
-  `add-zsh-hook zshaddhistory` consumers. zsh runs the function and
-  the hook array both (review-refuted candidate).
+- The hook registers as `add-zsh-hook zshaddhistory _zah-certify`.
+  A plain `zshaddhistory` function loses silently to any later
+  definition — plugins and the recall-side escalation path install
+  one (review finding). The hook array composes instead: zsh rejects
+  the line when any hook function returns non-zero (verified). The
+  function and the array also coexist, so a foreign plain definition
+  no longer disables certification.
+- `add-zsh-hook` accepts `zshaddhistory` (verified). The hook block
+  autoloads it, like every prezto module that uses it — relying on
+  another module's autoload would break startup if the module list
+  changes.
 - `(z)` keeps `(( … ))`, `$(( … ))`, `$( … )`, quoted words, and
   parenthesized globs as single tokens (verified). Those constructs
   never reach the judged position. Two plausible split claims proved

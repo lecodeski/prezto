@@ -5,7 +5,9 @@
 emulate -L zsh -o err_exit
 zd=$(mktemp -d ${TMPDIR:-/tmp}/zsh-feed.XXXXXX)
 {
-  awk '/^# Keep mistyped commands out of history/,/^\}$/' ${0:A:h}/runcoms/zshrc > $zd/.zshrc
+  awk '/^_zah-certify\(\) \{/,/^add-zsh-hook zshaddhistory/' ${0:A:h}/runcoms/zshrc > $zd/.zshrc
+  grep -q '^add-zsh-hook zshaddhistory' $zd/.zshrc ||
+    { print -u2 "no hook block in runcoms/zshrc: every fed line would look saved"; exit 1 }
   cat >> $zd/.zshrc <<'EOF'
 HISTFILE=$ZDOTDIR/hist
 HISTSIZE=100

@@ -668,26 +668,25 @@ wat() {
 
 # Keep mistyped commands out of history: reject a line whose first word does
 # not resolve — zsh then keeps it on ↑ for one fix-and-retry cycle.
-zshaddhistory() {
+_zah-certify() {
   setopt localoptions extendedglob nonomatch  # nonomatch: a bad ~name or =cmd must reject silently, not abort the hook
 
   local -a _zah_words=(${(Z+n+)1})  # _zah_: locals must not shadow user params; Z+n+: newlines as whitespace
   (( ${_zah_words[(Ie)()]} )) && return 0  # funcdef: any bare `()` token
-  local _zah_w; local -i _zah_pure_assignment=1
+  local -i _zah_head=${_zah_words[(i)^[[:alpha:]_][[:IDENT:]]#(|+)=*]}  # first non-assignment word, $#+1 when all are
 
-  for _zah_w ($_zah_words) {  # value scan: shift and subscripting are both O(n) per word, O(n²) on assignment runs
-    [[ $_zah_w != [[:alpha:]_][[:IDENT:]]#(|+)=* ]] && { _zah_pure_assignment=0; break }
-    [[ $_zah_w == *=\( ]] && return 0  # array assignment: (z) fragments it into `name=(` + elements
-    [[ $_zah_w == (PATH|path)(|+)=* ]] && return 0  # whence would judge against the wrong PATH
-  }
+  (( _zah_head > $#_zah_words )) && return 0  # pure assignment, empty line
+  (( _zah_head > ${_zah_words[(i)*=\(]} )) && return 0  # array assignment: (Z) fragments it into `name=(` + elements
+  (( _zah_head > ${_zah_words[(i)(PATH|path)(|+)=*]} )) && return 0  # whence would judge against the wrong PATH
 
-  (( _zah_pure_assignment )) && return 0
-  _zah_w=${(Q)_zah_w}  # (Q): \cmd and "cmd" certify as cmd
-  [[ -z $_zah_w ]] && return 1  # empty first word errors before running; `cd ''` below would certify it via $HOME
+  local _zah_w=${(Q)_zah_words[_zah_head]}  # (Q): \cmd and "cmd" certify as cmd
+  [[ -z $_zah_w ]] && return 1  # empty head errors before running; `cd ''` below would certify it via $HOME
   [[ $_zah_w == *[^[:alnum:]/_.+~=-]* ]] && return 0  # $var etc.: whence has no verdict
   whence -- ${~_zah_w} > /dev/null && return 0  # ${~} expands a leading ~/= first: pathed x-bit files judge like commands, bare names stay PATH-only
-  ( builtin cd -q -- ${~_zah_w} ) &> /dev/null  # auto_cd oracle (cwd dirs, cdable_vars, hash -d, cdpath): the probe's status is the verdict
+  ( builtin cd -q -- ${~_zah_w} ) &> /dev/null || return 1  # auto_cd oracle (cwd dirs, cdable_vars, hash -d, cdpath): the probe's status is the verdict
 }
+autoload -Uz add-zsh-hook
+add-zsh-hook zshaddhistory _zah-certify
 
 ### ZSH Options
 ###########

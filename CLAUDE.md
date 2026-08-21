@@ -18,14 +18,19 @@ No build or test suite. Instead:
   stderr: `can't change option: monitor`/`zle`, a gitstatus init failure, `gstty`
   device errors, plus sandbox write denials (`gtouch: … zcompdump`, `warn: error
   in creating config file.`) — only other output indicates a real startup error
-- that shell also writes iTerm2 OSC sequences to **stdout** (`]1337;RemoteHost=…`)
-  — a command that greps or captures stdout loses its first line to them
+- that shell also writes iTerm2 OSC sequences (`]1337;RemoteHost=…`) — they land
+  on stdout or stderr depending on redirect order, and glue themselves to the
+  first line of output. A command that greps or anchors that line loses it:
+  `zsh -ic 'setopt'` hides its first option from `grep '^name$'` — prepend a
+  `print` to break the glue
 - test the history hook: `./test-feed.zsh '<line>' ...` — feeds lines to an
   isolated interactive zsh (scratch `ZDOTDIR`, raw `print -rl`) and prints the
   resulting histfile; never touches the real history
-- Claude's shell inherits the live config's options — the option-dump bullet
-  under Fork policies names the authoritative sources. Example: `unsetopt
-  CLOBBER` makes `>` to an existing file fail — use `>|` in test commands
+- Claude's shell inherits the live config's options **and expands its aliases**
+  — the option-dump bullet under Fork policies names the authoritative sources.
+  Options: `unsetopt CLOBBER` makes `>` to an existing file fail, so use `>|`.
+  Aliases: `ls` runs `gls`, `rm` runs `rm --verbose`, and plain `cmp` runs
+  `cm && git push` — prefix `command` or `\` for the real binary
 - a fed line that reads stdin (`cat`, `read`) can swallow the rest of the feed,
   in `test-feed.zsh` too — redirect its stdin or put it last
 - apply a change to the running shell: `zprezto-restart` (`exec`s zsh; refuses while
@@ -57,7 +62,8 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 - before flagging option-dependent zsh behavior (`no_clobber`, `share_history`,
   `extended_glob`, …): the effective options live in each loaded module's
   `init.zsh` plus `runcoms/zshrc` `### ZSH Options` — authoritative dump:
-  `zsh -ic 'setopt'`
+  `zsh -ic 'print; setopt'` (the bare `print` keeps OSC bytes off the first
+  option)
 - never patch files under `modules/*/external/` (vendored submodules) — upstream is the only source of truth; bump the submodule instead
 - keep divergence from `upstream` minimal and rebase-friendly; `zprezto-update` assumes ff-only pulls on `main`
 - upstream sync is automated: `.github/pull.yml` lets pull[bot] merge `sorin-ionescu:master` into GitHub `main`; never merge/rebase upstream manually — just ff-pull what the bot produced
