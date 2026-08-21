@@ -14,9 +14,12 @@ No build or test suite. Instead:
 
 - syntax-check a zsh file: `zsh -n <file>`
 - verify a change: fresh shell — `zsh -ic 'exit'` catches startup errors
-- no-tty runs of `zsh -ic 'exit'` (sandboxes, CI, pipes) print benign noise:
-  `can't change option: monitor`/`zle`, a gitstatus init failure, `gstty` device
-  errors — only other output indicates a real startup error
+- no-tty runs of `zsh -ic 'exit'` (sandboxes, CI, pipes) print benign noise on
+  stderr: `can't change option: monitor`/`zle`, a gitstatus init failure, `gstty`
+  device errors, plus sandbox write denials (`gtouch: … zcompdump`, `warn: error
+  in creating config file.`) — only other output indicates a real startup error
+- that shell also writes iTerm2 OSC sequences to **stdout** (`]1337;RemoteHost=…`)
+  — a command that greps or captures stdout loses its first line to them
 - test the history hook: `./test-feed.zsh '<line>' ...` — feeds lines to an
   isolated interactive zsh (scratch `ZDOTDIR`, raw `print -rl`) and prints the
   resulting histfile; never touches the real history
