@@ -33,11 +33,18 @@ compdef _gnu_generic \
   unar \
   zprezto-update
 
-(( $+commands[herdr] )) && source <(herdr completion zsh)
-(( $+commands[ipinfo] )) && source <(ipinfo completion zsh)
-(( $+commands[kind] )) && source <(kind completion zsh)
+_gen_completion() {  # $1 command, $@ its generator command line — each generator costs ~20ms per shell
+  local cache=${XDG_CACHE_HOME:-$HOME/.cache}/prezto-generated-completions/_$1
+  # unwritable cache: skip silently, keep generator errors visible
+  [[ ! -s $cache || $cache -ot $commands[$1] ]] && { mkdir -p ${cache:h} 2> /dev/null && "$@" >| $cache }
+  [[ -s $cache ]] && source $cache
+}
+(( $+commands[ipinfo] )) && _gen_completion ipinfo completion zsh
+(( $+commands[kind] )) && _gen_completion kind completion zsh
+(( $+commands[rustup] )) && _gen_completion rustup completions zsh
+unfunction _gen_completion
+
 (( $+commands[prettyping] )) && compdef prettyping=ping
-(( $+commands[rustup] )) && source <(rustup completions zsh)
 
 # Test & Prefer the richer zsh-bundled _git over the one shipped by Homebrew's git formula
 # without touching fpath (which would let _sccs shadow git-delta's _delta).
