@@ -36,8 +36,8 @@ explanation, no quotes, and no code fences.
 <markup>
 - Keep every word of the text exactly as given; only insert § codes.
 - A color code clears active styles, so write the color first, then styles.
-- Be creative: vary colors and styles to match the mood of the text.
-- Highlight a few key words; do not format every word differently.
+- Be very creative: vary colors AND styles (also italics) to match the mood of the text.
+- format every word differently.
 - Use §k on at most one short token, if at all.
 </markup>"
 
