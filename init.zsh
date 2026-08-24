@@ -212,6 +212,7 @@ function zprezto-restart {
   fi
   print "♻️ Restarting shell"
   export _ZPREZTO_DIRSTACK=${(pj:\n:)dirstack}
+  stty sane
   [[ -o login ]] && exec zsh -l
   exec zsh
 }

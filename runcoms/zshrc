@@ -713,3 +713,7 @@ add-zsh-hook zshaddhistory _zah-certify
 ### ZSH Options
 ###########
 setopt globdots
+
+### TTY
+###########
+ttyctl -f # keep last — the frozen baseline must include every startup stty (susp ^u, -ixon)
