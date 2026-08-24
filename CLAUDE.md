@@ -53,7 +53,7 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 ## Fork policies & gotchas
 
 - design rationale — decisions, rejected alternatives, accepted costs, verified
-  non-problems — lives in [ADJUDICATIONS.md](ADJUDICATIONS.md), never inline.
+  non-problems — lives in docs, never inline.
   Its contents are settled — reviews re-flag them only with new verified facts
 - repo prose is Simplified Technical English with dash-chained telegraphese.
   Dash-joined clauses count as separate sentence units, so the 25-word cap and
@@ -67,8 +67,7 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
   bare `porj` — but only when every word is plain, so a compound or a `$var`
   target keeps the line
   Registration runs through `add-zsh-hook`, so a second hook composes with it
-  and does not replace it. Full rule set and rationale:
-  [ADJUDICATIONS.md](ADJUDICATIONS.md)
+  and does not replace it.
 - before flagging option-dependent zsh behavior (`no_clobber`, `share_history`,
   `extended_glob`, …): almost every option comes from a loaded module's
   `init.zsh` — `runcoms/zshrc` `### ZSH Options` adds only `globdots`.
