@@ -63,6 +63,9 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 - `runcoms/zshrc` installs a `zshaddhistory` hook, `_zah-certify`. A line whose
   first word resolves to no command and to no cd target never reaches
   `.zsh_history` — it stays on ↑ for one fix-and-retry cycle, then it is gone.
+  A `cd`, `c`, or `cl` line gets its target judged too, so `cd porj` drops like
+  bare `porj` — but only when every word is plain, so a compound or a `$var`
+  target keeps the line
   Registration runs through `add-zsh-hook`, so a second hook composes with it
   and does not replace it. Full rule set and rationale:
   [ADJUDICATIONS.md](ADJUDICATIONS.md)

@@ -686,13 +686,22 @@ _zah-certify() {
 
   local _zah_w=${(Q)_zah_words[_zah_head]}  # (Q): \cmd and "cmd" certify as cmd
   [[ -z $_zah_w ]] && return 1  # empty head errors before running; `cd ''` below would certify it via $HOME
+
+  # bare `cd <target>` only — a third word means options, a separator or a
+  # second command, and a [-+] target is a dirstack ref that always resolves
+  local -i _zah_dironly=0  # a cd target is a path, never a command: keep whence off it
+  [[ $_zah_w == (cd|c|cl) && $#_zah_words == 2 && $_zah_words[2] != [-+]* ]] && {
+    _zah_w=${(Q)_zah_words[2]}
+    _zah_dironly=1
+  }
+
   # sole certify for every non-plain head: $var, $(…), ((…)), [[, {, !, %1, #,
   # redirect and separator words; whence has no verdict on any of them
   [[ $_zah_w == *[^[:alnum:]/_.+~=-]* ]] && return 0
 
   # ${~} expands a leading ~/= first: pathed x-bit files judge like commands
   # and PATH_DIRS gives a slashed relative word a PATH search too
-  builtin whence -- ${~_zah_w} > /dev/null && return 0
+  (( ! _zah_dironly )) && builtin whence -- ${~_zah_w} > /dev/null && return 0
 
   # auto_cd oracle (cwd dirs, cdable_vars, hash -d, cdpath): the probe's status is the verdict
   ( builtin cd -q -- ${~_zah_w} ) &> /dev/null && return 0
