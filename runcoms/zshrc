@@ -655,7 +655,8 @@ wat() {
 [ $commands[broot] ] && xb() {
     local cmd cmd_file code
     cmd_file=$(mktemp)
-    if broot --outcmd "$cmd_file" "$@"; then
+    if broot --outcmd "$cmd_file" "$@"
+    then
         cmd=$(<"$cmd_file")
         command rm -f "$cmd_file"
         eval "$cmd"
@@ -666,24 +667,46 @@ wat() {
     fi
 } && compdef xb=broot
 
-# Keep mistyped commands out of history: reject a line whose first word does
-# not resolve — zsh then keeps it on ↑ for one fix-and-retry cycle.
+# Keep mistyped commands out of history: reject a line whose head word
+# resolves to nothing, certify whatever it cannot judge — zsh then keeps a
+# rejected line on ↑ for one fix-and-retry cycle.
 _zah-certify() {
-  setopt localoptions extendedglob nonomatch  # nonomatch: a bad ~name or =cmd must reject silently, not abort the hook
+  # nonomatch: a bad ~name or =cmd must reject silently, not abort the hook.
+  # no*nullglob: a head that expands to nothing would cd to $HOME, i.e. certify
+  # noksharrays: 0-based subscripts invert every index comparison below
+  setopt localoptions extendedglob nonomatch nonullglob nocshnullglob noksharrays
 
   local -a _zah_words=(${(Z+n+)1})  # _zah_: locals must not shadow user params; Z+n+: newlines as whitespace
   (( ${_zah_words[(Ie)()]} )) && return 0  # funcdef: any bare `()` token
   local -i _zah_head=${_zah_words[(i)^[[:alpha:]_][[:IDENT:]]#(|+)=*]}  # first non-assignment word, $#+1 when all are
 
   (( _zah_head > $#_zah_words )) && return 0  # pure assignment, empty line
-  (( _zah_head > ${_zah_words[(i)*=\(]} )) && return 0  # array assignment: (Z) fragments it into `name=(` + elements
-  (( _zah_head > ${_zah_words[(i)(PATH|path)(|+)=*]} )) && return 0  # whence would judge against the wrong PATH
+
+  # array assignment ((Z) fragments it into `name=(` + elements), or a PATH= whence cannot see
+  (( _zah_head > 1 )) && (( _zah_head > ${_zah_words[(i)(*=\(|(PATH|path)(|+)=*)]} )) && return 0
 
   local _zah_w=${(Q)_zah_words[_zah_head]}  # (Q): \cmd and "cmd" certify as cmd
   [[ -z $_zah_w ]] && return 1  # empty head errors before running; `cd ''` below would certify it via $HOME
-  [[ $_zah_w == *[^[:alnum:]/_.+~=-]* ]] && return 0  # $var etc.: whence has no verdict
-  whence -- ${~_zah_w} > /dev/null && return 0  # ${~} expands a leading ~/= first: pathed x-bit files judge like commands, bare names stay PATH-only
-  ( builtin cd -q -- ${~_zah_w} ) &> /dev/null || return 1  # auto_cd oracle (cwd dirs, cdable_vars, hash -d, cdpath): the probe's status is the verdict
+
+  # bare `cd <target>` only — a third word means options, a separator or a
+  # second command, and a [-+] target is a dirstack ref that always resolves
+  local -i _zah_dironly=0  # a cd target is a path, never a command: keep whence off it
+  [[ $_zah_w == (cd|c|cl) && $#_zah_words == 2 && $_zah_words[2] != [-+]* ]] && {
+    _zah_w=${(Q)_zah_words[2]}
+    _zah_dironly=1
+  }
+
+  # sole certify for every non-plain head: $var, $(…), ((…)), [[, {, !, %1, #,
+  # redirect and separator words; whence has no verdict on any of them
+  [[ $_zah_w == *[^[:alnum:]/_.+~=-]* ]] && return 0
+
+  # ${~} expands a leading ~/= first: pathed x-bit files judge like commands
+  # and PATH_DIRS gives a slashed relative word a PATH search too
+  (( ! _zah_dironly )) && builtin whence -- ${~_zah_w} > /dev/null && return 0
+
+  # auto_cd oracle (cwd dirs, cdable_vars, hash -d, cdpath): the probe's status is the verdict
+  ( builtin cd -q -- ${~_zah_w} ) &> /dev/null && return 0
+  return 1
 }
 autoload -Uz add-zsh-hook
 add-zsh-hook zshaddhistory _zah-certify
@@ -691,3 +714,7 @@ add-zsh-hook zshaddhistory _zah-certify
 ### ZSH Options
 ###########
 setopt globdots
+
+### TTY
+###########
+ttyctl -f # keep last — the frozen baseline must include every startup stty (susp ^u, -ixon)
