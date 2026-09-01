@@ -97,6 +97,7 @@ if (( $+commands[fzf] )); then
   zstyle ':completion:*' menu no
 
   source "${0:h}/external/fzf-tab/fzf-tab.plugin.zsh"
+  unfunction -- -- 2> /dev/null  # fzf-tab.zsh:521 autoloads a literal `--` — drop once Aloxaf/fzf-tab#593 lands
 
   # Git commits / refs preview
   zstyle ':fzf-tab:complete:git-(diff|log|show|checkout|switch|reset|rebase|cherry-pick|revert):(*argument-rest|*)' \
