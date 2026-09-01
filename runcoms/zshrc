@@ -456,9 +456,9 @@ zstyle -t ':prezto:module:fasd' loaded &&
 
 konfigmerge() {
   local -x KUBECONFIG=~/.kube/config:${1:A}  # -x: exported for kubectl, gone when the function returns
-  cp ~/.kube/config{,.bak} &&
+  command cp -v ~/.kube/config{,.bak} &&
     kubectl config view --flatten >| ~/.kube/merged &&
-    cp ~/.kube/merged ~/.kube/config &&
+    command cp -v ~/.kube/merged ~/.kube/config &&
     delta ~/.kube/config{.bak,}
 }
 
@@ -493,7 +493,7 @@ mh() {
 
   # printf, not print: entries carry their own \n and must not be escape-expanded
   ( umask 077; printf '%s' "${entries[@]}" >| $HISTFILE.new ) &&
-    chmod 600 $HISTFILE && command cp $HISTFILE{,.bak} && command mv $HISTFILE{.new,} ||
+    chmod 600 $HISTFILE && command cp -v $HISTFILE{,.bak} && command mv $HISTFILE{.new,} ||
       { command rm -f $HISTFILE.new; return 1 }
 
   print "🕰️ merged $archive:t: $own → $#entries entries, backup in $HISTFILE:t.bak"
