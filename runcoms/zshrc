@@ -498,6 +498,7 @@ mh() {
       { command rm --verbose -f $HISTFILE.new; return 1 }
 
   print "🍺 merged $archive:t: $own → $#entries entries, backup in $HISTFILE:t.bak"
+  delta $HISTFILE{.bak,}
   zprezto-restart
 }
 
