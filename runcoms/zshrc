@@ -490,14 +490,14 @@ mh() {
   # numeric: a 9-digit epoch must not sort behind the 10-digit ones
   entries=("${(oun)entries[@]}")
 
-  (( $#entries <= own )) && { print "🕰️ nothing new in $archive:t"; return 0 }
+  (( $#entries <= own )) && { print "🛌 nothing new in $archive:t"; return 0 }
 
   # printf, not print: entries carry their own \n and must not be escape-expanded
   ( umask 077; printf '%s' "${entries[@]}" >| $HISTFILE.new ) &&
-    chmod 600 $HISTFILE && command cp -v $HISTFILE{,.bak} && command mv $HISTFILE{.new,} ||
-      { command rm -f $HISTFILE.new; return 1 }
+    chmod 600 $HISTFILE && command cp -v $HISTFILE{,.bak} && command mv -v $HISTFILE{.new,} ||
+      { command rm --verbose -f $HISTFILE.new; return 1 }
 
-  print "🕰️ merged $archive:t: $own → $#entries entries, backup in $HISTFILE:t.bak"
+  print "🍺 merged $archive:t: $own → $#entries entries, backup in $HISTFILE:t.bak"
   zprezto-restart
 }
 
