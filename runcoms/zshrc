@@ -724,7 +724,27 @@ ttyctl -f # keep last — the frozen baseline must include every startup stty (s
 
 ### Xandaria
 ############
-alias console='pushd /home/ec2-user/xandaria && java -Xmx2500M  -XX:+UseZGC -jar ~/xandaria/fabric-server-mc.1.21.11-loader.0.19.3-launcher.1.1.2.jar nogui && popd'
+alias console='pushd /home/ec2-user/xandaria && \
+  java \
+  -Xms2560M \
+  -Xmx2560M \
+  -XX:+AlwaysPreTouch \
+  -XX:+DisableExplicitGC \
+  -XX:+ParallelRefProcEnabled \
+  -XX:+PerfDisableSharedMem \
+  -XX:+UnlockExperimentalVMOptions \
+  -XX:+UseCompactObjectHeaders \
+  -XX:+UseG1GC \
+  -XX:G1HeapRegionSize=8M \
+  -XX:G1MaxNewSizePercent=40 \
+  -XX:G1NewSizePercent=30 \
+  -XX:G1ReservePercent=20 \
+  -XX:InitiatingHeapOccupancyPercent=15 \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:MaxTenuringThreshold=1 \
+  -XX:SurvivorRatio=32 \
+  -jar ~/xandaria/fabric-server-mc.1.21.11-loader.0.19.3-launcher.1.1.2.jar nogui && \
+  popd'
 alias log='journalctl -fu xandaria'
 alias stat='systemctl status xandaria'
 alias start='sudo systemctl start xandaria'
