@@ -743,7 +743,7 @@ alias console='pushd /home/ec2-user/xandaria && \
   -XX:MaxGCPauseMillis=200 \
   -XX:MaxTenuringThreshold=1 \
   -XX:SurvivorRatio=32 \
-  -jar ~/xandaria/fabric-server-mc.1.21.11-loader.0.19.3-launcher.1.1.2.jar nogui && \
+  -jar ~/xandaria/fabric-server-mc.1.21.11-loader.0.19.5-launcher.1.1.2.jar nogui && \
   popd'
 alias log='journalctl -fu xandaria'
 alias stat='systemctl status xandaria'
