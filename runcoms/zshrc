@@ -83,6 +83,8 @@ export ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=(
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+(( $+commands[direnv] )) && eval "$(direnv hook zsh)"
+
 ### Key bindings
 ################
 [[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey '^H' backward-delete-word
