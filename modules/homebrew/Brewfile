@@ -307,6 +307,7 @@ cask "cool-retro-term"
 cask "darkmodebuddy"
 # System-wide audio equaliser
 cask "eqmac"
+cask "font-arial"
 cask "font-cascadia-code-nf"
 cask "font-commit-mono-nerd-font"
 cask "font-hasklig"
@@ -349,6 +350,8 @@ cask "orbstack"
 cask "sonos"
 # Text editor for code, markup and prose
 cask "sublime-text"
+# Visualise network connections on an interactive world map
+cask "tapmap"
 mas "AdGuard for Safari", id: 1440147259
 mas "AllMyBatteries", id: 1621263412
 mas "Bee DICOM Viewer", id: 1590273176
