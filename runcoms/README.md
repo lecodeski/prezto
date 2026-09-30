@@ -104,6 +104,24 @@ state that lets the repo win (e.g. after upstream or another machine changed the
 
 `-h` / `--help` prints the usage page.
 
+### zshrc: `ci`
+
+One-shot question to Claude Code — `claude --print`, piped through `glow` when
+it exists. `cih` and `cis` ask Haiku and Sonnet.
+
+It sets `CLAUDE_CODE_ENTRYPOINT=ci`, so the `/resume` picker and `claude -c`
+list its sessions:
+
+- `--print` alone records entrypoint `sdk-cli` — Claude Code hides every
+  `sdk-*` session from both
+- the variable reaches the `--print` process only — a resumed session runs as
+  plain `cli`
+- undocumented, checked in Claude Code 2.1.285 — if a later version maps
+  unknown values to `sdk-cli`, the sessions only drop out of the list again
+- rejected: `--session-id` plus a state file (write races), and
+  `CLAUDE_CODE_ENTRYPOINT=sdk-cli` on `cr` (runs the interactive session as an
+  SDK session)
+
 ## Authors
 
 _The authors of these files should be contacted via the [issue tracker][7]

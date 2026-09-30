@@ -383,9 +383,9 @@ captioned-delimiter() {
 
 if (( $+commands[claude] )); then
   if (( $+commands[glow] )); then
-    ci() { claude --print "$@" | glow --width 120 }
+    ci() { CLAUDE_CODE_ENTRYPOINT=ci claude --print "$@" | glow --width 120 }
   else
-    ci() { claude --print "$@" }
+    ci() { CLAUDE_CODE_ENTRYPOINT=ci claude --print "$@" }
   fi
   cih() { ci --model=Haiku "$@" }
   cis() { ci --model=Sonnet "$@" }
