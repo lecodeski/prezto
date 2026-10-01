@@ -31,10 +31,16 @@ brew "brightness"
 brew "broot"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
 brew "btop"
+# Incredibly fast JavaScript runtime, bundler, test runner, and package manager
+brew "bun"
 # C Foreign Function Interface for Python
 brew "cffi"
 # Human-friendly and fast alternative to cut and (sometimes) awk
 brew "choose-rust"
+# Open-source, cross-platform JavaScript runtime environment
+brew "node"
+# Package acting as bridge between Node projects and their package managers
+brew "corepack"
 # GNU File, Shell, and Text utilities
 brew "coreutils"
 # CPU architecture fetching tool
@@ -171,8 +177,6 @@ brew "mtr"
 brew "ncdu"
 # Port scanning utility for large networks
 brew "nmap"
-# Open-source, cross-platform JavaScript runtime environment
-brew "node"
 # Tools for one-time password authentication systems
 brew "oath-toolkit"
 # Create, run, and share large language models (LLMs)
@@ -197,8 +201,6 @@ brew "pipx"
 brew "pixz"
 # Package compiler and linker metadata toolkit
 brew "pkgconf"
-# Fast, disk space efficient package manager
-brew "pnpm"
 # Kubernetes cluster resource sanitizer
 brew "popeye"
 # PDF rendering library (based on the xpdf-3.0 code base)
@@ -265,8 +267,6 @@ brew "wimlib"
 brew "xh"
 # Linter for YAML files
 brew "yamllint"
-# JavaScript package manager
-brew "yarn"
 # Process YAML, JSON, XML, CSV and properties documents from the CLI
 brew "yq"
 # Feature-rich command-line audio/video downloader
