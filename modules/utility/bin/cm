@@ -80,10 +80,10 @@ fences, and no 'subject:' or 'body:' labels.
 
 <body>
 Decide whether to write a body from the size and complexity of the staged diff:
-- Trivial change (typo, rename, small tweak, or only a few lines): subject only,
-  no body.
+- Trivial change (typo, rename, small tweak, or only a few lines) → subject only,
+  NO body.
 - Substantial change (new file, feature, or script; multiple concerns; changed
-  behavior; or ~10+ changed lines): write a body.
+  behavior; or ~10+ changed lines) → write a body.
   - One blank line after the subject, then 1-6 sentences or bullets covering what
     changed, why, and notable design decisions visible in the diff.
   - Every body line is 72 characters max, with NO blank lines between them.
