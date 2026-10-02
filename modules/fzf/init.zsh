@@ -131,7 +131,7 @@ if (( $+commands[fzf] )); then
       --color=always \
       {q} \
       ${rg_args} \
-      | sort --stable --field-separator=: --key=1,1 --ignore-case"
+      | LC_ALL=C sort --stable --field-separator=: --key=1,1 --ignore-case"
 
     local OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
               vim {1} +{2}     # No selection. Open the current line in Vim.
