@@ -162,7 +162,7 @@ fi
 alias cl="c -P"
 alias cp="${aliases[cp]:-cp} --verbose"  # :- — prezto's safe-ops default owns the base alias
 alias cpr="${aliases[cp]:-cp} --recursive"
-alias cwd='echo \"$(pwd)\" | cpy'
+alias cwd='print -rn ${(q-)PWD} | cpy'
 
 [ $commands[docker] ] && alias dk=docker && alias di='docker images'
 [ $commands[docker-compose] ] && alias dc=docker-compose
