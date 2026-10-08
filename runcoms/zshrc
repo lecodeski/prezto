@@ -290,10 +290,10 @@ alias ä="cd ${ZDOTDIR:-$HOME} &&
   vim + .zsh_history &&
   chmod 600 .zsh_history &&
   command cp -v .zsh_history{,.bak} &&
-  archive .zsh_history.txz .zsh_history &&
-  command cp -v .zsh_history.txz iCloud/ &&
-  mv -f .zsh_history.txz cloud/ &
-  cd \"\$OLDPWD\""
+  tar cJf - .zsh_history | gpg -e --default-recipient-self >| .zsh_history.txz.gpg &&
+    command cp -v .zsh_history.txz.gpg iCloud/ &&
+    mv -f .zsh_history.txz.gpg cloud/ &
+    cd \"\$OLDPWD\""
 
 ### Functions
 #############
@@ -466,11 +466,11 @@ konfigmerge() {
 }
 
 mh() {
-  local archive=${${1:-${ZDOTDIR:-$HOME}/iCloud/.zsh_history.txz}:A}
+  local archive=${${1:-${ZDOTDIR:-$HOME}/iCloud/.zsh_history.txz.gpg}:A}
   [[ -r $archive ]] || { print -u2 "💥 cannot read $archive"; return 1 }
   [[ -r $HISTFILE ]] || { print -u2 "💥 no history file at ${HISTFILE:-\$HISTFILE}"; return 1 }
   # the . survives $()'s trailing-newline stripping, which would eat an entry's final newline
-  local imported; imported=$(tar xOf $archive && print -n .) ||
+  local imported; imported=$(gpg -qd $archive | tar xOf - && print -n .) ||
     { print -u2 "💥 could not extract $archive:t"; return 1 }
   imported=${imported%.}
   [[ -n $imported ]] || { print -u2 "💥 no history inside $archive:t"; return 1 }
