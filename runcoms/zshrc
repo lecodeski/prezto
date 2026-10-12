@@ -158,6 +158,7 @@ if (( $+commands[claude] )); then
   alias cmp='cm && git push'
   alias compare='\cmp'
   alias cr='claude --resume'
+  alias ct='claude --teleport'
   alias cw='claude --worktree'
 fi
 
