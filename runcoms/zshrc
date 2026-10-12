@@ -88,6 +88,7 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 ### Key bindings
 ################
+bindkey '^[[27;2;13~' autosuggest-execute       # Shift + Enter in Ghostty style
 [[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey '^H' backward-delete-word
 [[ $TERMINAL_INTELLIJ != 'TRUE' ]] && bindkey '^[^H' kill-whole-line
 bindkey '^f' vi-forward-word
