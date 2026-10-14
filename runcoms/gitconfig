@@ -9,6 +9,8 @@
 	editor = vim
 	pager = delta
 	excludesfile = ~/.gitignore
+	untrackedCache = true
+	fsmonitor = true
 
 [alias]
 	a = add
