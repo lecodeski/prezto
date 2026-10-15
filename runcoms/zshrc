@@ -576,6 +576,12 @@ Try '$0 --help' for more information." ; return 1 ;;
     }
     print -P '%BBrew cask upgrades finished 🍻%b\n'
 
+    (( $+commands[cargo] )) && print -P '\n%B🍻 Cargo upgrades:%b' && cargo install-update --all || {
+      print -u2 "ERROR: could not upgrade Cargo packages. Aborting."
+      return 1
+    }
+    print -P '%BCargo upgrades finished 🍻%b\n'
+
     zprezto-restart
   } always {
     (( ! parent_lock )) && zprezto-update-unlock
