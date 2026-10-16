@@ -11,8 +11,6 @@ tap "sikarugir-app/sikarugir", "https://github.com/Sikarugir-App/homebrew-sikaru
 brew "aws-vault"
 # General-purpose data compression with high compression ratio
 brew "xz"
-# Interpreted, interactive, object-oriented programming language
-brew "python@3.14"
 # Official Amazon AWS command-line interface
 brew "awscli"
 # Bourne-Again SHell, a UNIX command interpreter
@@ -125,6 +123,8 @@ brew "libde265"
 brew "libheif"
 # Graph visualization software from AT&T and Bell Labs
 brew "graphviz"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.14"
 # Colorize logfiles and command output
 brew "grc"
 # Like cURL, but for gRPC
