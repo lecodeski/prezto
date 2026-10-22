@@ -5,8 +5,10 @@ tap "bradyjoslin/sharewifi"
 tap "buo/cask-upgrade", trusted: true
 tap "datahub-project/tap"
 tap "lecodeski/maple-font"
-tap "marco-arnold/lnka"
+tap "marco-arnold/lnka", trusted: true
 tap "sikarugir-app/sikarugir", "https://github.com/Sikarugir-App/homebrew-sikarugir", trusted: true
+# Code searching, linting, rewriting
+brew "ast-grep"
 # Securely store and access AWS credentials in development environments
 brew "aws-vault"
 # General-purpose data compression with high compression ratio
@@ -35,10 +37,6 @@ brew "bun"
 brew "cffi"
 # Human-friendly and fast alternative to cut and (sometimes) awk
 brew "choose-rust"
-# Open-source, cross-platform JavaScript runtime environment
-brew "node"
-# Package acting as bridge between Node projects and their package managers
-brew "corepack"
 # GNU File, Shell, and Text utilities
 brew "coreutils"
 # CPU architecture fetching tool
@@ -79,6 +77,8 @@ brew "findutils"
 brew "fonttools"
 # Infamous electronic fortune-cookie generator
 brew "fortune"
+# Client app of fast reverse proxy to expose a local server to the internet
+brew "frpc"
 # Terminal JSON viewer
 brew "fx"
 # Command-line fuzzy finder written in Go
@@ -135,8 +135,6 @@ brew "herdr"
 brew "icdiff"
 # Command-line tool to export and inspect local iMessage database
 brew "imessage-exporter"
-# GPU powered yet browserless tool to help you quickly view markdown files
-brew "inlyne"
 # Official CLI for the IPinfo IP Address API
 brew "ipinfo-cli"
 # CLI wrapper for basic network utilities on macOS - ip command
@@ -181,6 +179,8 @@ brew "mtr"
 brew "ncdu"
 # Port scanning utility for large networks
 brew "nmap"
+# Open-source, cross-platform JavaScript runtime environment
+brew "node"
 # Tools for one-time password authentication systems
 brew "oath-toolkit"
 # Create, run, and share large language models (LLMs)
@@ -199,12 +199,12 @@ brew "pbzip2"
 brew "pigz"
 # Pinentry for GPG on Mac
 brew "pinentry-mac"
-# Execute binaries from Python packages in isolated environments
-brew "pipx"
 # Parallel, indexed, xz compressor
 brew "pixz"
 # Package compiler and linker metadata toolkit
 brew "pkgconf"
+# Fast, disk space efficient package manager
+brew "pnpm"
 # Kubernetes cluster resource sanitizer
 brew "popeye"
 # PDF rendering library (based on the xpdf-3.0 code base)
@@ -227,6 +227,8 @@ brew "q"
 brew "qrencode"
 # Persistent key-value database, with built-in net interface
 brew "redis"
+# Docker and OCI Registry Client in Go and tooling using those libraries
+brew "regclient"
 # Get beautiful reveal.js presentations from your Markdown files
 brew "reveal-md"
 # Search tool like grep and The Silver Searcher
@@ -237,6 +239,10 @@ brew "ripgrep-all"
 brew "ruby"
 # Intuitive find & replace CLI
 brew "sd"
+# Static analysis and lint tool, for (ba)sh scripts
+brew "shellcheck"
+# BDD unit testing framework for dash, bash, ksh, zsh and all POSIX shells
+brew "shellspec"
 # Autoformat shell script source code
 brew "shfmt"
 # Simple keystroke visualizer
@@ -257,6 +263,10 @@ brew "tlrc"
 brew "translate-shell"
 # Display directories as trees (with optional color/HTML output)
 brew "tree"
+# Language for application scale JavaScript development
+brew "typescript"
+# Markup-based typesetting system
+brew "typst"
 # Command-line unarchiving tools supporting multiple formats
 brew "unar"
 # Extremely fast Python package installer and resolver, written in Rust
@@ -297,8 +307,6 @@ brew "marco-arnold/lnka/lnka", trusted: true
 cask "alt-tab"
 # Allows connection to a computer remotely
 cask "anydesk"
-# Compact TeX distribution as alternative to the full TeX Live / MacTeX
-cask "basictex"
 # Tool to customise input devices and automate computer systems
 cask "bettertouchtool"
 # Terminal-based AI coding assistant
