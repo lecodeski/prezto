@@ -210,6 +210,12 @@ standalone commands available:
 
 - `cm` generates a commit message for the staged diff via Claude and commits
   it (stages all changes if nothing is staged).
+- `cc-handoff` mirrors Claude Code sessions between Macs through iCloud Drive.
+  `push` runs as a Claude Code `Stop` hook — it copies the session transcript
+  to `claude-handoff/` in iCloud Drive after each turn. `pull` merges that
+  mirror into `~/.claude/projects` — a local transcript stays when it is newer.
+  Both Macs need identical paths, because the transcript folder name encodes
+  the working directory. The `crp` alias pulls, then opens `claude --resume`.
 - `cpy` copies stdin to the clipboard (`pbcopy`, `xsel` or `ncat` over SSH).
 - `pst` pastes the clipboard to stdout (`pbpaste`, `xsel` or `ncat` over SSH).
 

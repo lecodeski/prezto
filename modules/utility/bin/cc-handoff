@@ -1,0 +1,16 @@
+#!/bin/zsh -f
+# Mirrors Claude Code transcripts through iCloud Drive between Macs with identical paths
+# push: Stop hook, reads the hook JSON on stdin — pull: merges the mirror into ~/.claude/projects
+set -e
+mirror=~/Library/Mobile\ Documents/com~apple~CloudDocs/claude-handoff
+case $1 in
+  push)
+    t=$(jq -r .transcript_path)
+    mkdir -p $mirror/${t:h:t}
+    rsync -au ${t:r}(|.jsonl) $mirror/${t:h:t}/ ;;
+  pull)
+    rsync -au $mirror/ ~/.claude/projects/ ;;
+  *)
+    print -u2 "usage: ${0:t} push|pull"
+    exit 2 ;;
+esac
