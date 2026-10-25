@@ -251,8 +251,6 @@ brew "showkey"
 brew "stern"
 # User interface to the TELNET protocol
 brew "telnet"
-# OCR (Optical Character Recognition) engine
-brew "tesseract"
 # Text interface for Git repositories
 brew "tig"
 # Terminal image and video viewer
