@@ -104,10 +104,20 @@ if (( $+commands[fzf] )); then
     fzf-preview 'git show --stat --patch --color=always ${word%% *} 2>/dev/null | DELTA_FEATURES=+ delta --paging=never'
   # preview for echoing and printing stuff
   zstyle ':fzf-tab:complete:(-parameter-|echo|print):*' fzf-preview 'print -rl -- ${(P@)word}'
+  # preview for aliases, functions, commands, ...
+  _fzf_command_preview=${0:h}/command-preview.zsh
+  zstyle -e ':fzf-tab:complete:(-command-|alias|unalias):*' fzf-preview '
+    # $tmp_dir: local of fzf-tab -ftb-fzf, which deletes $tmp_dir/*.$$ after each run
+    typeset -p >| $tmp_dir/parameters.$$
+    local -A a=("${(@kv)aliases}") c=("${(@kv)_comps[(I)-value-,*]}") f=("${(@kv)functions}")
+    local -a p=($fpath)
+    typeset -p a c p >| $tmp_dir/snapshot.$$
+    typeset -p f >| $tmp_dir/functions.$$
+    reply=("source ${(q)_fzf_command_preview} ${(q)tmp_dir} $$ || { target=\$realpath; $_fzf_path_preview }")'
 
   # Workaround: exclude below preview for certain command as there is no exact 'files only' context qualifier
   # hopefully this list won't get too long
-  zstyle ':fzf-tab:complete:(alias|brew*|ollama):*' fzf-preview ''
+  zstyle ':fzf-tab:complete:(brew*|ollama):*' fzf-preview ''
   # preview generic arguments-rest with bat (for files) and eza (for directories)
   zstyle ':fzf-tab:complete:*:(*argument-rest|argument-1|argument-2|)' fzf-preview "target=\$realpath; $_fzf_path_preview"
 
