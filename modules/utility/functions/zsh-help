@@ -30,7 +30,7 @@ EOF
         arr=${arr// /$separator};   # a separator.
         <<<$arr
     }
-    local case='-i'; local section='ZSHALL'; local debug=''; local pattern=''
+    local case='-i'; local section='zshall'; local debug=''; local pattern=''
     function _zsh-help-try-query {
         local case="$1"; local pattern="$2"; local i=''
         local array=( zshbuiltins zshall zshmodules )
@@ -64,7 +64,7 @@ EOF
         pattern="${prefix}exp1\s+${1}\s+exp2"
     elif [[ $1 == 'zstyle' ]]; then
         pattern=$(_zsh-help-join '\s+' "$@")
-        section=ZSHMODULES
+        section=zshmodules
     fi
     # If it wasn't one of the special-cased things, check ZSHBUILTINS first. If
     # not found there, we will search ZSHALL
