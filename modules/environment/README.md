@@ -24,7 +24,6 @@ Non-interactive environment variables should be defined in
 ### Jobs
 
 - `LONG_LIST_JOBS` list jobs in the long format by default.
-- `AUTO_RESUME` attempt to resume existing job before creating a new process.
 - `NOTIFY` report status of background jobs immediately.
 - `BG_NICE` don't run all background jobs at a lower priority.
 - `HUP` don't kill jobs on shell exit.
