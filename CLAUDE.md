@@ -79,7 +79,7 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
   that differ from the zsh default, so it never answers "is `nullglob` off?".
   The leading `print` keeps OSC bytes off the first line
 - never patch files under `modules/*/external/` (vendored submodules) — upstream is the only source of truth; bump the submodule instead
-- keep divergence from `upstream` minimal and rebase-friendly; `zprezto-update` assumes ff-only pulls on `main`
+- keep divergence from `upstream` minimal and rebase-friendly; `zprezto-update` assumes ff-only pulls on `main`; decide: only 1 line in upstream -> change upstream
 - upstream sync is automated: `.github/pull.yml` lets pull[bot] merge `sorin-ionescu:master` into GitHub `main`; never merge/rebase upstream manually — just ff-pull what the bot produced
 - vendored completions install to `$XDG_DATA_HOME/prezto-vendored-completions`, outside the repo, so a refresh never dirties the tree that `zprezto-update` stashes — keep them out
 - `cm` authenticates with `ANTHROPIC_API_KEY` or the Claude Code OAuth token, and falls back to `claude -p`
