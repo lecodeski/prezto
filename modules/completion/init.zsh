@@ -149,7 +149,7 @@ zstyle ':completion:*:*:*:users' ignored-patterns \
   mailman mailnull mldonkey mysql nagios \
   named netdump news nfsnobody nobody nscd ntp nut nx openvpn \
   operator pcap postfix postgres privoxy pulse pvm quagga radvd \
-  rpc rpcuser rpm shutdown squid sshd sync uucp vcsa xfs '_*'
+  rpc rpcuser rpm shutdown squid sshd sync uucp vcsa xfs '_*' ${(k)userdirs[(R)/var/empty]}
 
 # ... unless we really want to.
 zstyle '*' single-ignored show
