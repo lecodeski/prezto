@@ -9,6 +9,8 @@ tap "marco-arnold/lnka", trusted: true
 tap "sikarugir-app/sikarugir", "https://github.com/Sikarugir-App/homebrew-sikarugir", trusted: true
 # Code searching, linting, rewriting
 brew "ast-grep"
+# Planetarium for your terminal
+brew "astroterm"
 # Securely store and access AWS credentials in development environments
 brew "aws-vault"
 # General-purpose data compression with high compression ratio
