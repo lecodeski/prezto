@@ -76,6 +76,15 @@ reason — evidence.
 - **No `includeIf` for `ssh://git@github.com/lecodeski/…`** — YAGNI. Every
   remote here uses the `git@github.com:` form — the block is two lines once
   one shows up
+- **A repo with both a `lecodeski` SSH and HTTPS remote gets `cm.type` twice**
+  — accepted. Both `includeIf` blocks fire, so the list doubles in the prompt —
+  `valid()` still works. No single `hasconfig` glob covers both forms:
+  `**github.com?lecodeski/**` and `**github.com[:/]lecodeski/**` match the SSH
+  form only (tested 2026-11-01). Deduplication in `cm` and `/commit` costs a
+  pipe stage for a case that does not occur here
+- **Keychain account from `id -un`, not `$USER`** — required. Under `set -u`,
+  an environment without `USER` aborted `cm` after a successful API call and
+  lost the commit
 
 ### Response handling
 
@@ -89,6 +98,14 @@ reason — evidence.
   `xhigh`. Before, no text block gave `API call failed ()`, and a blank text
   block fell back without a `💥` line. The `try` now covers only the request,
   so no `sys.exit` runs inside it
+- **HTTP 200 body without `stop_reason` or `content` → fallback with cause,
+  exit 3** — required. A proxy page or a changed schema raised a bare
+  traceback and, on exit 1, lost a just-pasted key
+- **`cm -t` reports `ok`, `failed`, or `rejected`** — required. A reply that
+  only failed the `cm.type` check showed as `failed`, like a network error
+- **Aborts and fallbacks share `warn` and the `💥` prefix** — chosen. `u` uses
+  `💥` for aborts too. The rejection text comes from one helper, `rejected`,
+  with the suffix `falling back to claude -p` or `aborting`
 - **Abort after `cm`'s own `git add -A` leaves the index staged** — kept,
   decided by the user
 - **30 s urllib timeout with Haiku 5.5 thinking** — open. Measure with `cm -t`
@@ -177,6 +194,16 @@ reason — evidence.
   one emoji (2026-11-01)
 - **Header comment on `cm.type` and the "Auth resolution" comment in `cm`** —
   kept, decided by the user
+- **Multi-line comments on the prefix regex and on `valid()`** — asked for by
+  the user. They explain each regex part, `<<<`, and `%%` — an exception to the
+  one-line comment rule
+- **Scope with a colon (`mod(zsh:opts):`) fails `valid()`** — YAGNI. The
+  prompt asks for one short word — a colon or a path is no scope
+- **`cm` prompt names `type(scope)!:` and "no other" prefix** — synced with
+  `/commit`, which already allowed `!` and said "No other prefix". Haiku 4.5,
+  6 diffs × 4 runs (2026-11-02): no `!` in 70 replies without a breaking
+  change, `cm.type` repo 24/24 valid, and `fsmonitor` off went from `del` 4/4
+  to `mod` 3/4
 
 ### Measurement method
 
