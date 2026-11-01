@@ -67,7 +67,7 @@ elif grep -qE '^[a-z]+(\([^)]*\))?!?:' <<<"$style"; then
 else
   prefix_rule='- Use no commit-type prefix — the recent subjects above use none.'
 fi
-valid() { [[ -z $prefixes || ${1%%:*} =~ ^($prefixes)\([^\)]+\)!?$ ]]; }
+valid() { local s=${1%%$'\n'*}; [[ -z $prefixes || ${s%%:*} =~ ^($prefixes)\([^\)]+\)!?$ ]]; }
 warn() { echo "💥 $me: $*" >&2; }
 
 # Prompt tuned for Haiku: data first (query-at-end), rules grouped in XML tags,
@@ -209,6 +209,13 @@ def fall(cause, code):
 
 try:
     resp = json.load(urllib.request.urlopen(req, timeout=30))
+except urllib.error.HTTPError as e:
+    cause = e.read().decode(errors="replace")
+    try:
+        cause = json.loads(cause)["error"]["message"]
+    except Exception:
+        pass
+    fall(f"API call failed ({e}: {cause})", 1)
 except Exception as e:
     fall(f"API call failed ({e})", 1)
 # exit 3: the API accepted the key, the reply is unusable

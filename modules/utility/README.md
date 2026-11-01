@@ -211,8 +211,8 @@ standalone commands available:
 - `cm` generates a commit message for the staged diff via Claude and commits
   it (stages all changes if nothing is staged).
   - `cm -t` prints the time of each step.
-  - multi-valued `git config cm.type "<name> = <meaning>"` sets the commit
-    types — the subject then must start with `<name>(<scope>):` from that list.
+  - `git config --add cm.type "<name> = <meaning>"`, once per type, sets the
+    commit types — the subject then must start with `<name>(<scope>):` from that list.
   - review verdicts: [ADJUDICATIONS.md](../../ADJUDICATIONS.md#cm-modulesutilitybincm)
 - `cpy` copies stdin to the clipboard (`pbcopy`, `xsel` or `ncat` over SSH).
 - `pst` pastes the clipboard to stdout (`pbpaste`, `xsel` or `ncat` over SSH).

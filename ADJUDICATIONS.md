@@ -52,6 +52,9 @@ reason — evidence.
   run to the slow fallback. Python exits 3 when the API accepted the key but
   the reply is unusable — `cm` stores on every exit code but 1, so a bad
   prefix or a stopped reply does not lose a good key
+- **Key not stored after a network error, timeout, 429, or 5xx** — kept. Exit
+  1 means the key is unproven — storing it there brings back the mistyped key
+  that stays for good. The next run asks again
 - **Key prompt needs a tty on stdin and stderr** — required. With stderr
   redirected, `read -p` wrote its prompt nowhere and `cm` waited blind
 - **Every fallback prints a `💥` line with its cause** — chosen by the user,
@@ -70,11 +73,17 @@ reason — evidence.
 - **`includeIf` for SSH and HTTPS remotes** — required. A `lecodeski` clone
   over `https://github.com/…` matched no `includeIf` and silently lost the
   types
+- **No `includeIf` for `ssh://git@github.com/lecodeski/…`** — YAGNI. Every
+  remote here uses the `git@github.com:` form — the block is two lines once
+  one shows up
 
 ### Response handling
 
 - **`stop_reason` other than `end_turn` → fallback** — chosen. A truncated text
   block never gets committed
+- **HTTP error shows `error.message` from the body** — required.
+  `str(HTTPError)` alone read `HTTP Error 400: Bad Request` and hid the cause —
+  a wrong model ID or parameter sent every run to the slow fallback unexplained
 - **Reply without text → fallback with cause** — required. Haiku 5.5 can end
   a turn with its whole answer in thinking — Anthropic documents it at
   `xhigh`. Before, no text block gave `API call failed ()`, and a blank text
@@ -155,6 +164,11 @@ reason — evidence.
 - **House types also apply in a `lecodeski` fork of a foreign project** —
   kept, decided by the user. `includeIf` keys on the remote owner, not on the
   repo's convention — no per-repo opt-out
+- **`valid()` checks the first line only** — required. Before, `${1%%:*}`
+  could span the subject and the body — `add(cm` passed when the body held
+  `):`
+- **Type names not regex-escaped in `valid()`** — YAGNI. The types are plain
+  words — a name like `c++` does not exist
 - **Malformed `cm.type` value without `=`** — no guard. The abort message
   names the allowed prefixes, so a broken entry shows at once
 - **Subject ends with exactly one emoji** — aligned with `CLAUDE.md`, in `cm`
