@@ -2,16 +2,20 @@
 #
 # ai-commit — generate a commit message for the staged diff and commit it.
 # Portable bash (macOS, Linux, Windows/Git Bash).
-# Fast path: one direct Haiku API call, authenticated via ANTHROPIC_API_KEY
-# or the unexpired Claude Code OAuth token (macOS Keychain, or
-# ~/.claude/.credentials.json on Linux/Windows).
+# Fast path: one direct Haiku API call, authenticated via ANTHROPIC_API_KEY,
+# the macOS Keychain item "anthropic-api-key", or the unexpired Claude Code
+# OAuth token (macOS Keychain, or ~/.claude/.credentials.json on Linux/Windows).
 # Fallback: `claude -p` with MCP servers stripped (uses Claude Code auth).
+# Commit types: multi-valued `git config cm.type` ("name = meaning") — when set,
+# the prompt lists them and a subject without "type(scope):" from that list is
+# rejected.
 # Pass -t/--time to print per-step timings (api call, fallback) to stderr.
 #
 
 set -u -o pipefail
 
-model=claude-haiku-4-5
+model=claude-haiku-5-5
+effort=low
 me=${0##*/}
 
 timing=0
@@ -45,6 +49,25 @@ diff=${diff:0:12000}
 
 stat=$(git diff --cached --stat | tail -20)
 style=$(git log -15 --format='%s' 2>/dev/null)
+types=$(git config --get-all cm.type)
+prefixes=$(sed 's/ *=.*//' <<<"$types" | paste -sd'|' -)
+pick='pick it from what the diff does, never from how often it appears above'
+scope='Follow the prefix with a scope in parentheses, then the colon, as in
+  type(scope): — the scope is the module, directory, or file the diff touches,
+  one short lowercase word.'
+if [[ -n $types ]]; then
+  prefix_rule="- Start the subject with exactly one of these prefixes —
+  $pick:
+$(sed 's/^/  /' <<<"$types")
+- $scope"
+elif grep -qE '^[a-z]+(\([^)]*\))?!?:' <<<"$style"; then
+  prefix_rule="- Start the subject with a commit-type prefix from the set the recent
+  subjects above use — $pick.
+- $scope"
+else
+  prefix_rule='- Use no commit-type prefix — the recent subjects above use none.'
+fi
+valid() { [[ -z $prefixes || ${1%%:*} =~ ^($prefixes)\([^\)]+\)$ ]]; }
 
 # Prompt tuned for Haiku: data first (query-at-end), rules grouped in XML tags,
 # no literal backticks (double-quoted string -> would run command substitution).
@@ -74,8 +97,7 @@ fences, and no 'subject:' or 'body:' labels.
 - Imperative mood, 50 characters max, no trailing period.
 - Contains at least one emoji.
 - Count the characters; if a draft exceeds 50, drop filler words before answering.
-- Use a conventional-commit prefix (add:, mod:, del:, fix:, refac:, ...) only if
-  the recent subjects above already use them.
+$prefix_rule
 </subject>
 
 <body>
@@ -98,7 +120,7 @@ Decide whether to write a body from the size and complexity of the staged diff:
 
 <content>
 - Be concrete: name the actual functions, files, or behavior that changed (e.g.
-  'fix: reject empty names in greet()', not 'fix: improve validation').
+  'fix(greet): reject empty names', not 'fix(greet): improve validation').
 - Wrap any code, command, filename, or identifier in backticks.
 - Never present the commit as AI-authored: no AI or assistant attribution and no
   trailers. Describing AI functionality that the diff itself implements is fine.
@@ -115,18 +137,16 @@ for cand in python3 python; do
   fi
 done
 
-# Auth resolution: API key > unexpired Claude Code OAuth token > claude -p.
-# OAuth token lives in the Keychain on macOS, in ~/.claude/.credentials.json
-# on Linux and Windows.
+# Auth resolution: API key (env, then Keychain item "anthropic-api-key")
+# > unexpired Claude Code OAuth token > claude -p. OAuth token lives in the
+# Keychain on macOS, in ~/.claude/.credentials.json on Linux and Windows.
 auth_mode='' secret=''
 if [[ -n $py ]]; then
-  if [[ -n ${ANTHROPIC_API_KEY:-} ]]; then
-    auth_mode=apikey secret=$ANTHROPIC_API_KEY
+  secret=${ANTHROPIC_API_KEY:-$(security find-generic-password -s anthropic-api-key -w 2>/dev/null)}
+  if [[ -n $secret ]]; then
+    auth_mode=apikey
   else
-    creds=''
-    if command -v security >/dev/null 2>&1; then
-      creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
-    fi
+    creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
     creds_file=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.credentials.json
     [[ -z $creds && -r $creds_file ]] && creds=$(cat "$creds_file")
     if [[ -n $creds ]]; then
@@ -138,13 +158,28 @@ if e and e / 1000 <= time.time():
 print(c["accessToken"])' 2>/dev/null | tr -d '\r')
       [[ -n $secret ]] && auth_mode=oauth
     fi
+    if [[ -t 0 ]] && command -v security >/dev/null 2>&1; then
+      read -rsp "$me: no API key, Haiku 4.5 via OAuth now. Paste a key for Haiku 5.5 (Enter skips): " key
+      echo >&2
+      if [[ -n $key ]]; then
+        # via stdin: an argv key would show in ps
+        printf 'add-generic-password -U -s anthropic-api-key -a %s -w %s\n' "$USER" "$key" \
+          | security -i >/dev/null
+        auth_mode=apikey secret=$key
+      fi
+    fi
   fi
 fi
+
+# OAuth token: raw API answers 429 for 5.x models; 4.5 rejects effort
+api_model=$model api_effort=$effort
+[[ $auth_mode == oauth ]] && api_model=claude-haiku-4-5 api_effort=''
 
 msg='' t0=''
 if [[ -n $auth_mode ]]; then
   (( timing )) && t0=$(now)
-  msg=$(AIC_AUTH_MODE=$auth_mode AIC_SECRET=$secret AIC_MODEL=$model "$py" - "$request" <<'PY' | tr -d '\r'
+  msg=$(AIC_AUTH_MODE=$auth_mode AIC_SECRET=$secret AIC_MODEL=$api_model AIC_EFFORT=$api_effort \
+    "$py" - "$request" <<'PY' | tr -d '\r'
 import json, os, sys, urllib.request
 
 headers = {"anthropic-version": "2023-06-01", "content-type": "application/json"}
@@ -154,27 +189,36 @@ if os.environ["AIC_AUTH_MODE"] == "oauth":
 else:
     headers["x-api-key"] = os.environ["AIC_SECRET"]
 
+body = {
+    "model": os.environ["AIC_MODEL"],
+    "max_tokens": 4000,
+    "messages": [{"role": "user", "content": sys.argv[1]}],
+}
+if os.environ["AIC_EFFORT"]:
+    body["output_config"] = {"effort": os.environ["AIC_EFFORT"]}
 req = urllib.request.Request(
     "https://api.anthropic.com/v1/messages",
-    data=json.dumps({
-        "model": os.environ["AIC_MODEL"],
-        "max_tokens": 400,
-        "messages": [{"role": "user", "content": sys.argv[1]}],
-    }).encode(),
+    data=json.dumps(body).encode(),
     headers=headers,
 )
 try:
     resp = json.load(urllib.request.urlopen(req, timeout=30))
+    if resp["stop_reason"] != "end_turn":
+        sys.exit(f"ai-commit: API call stopped ({resp['stop_reason']}), falling back")
     print(next(b["text"] for b in resp["content"] if b["type"] == "text").strip())
 except Exception as e:
     print(f"ai-commit: API call failed ({e}), falling back", file=sys.stderr)
     sys.exit(1)
 PY
 )
+  if [[ -n $msg ]] && ! valid "$msg"; then
+    echo "$me: prefix outside cm.type (${msg%%$'\n'*}), falling back" >&2
+    msg=''
+  fi
   if (( timing )); then
     [[ -n $msg ]] && ok=ok || ok=failed
     printf '%s: api call (%s, %s) %s: %ss\n' \
-      "$me" "$model" "$auth_mode" "$ok" "$(elapsed "$t0" "$(now)")" >&2
+      "$me" "$api_model" "$auth_mode" "$ok" "$(elapsed "$t0" "$(now)")" >&2
   fi
 fi
 
@@ -182,7 +226,7 @@ if [[ -z $msg ]]; then
   (( timing )) && t0=$(now)
   # request via stdin: --mcp-config is variadic and would swallow a trailing arg
   # --setting-sources user: skip workspace settings — untrusted dirs warn otherwise
-  msg=$(printf '%s\n' "$request" | claude -p --model "$model" --no-session-persistence \
+  msg=$(printf '%s\n' "$request" | claude -p --model "$model" --effort "$effort" --no-session-persistence \
     --setting-sources user --strict-mcp-config --mcp-config '{"mcpServers":{}}' | tr -d '\r') || {
     echo "$me: claude -p failed" >&2
     exit 1
@@ -193,6 +237,10 @@ fi
 
 if [[ -z $msg ]]; then
   echo "$me: empty message from model" >&2
+  exit 1
+fi
+if ! valid "$msg"; then
+  echo "$me: prefix outside cm.type: ${msg%%$'\n'*}" >&2
   exit 1
 fi
 

@@ -87,5 +87,7 @@
 	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
+[includeIf "hasconfig:remote.*.url:git@github.com:lecodeski/**"]
+	path = ~/.gitconfig-cm
