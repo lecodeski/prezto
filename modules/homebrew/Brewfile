@@ -175,6 +175,8 @@ brew "links"
 brew "mas"
 # Java-based project management
 brew "maven"
+# Mermaid.js, but headless, in Rust
+brew "merman-cli"
 # 'traceroute' and 'ping' in a single tool
 brew "mtr"
 # NCurses Disk Usage
@@ -187,8 +189,6 @@ brew "node"
 brew "oath-toolkit"
 # Create, run, and share large language models (LLMs)
 brew "ollama"
-# Open client for Cisco AnyConnect VPN
-brew "openconnect"
 # OpenBSD freely-licensed SSH connectivity tools
 brew "openssh"
 # 7-Zip (high compression file archiver) implementation
