@@ -74,7 +74,7 @@
 	line-numbers-right-format = {np:^1}│
 
 [delta "side-by-side"]
-	features = line-numbers side-by-side 
+	features = line-numbers side-by-side
 
 [commit]
 	gpgSign = true
@@ -84,10 +84,12 @@
 [fetch]
 	all = true
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gist.github.com"]
 	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [includeIf "hasconfig:remote.*.url:git@github.com:lecodeski/**"]
+	path = ~/.gitconfig-cm
+[includeIf "hasconfig:remote.*.url:https://github.com/lecodeski/**"]
 	path = ~/.gitconfig-cm

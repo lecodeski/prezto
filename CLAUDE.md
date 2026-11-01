@@ -86,10 +86,11 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 - vendored completions install to `$XDG_DATA_HOME/prezto-vendored-completions`, outside the repo, so a refresh never dirties the tree that `zprezto-update` stashes — keep them out
 - `cm` authenticates with `ANTHROPIC_API_KEY`, the macOS Keychain item
   `anthropic-api-key`, or the Claude Code OAuth token, and falls back to
-  `claude -p`. Without a key, on a tty, it asks for one and stores it in the
-  Keychain. Commit types come from `cm.type` in `runcoms/gitconfig-cm`, which
-  `runcoms/gitconfig` includes only for `git@github.com:lecodeski/**` remotes —
-  a new runcoms file, so `setup_links_runcoms.zsh` must run once
+  `claude -p` — each fallback prints a 💥 line with its cause. Without a key,
+  on a tty, it asks for one and stores it in the Keychain after the first
+  successful API call. Commit types come from `cm.type` in
+  `runcoms/gitconfig-cm`, which `runcoms/gitconfig` includes only for
+  `lecodeski` remotes, SSH and HTTPS
 - two wrapper layers cover the command names. First ~570 aliases. Then prezto's
   `gnu-utility` functions, which exec the homebrew `g*` GNU binaries — 103 names
   are live, among them `ls rm cp mv sed awk find date stat head tail wc sort

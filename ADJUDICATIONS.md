@@ -47,11 +47,22 @@ reason — evidence.
   `security` on PATH — input hidden, Enter skips to OAuth. The key goes to
   `security -i` on stdin, never into argv, where `ps` shows it. Enter asks
   again on the next run — no skip memory until it annoys
+- **Pasted key reaches the Keychain only after a successful API call** —
+  required. Stored at once, a mistyped key suppressed the prompt for good and
+  sent every run to the slow fallback
+- **Every fallback prints a `💥` line with its cause** — chosen by the user,
+  the style of `u` in `runcoms/zshrc`. Covered: no API key → OAuth on Haiku
+  4.5, no key and no OAuth token or no python 3 → `claude -p`, API call failed
+  or stopped, prefix outside `cm.type`
 - **No `command -v security` guard** — non-problem. Off macOS, `2>/dev/null`
   also swallows bash's `command not found`, and the value stays empty
   (verified in bash). The extra spawn per run is negligible
-- **`429` quirk documented only in the `cm` comment** — DRY. The repo
-  `CLAUDE.md` lists the auth sources, not the quirk
+- **`429` quirk stays out of `CLAUDE.md`** — DRY. This file and the one-line
+  `cm` comment at the OAuth override carry it — `CLAUDE.md` lists the auth
+  sources only
+- **`includeIf` for SSH and HTTPS remotes** — required. A `lecodeski` clone
+  over `https://github.com/…` matched no `includeIf` and silently lost the
+  types
 
 ### Response handling
 
@@ -99,6 +110,14 @@ reason — evidence.
   No prefix in the window → the prompt says "Use no commit-type prefix" and
   names no scope. Unambiguous, unlike the old taxonomy regex — it asks only
   "prefix or not", never "which taxonomy"
+- **One prefixed subject in the window switches on prefix mode** — kept,
+  decided by the user. A tool-made `chore(release): 1.2.0` in a plain repo
+  turns prefixes on, and new prefixed subjects keep it on. No majority rule
+- **`!` breaking-change marker** — allowed in both the history regex and the
+  `cm.type` check, so the two agree
+- **`claude -p` reply trimmed of leading whitespace** — required. The api path
+  strips its reply — without the trim, a leading blank line failed the anchored
+  `type(scope):` check and stopped `cm`
 - **Scope sentence always in the prompt** — rejected. In a plain-subject
   history it produced `Fix(fzf):` subjects 2/24. Gated as above: plain 0/24
   prefixes, `feat:` history 24/24 with scope, `cm.type` repo 24/24 valid

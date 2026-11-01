@@ -67,7 +67,8 @@ elif grep -qE '^[a-z]+(\([^)]*\))?!?:' <<<"$style"; then
 else
   prefix_rule='- Use no commit-type prefix — the recent subjects above use none.'
 fi
-valid() { [[ -z $prefixes || ${1%%:*} =~ ^($prefixes)\([^\)]+\)$ ]]; }
+valid() { [[ -z $prefixes || ${1%%:*} =~ ^($prefixes)\([^\)]+\)!?$ ]]; }
+warn() { echo "💥 $me: $*" >&2; }
 
 # Prompt tuned for Haiku: data first (query-at-end), rules grouped in XML tags,
 # no literal backticks (double-quoted string -> would run command substitution).
@@ -140,7 +141,7 @@ done
 # Auth resolution: API key (env, then Keychain item "anthropic-api-key")
 # > unexpired Claude Code OAuth token > claude -p. OAuth token lives in the
 # Keychain on macOS, in ~/.claude/.credentials.json on Linux and Windows.
-auth_mode='' secret=''
+auth_mode='' secret='' new_key=''
 if [[ -n $py ]]; then
   secret=${ANTHROPIC_API_KEY:-$(security find-generic-password -s anthropic-api-key -w 2>/dev/null)}
   if [[ -n $secret ]]; then
@@ -159,14 +160,9 @@ print(c["accessToken"])' 2>/dev/null | tr -d '\r')
       [[ -n $secret ]] && auth_mode=oauth
     fi
     if [[ -t 0 ]] && command -v security >/dev/null 2>&1; then
-      read -rsp "$me: no API key, Haiku 4.5 via OAuth now. Paste a key for Haiku 5.5 (Enter skips): " key
+      read -rsp "$me: no API key found. Paste one for $model (Enter skips): " new_key
       echo >&2
-      if [[ -n $key ]]; then
-        # via stdin: an argv key would show in ps
-        printf 'add-generic-password -U -s anthropic-api-key -a %s -w %s\n' "$USER" "$key" \
-          | security -i >/dev/null
-        auth_mode=apikey secret=$key
-      fi
+      [[ -n $new_key ]] && auth_mode=apikey secret=$new_key
     fi
   fi
 fi
@@ -175,11 +171,17 @@ fi
 api_model=$model api_effort=$effort
 [[ $auth_mode == oauth ]] && api_model=claude-haiku-4-5 api_effort=''
 
+case $auth_mode in
+  oauth) warn "no API key — falling back to $api_model via the Claude Code OAuth token" ;;
+  '') [[ -n $py ]] && why='no API key and no valid OAuth token' || why='no python 3'
+      warn "$why — falling back to claude -p" ;;
+esac
+
 msg='' t0=''
 if [[ -n $auth_mode ]]; then
   (( timing )) && t0=$(now)
   msg=$(AIC_AUTH_MODE=$auth_mode AIC_SECRET=$secret AIC_MODEL=$api_model AIC_EFFORT=$api_effort \
-    "$py" - "$request" <<'PY' | tr -d '\r'
+    "$py" - "$request" "$me" <<'PY' | tr -d '\r'
 import json, os, sys, urllib.request
 
 headers = {"anthropic-version": "2023-06-01", "content-type": "application/json"}
@@ -204,16 +206,20 @@ req = urllib.request.Request(
 try:
     resp = json.load(urllib.request.urlopen(req, timeout=30))
     if resp["stop_reason"] != "end_turn":
-        sys.exit(f"ai-commit: API call stopped ({resp['stop_reason']}), falling back")
+        sys.exit(f"💥 {sys.argv[2]}: API call stopped ({resp['stop_reason']}) — falling back to claude -p")
     print(next(b["text"] for b in resp["content"] if b["type"] == "text").strip())
 except Exception as e:
-    print(f"ai-commit: API call failed ({e}), falling back", file=sys.stderr)
+    print(f"💥 {sys.argv[2]}: API call failed ({e}) — falling back to claude -p", file=sys.stderr)
     sys.exit(1)
 PY
 )
   if [[ -n $msg ]] && ! valid "$msg"; then
-    echo "$me: prefix outside cm.type (${msg%%$'\n'*}), falling back" >&2
+    warn "prefix outside cm.type (${msg%%$'\n'*}) — falling back to claude -p"
     msg=''
+  fi
+  if [[ -n $msg && -n $new_key ]]; then
+    printf 'add-generic-password -U -s anthropic-api-key -a %s -w %s\n' "$USER" "$new_key" \
+      | security -i >/dev/null
   fi
   if (( timing )); then
     [[ -n $msg ]] && ok=ok || ok=failed
@@ -231,6 +237,7 @@ if [[ -z $msg ]]; then
     echo "$me: claude -p failed" >&2
     exit 1
   }
+  msg=${msg#"${msg%%[![:space:]]*}"}
   (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
     "$me" "$model" "$(elapsed "$t0" "$(now)")" >&2
 fi
