@@ -60,6 +60,13 @@ if [[ -n $types ]]; then
   $pick:
 $(sed 's/^/  /' <<<"$types")
 - $scope"
+# no cm.type: does any of the last 15 subjects carry a commit-type prefix?
+#   ^[a-z]+         lowercase type at line start      feat, fix, chore, refac
+#   (\([^)]*\))?    optional scope in parentheses     (api), (fzf)
+#   !?              optional breaking-change marker   feat!:, feat(api)!:
+#   :               colon right after                 → e.g. "Update README" no match
+# one match is enough to switch prefix-plus-scope mode on
+# <<< "here-string": feeds $style to grep's stdin, no echo pipe
 elif grep -qE '^[a-z]+(\([^)]*\))?!?:' <<<"$style"; then
   prefix_rule="- Start the subject with a commit-type prefix from the set the recent
   subjects above use — $pick.
@@ -67,7 +74,18 @@ elif grep -qE '^[a-z]+(\([^)]*\))?!?:' <<<"$style"; then
 else
   prefix_rule='- Use no commit-type prefix — the recent subjects above use none.'
 fi
-valid() { local s=${1%%$'\n'*}; [[ -z $prefixes || ${s%%:*} =~ ^($prefixes)\([^\)]+\)!?$ ]]; }
+# true when no cm.type is set, else the subject must open with "type(scope):"
+# ${var%%pat}: cut the longest suffix that matches pat — %% from the first match on
+#   ${1%%$'\n'*}        subject = first line of the message
+#   ${subject%%:*}      text before the first colon    del(cm)!
+#   ^($prefixes)        one configured type            e.g. add|mod|del|...
+#   \([^\)]+\)          non-empty scope in parentheses (cm)
+#   !?$                 optional breaking-change mark, then the colon
+# "feat(x):", "mod:" without scope, "Fix(fzf):" all fail
+valid() {
+  local subject=${1%%$'\n'*}
+  [[ -z $prefixes || ${subject%%:*} =~ ^($prefixes)\([^\)]+\)!?$ ]]
+}
 warn() { echo "💥 $me: $*" >&2; }
 
 # Prompt tuned for Haiku: data first (query-at-end), rules grouped in XML tags,
