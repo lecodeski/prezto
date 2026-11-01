@@ -47,13 +47,20 @@ reason — evidence.
   `security` on PATH — input hidden, Enter skips to OAuth. The key goes to
   `security -i` on stdin, never into argv, where `ps` shows it. Enter asks
   again on the next run — no skip memory until it annoys
-- **Pasted key reaches the Keychain only after a successful API call** —
-  required. Stored at once, a mistyped key suppressed the prompt for good and
-  sent every run to the slow fallback
+- **Pasted key reaches the Keychain once the API accepts it** — required.
+  Stored at once, a mistyped key suppressed the prompt for good and sent every
+  run to the slow fallback. Python exits 3 when the API accepted the key but
+  the reply is unusable — `cm` stores on every exit code but 1, so a bad
+  prefix or a stopped reply does not lose a good key
+- **Key prompt needs a tty on stdin and stderr** — required. With stderr
+  redirected, `read -p` wrote its prompt nowhere and `cm` waited blind
 - **Every fallback prints a `💥` line with its cause** — chosen by the user,
   the style of `u` in `runcoms/zshrc`. Covered: no API key → OAuth on Haiku
   4.5, no key and no OAuth token or no python 3 → `claude -p`, API call failed
-  or stopped, prefix outside `cm.type`
+  or stopped, reply without text, prefix outside `cm.type`
+- **`💥` format exists in bash (`warn`) and in Python (`fall`)** — kept. Python
+  writes straight to stderr — one shared helper needs a second channel from
+  Python to bash, more code than the two definitions
 - **No `command -v security` guard** — non-problem. Off macOS, `2>/dev/null`
   also swallows bash's `command not found`, and the value stays empty
   (verified in bash). The extra spawn per run is negligible
@@ -68,9 +75,13 @@ reason — evidence.
 
 - **`stop_reason` other than `end_turn` → fallback** — chosen. A truncated text
   block never gets committed
-- **`sys.exit(str)` inside the `try`** — kept. `SystemExit` is no `Exception`,
-  so the handler lets it through. A later `except BaseException` would catch it
-  — a hypothetical refactor, YAGNI
+- **Reply without text → fallback with cause** — required. Haiku 5.5 can end
+  a turn with its whole answer in thinking — Anthropic documents it at
+  `xhigh`. Before, no text block gave `API call failed ()`, and a blank text
+  block fell back without a `💥` line. The `try` now covers only the request,
+  so no `sys.exit` runs inside it
+- **Abort after `cm`'s own `git add -A` leaves the index staged** — kept,
+  decided by the user
 - **30 s urllib timeout with Haiku 5.5 thinking** — open. Measure with `cm -t`
   once the API key exists — raise it only on a real timeout
 - **`refusal` via `claude -p` could commit refusal text** — open, not verified.
@@ -141,6 +152,17 @@ reason — evidence.
   switch — the session agent applies the rules itself. Without `cm.type`, repo
   docs define the meanings. A bash gate like the one in `cm` stays out —
   overkill for an in-session agent
+- **House types also apply in a `lecodeski` fork of a foreign project** —
+  kept, decided by the user. `includeIf` keys on the remote owner, not on the
+  repo's convention — no per-repo opt-out
+- **Malformed `cm.type` value without `=`** — no guard. The abort message
+  names the allowed prefixes, so a broken entry shows at once
+- **Subject ends with exactly one emoji** — aligned with `CLAUDE.md`, in `cm`
+  and `/commit`. Before, "at least one emoji" also let one lead the subject.
+  Haiku 4.5, 3 histories × 6 diffs × 4 runs: 71/71 replies end with exactly
+  one emoji (2026-11-01)
+- **Header comment on `cm.type` and the "Auth resolution" comment in `cm`** —
+  kept, decided by the user
 
 ### Measurement method
 

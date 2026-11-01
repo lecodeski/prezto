@@ -87,8 +87,8 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 - `cm` authenticates with `ANTHROPIC_API_KEY`, the macOS Keychain item
   `anthropic-api-key`, or the Claude Code OAuth token, and falls back to
   `claude -p` — each fallback prints a 💥 line with its cause. Without a key,
-  on a tty, it asks for one and stores it in the Keychain after the first
-  successful API call. Commit types come from `cm.type` in
+  on a tty, it asks for one and stores it in the Keychain once the API accepts
+  it. Commit types come from `cm.type` in
   `runcoms/gitconfig-cm`, which `runcoms/gitconfig` includes only for
   `lecodeski` remotes, SSH and HTTPS
 - two wrapper layers cover the command names. First ~570 aliases. Then prezto's
