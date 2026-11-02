@@ -67,11 +67,12 @@ reason — evidence.
   key that stays for good. The next run asks again. Passing the HTTP status
   from Python to bash as a second signal costs more than this rare case
 - **Locked or denied keychain is named, not hidden behind "no API key"** —
-  required. Over SSH to the Mac the login keychain is often locked —
-  `security` then fails with an exit code other than 44 (item not found), e.g.
-  36. `cm` prints a `💥` line with that code and the way out (`security
-  unlock-keychain` or `ANTHROPIC_API_KEY`) and skips the key prompt — storing
-  would fail and the prompt would come back on every run
+  required. Over SSH to the Mac the login keychain is often locked — then
+  `security` exits 128 (seen by the user). `cm` prints a `💥` line with the
+  way out (`security unlock-keychain` or `ANTHROPIC_API_KEY`). Any other exit
+  code but 0 and 44 (item not found) gets a `💥` line with the code only — the
+  unlock hint fits a locked keychain, not every failure. Both skip the key
+  prompt — storing would fail and the prompt would come back on every run
 - **"No API key" `💥` line on every platform** — decided by the user, after a
   short-lived macOS-only variant. `ANTHROPIC_API_KEY` works everywhere, so a
   missing key is a fallback off macOS too
