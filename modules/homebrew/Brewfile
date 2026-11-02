@@ -189,8 +189,6 @@ brew "node"
 brew "oath-toolkit"
 # Create, run, and share large language models (LLMs)
 brew "ollama"
-# OpenBSD freely-licensed SSH connectivity tools
-brew "openssh"
 # 7-Zip (high compression file archiver) implementation
 brew "p7zip"
 # Swiss-army knife of markup format conversion
