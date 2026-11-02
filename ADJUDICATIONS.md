@@ -52,9 +52,20 @@ reason — evidence.
   run to the slow fallback. Python exits 3 when the API accepted the key but
   the reply is unusable — `cm` stores on every exit code but 1, so a bad
   prefix or a stopped reply does not lose a good key
-- **Key not stored after a network error, timeout, 429, or 5xx** — kept. Exit
-  1 means the key is unproven — storing it there brings back the mistyped key
-  that stays for good. The next run asks again
+- **Key not stored after a network error, timeout, 400, 429, or 5xx** — kept.
+  Exit 1 means the key is unproven — storing it there brings back the mistyped
+  key that stays for good. The next run asks again. Passing the HTTP status
+  from Python to bash as a second signal costs more than this rare case
+- **Locked or denied keychain is named, not hidden behind "no API key"** —
+  required. Over SSH to the Mac the login keychain is often locked —
+  `security` then fails with an exit code other than 44 (item not found), e.g.
+  36. `cm` prints a `💥` line with that code and the way out (`security
+  unlock-keychain` or `ANTHROPIC_API_KEY`) and skips the key prompt — storing
+  would fail and the prompt would come back on every run
+- **"No API key" `💥` line only where `security` exists** — decided by the
+  user. Off macOS no Keychain exists, so a missing key is the normal state —
+  the OAuth fallback runs silently there. The line for no key and no OAuth
+  token → `claude -p` stays everywhere, since it explains the slow path
 - **Key prompt needs a tty on stdin and stderr** — required. With stderr
   redirected, `read -p` wrote its prompt nowhere and `cm` waited blind
 - **Every fallback prints a `💥` line with its cause** — chosen by the user,
@@ -64,9 +75,11 @@ reason — evidence.
 - **`💥` format exists in bash (`warn`) and in Python (`fall`)** — kept. Python
   writes straight to stderr — one shared helper needs a second channel from
   Python to bash, more code than the two definitions
-- **No `command -v security` guard** — non-problem. Off macOS, `2>/dev/null`
-  also swallows bash's `command not found`, and the value stays empty
-  (verified in bash). The extra spawn per run is negligible
+- **Keychain lookups run without a `command -v security` guard** —
+  non-problem. Off macOS, `2>/dev/null` also swallows bash's `command not
+  found`, and the value stays empty (verified in bash). One `command -v
+  security` check sets `kc` — it gates only the key prompt, the locked-keychain
+  check, and the "no API key" line
 - **`429` quirk stays out of `CLAUDE.md`** — DRY. This file and the one-line
   `cm` comment at the OAuth override carry it — `CLAUDE.md` lists the auth
   sources only
@@ -92,15 +105,18 @@ reason — evidence.
   block never gets committed
 - **HTTP error shows `error.message` from the body** — required.
   `str(HTTPError)` alone read `HTTP Error 400: Bad Request` and hid the cause —
-  a wrong model ID or parameter sent every run to the slow fallback unexplained
+  a wrong model ID or parameter sent every run to the slow fallback unexplained.
+  Reading and parsing the body share one `try`, and the cause is cut at 200
+  characters — a failing read gave a traceback, an HTML error page several KB
 - **Reply without text → fallback with cause** — required. Haiku 5.5 can end
   a turn with its whole answer in thinking — Anthropic documents it at
   `xhigh`. Before, no text block gave `API call failed ()`, and a blank text
   block fell back without a `💥` line. The `try` now covers only the request,
   so no `sys.exit` runs inside it
 - **HTTP 200 body without `stop_reason` or `content` → fallback with cause,
-  exit 3** — required. A proxy page or a changed schema raised a bare
-  traceback and, on exit 1, lost a just-pasted key
+  exit 1** — required. A proxy page or a changed schema raised a bare
+  traceback. Exit 1, not 3 — a captive portal answers 200 to any key, so only
+  an Anthropic-shaped reply proves the key
 - **`cm -t` reports `ok`, `failed`, or `rejected`** — required. A reply that
   only failed the `cm.type` check showed as `failed`, like a network error
 - **Aborts and fallbacks share `warn` and the `💥` prefix** — chosen. `u` uses
@@ -118,7 +134,8 @@ reason — evidence.
 
 - **Commit types come from `git config cm.type`, not from the history** —
   chosen. The house types live in `runcoms/gitconfig-cm`, which
-  `runcoms/gitconfig` includes per remote URL (`git@github.com:lecodeski/**`).
+  `runcoms/gitconfig` includes per remote URL — `git@github.com:lecodeski/**`
+  and `https://github.com/lecodeski/**`.
   Config decides which taxonomy applies — Haiku only picks within it
 - **Meanings appear in the prompt only when `cm.type` is set** — required.
   Measured with Haiku 4.5, a `feat:`/`chore:` history, 4 diffs × 4 runs —
@@ -184,6 +201,12 @@ reason — evidence.
 - **`valid()` checks the first line only** — required. Before, `${1%%:*}`
   could span the subject and the body — `add(cm` passed when the body held
   `):`
+- **`valid()` matches `type(scope)!?:` on the whole subject** — required.
+  Cutting at the first colon with `${subject%%:*}` let a subject without any
+  colon pass whole — `fix(cm)` with no description got committed
+- **`rejected` takes the message as an argument** — required. Reading the
+  global `msg` worked only before `msg=''` — a natural reorder blanked the
+  subject in the `💥` line
 - **Type names not regex-escaped in `valid()`** — YAGNI. The types are plain
   words — a name like `c++` does not exist
 - **Malformed `cm.type` value without `=`** — no guard. The abort message

@@ -78,17 +78,16 @@ fi
 # true when no cm.type is set, else the subject must open with "type(scope):"
 # ${var%%pat}: cut the longest suffix that matches pat — %% from the first match on
 #   ${1%%$'\n'*}        subject = first line of the message
-#   ${subject%%:*}      text before the first colon    del(cm)!
 #   ^($prefixes)        one configured type            e.g. add|mod|del|...
 #   \([^\)]+\)          non-empty scope in parentheses (cm)
-#   !?$                 optional breaking-change mark, then the colon
-# "feat(x):", "mod:" without scope, "Fix(fzf):" all fail
+#   !?:                 optional breaking-change mark, then the colon
+# "feat(x):", "mod:" without scope, "Fix(fzf):", "fix(cm)" without colon all fail
 valid() {
   local subject=${1%%$'\n'*}
-  [[ -z $prefixes || ${subject%%:*} =~ ^($prefixes)\([^\)]+\)!?$ ]]
+  [[ -z $prefixes || $subject =~ ^($prefixes)\([^\)]+\)!?: ]]
 }
 warn() { echo "💥 $me: $*" >&2; }
-rejected() { echo "prefix outside cm.type (allowed: $prefixes): ${msg%%$'\n'*}"; }
+rejected() { echo "prefix outside cm.type (allowed: $prefixes): ${1%%$'\n'*}"; }
 
 # Prompt tuned for Haiku: data first (query-at-end), rules grouped in XML tags,
 # no literal backticks (double-quoted string -> would run command substitution).
@@ -161,9 +160,13 @@ done
 # Auth resolution: API key (env, then Keychain item "anthropic-api-key")
 # > unexpired Claude Code OAuth token > claude -p. OAuth token lives in the
 # Keychain on macOS, in ~/.claude/.credentials.json on Linux and Windows.
-auth_mode='' secret='' new_key=''
+auth_mode='' secret='' new_key='' kc='' kc_locked=''
+command -v security >/dev/null 2>&1 && kc=1
 if [[ -n $py ]]; then
   secret=${ANTHROPIC_API_KEY:-$(security find-generic-password -s anthropic-api-key -w 2>/dev/null)}
+  # security exit 44: item not found — any other failure: keychain locked or denied (e.g. over SSH)
+  kc_rc=$?
+  [[ -n $kc ]] && (( kc_rc != 0 && kc_rc != 44 )) && kc_locked=1
   if [[ -n $secret ]]; then
     auth_mode=apikey
   else
@@ -179,7 +182,7 @@ if e and e / 1000 <= time.time():
 print(c["accessToken"])' 2>/dev/null | tr -d '\r')
       [[ -n $secret ]] && auth_mode=oauth
     fi
-    if [[ -t 0 && -t 2 ]] && command -v security >/dev/null 2>&1; then
+    if [[ -t 0 && -t 2 && -n $kc && -z $kc_locked ]]; then
       read -rsp "$me: no API key found. Paste one for $model (Enter skips): " new_key
       echo >&2
       [[ -n $new_key ]] && auth_mode=apikey secret=$new_key
@@ -191,8 +194,10 @@ fi
 api_model=$model api_effort=$effort
 [[ $auth_mode == oauth ]] && api_model=claude-haiku-4-5 api_effort=''
 
+[[ -n $kc_locked ]] && \
+  warn "keychain not readable (security exit $kc_rc) — run 'security unlock-keychain' or set ANTHROPIC_API_KEY"
 case $auth_mode in
-  oauth) warn "no API key — falling back to $api_model via the Claude Code OAuth token" ;;
+  oauth) [[ -n $kc ]] && warn "no API key — falling back to $api_model via the Claude Code OAuth token" ;;
   '') [[ -n $py ]] && why='no API key and no valid OAuth token' || why='no python 3'
       warn "$why — falling back to claude -p" ;;
 esac
@@ -230,20 +235,21 @@ def fall(cause, code):
 try:
     resp = json.load(urllib.request.urlopen(req, timeout=30))
 except urllib.error.HTTPError as e:
-    cause = e.read().decode(errors="replace")
+    cause = ""
     try:
+        cause = e.read().decode(errors="replace")
         cause = json.loads(cause)["error"]["message"]
     except Exception:
         pass
-    fall(f"API call failed ({e}: {cause})", 1)
+    fall(f"API call failed ({e}: {cause[:200]})", 1)
 except Exception as e:
     fall(f"API call failed ({e})", 1)
-# exit 3: the API accepted the key, the reply is unusable
 try:
     stop = resp["stop_reason"]
     text = "".join(b["text"] for b in resp["content"] if b["type"] == "text").strip()
 except Exception as e:
-    fall(f"API reply malformed ({e!r})", 3)
+    fall(f"API reply malformed ({e!r})", 1)
+# exit 3: an Anthropic reply proves the key, but it is unusable
 if stop != "end_turn":
     fall(f"API call stopped ({stop})", 3)
 if not text:
@@ -254,7 +260,7 @@ PY
   api_rc=$?
   [[ -n $msg ]] && state=ok || state=failed
   if [[ -n $msg ]] && ! valid "$msg"; then
-    warn "$(rejected) — falling back to claude -p"
+    warn "$(rejected "$msg") — falling back to claude -p"
     msg='' state=rejected
   fi
   if [[ -n $new_key ]] && (( api_rc != 1 )); then
@@ -284,7 +290,7 @@ if [[ -z $msg ]]; then
   exit 1
 fi
 if ! valid "$msg"; then
-  warn "$(rejected) — aborting"
+  warn "$(rejected "$msg") — aborting"
   exit 1
 fi
 

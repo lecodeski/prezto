@@ -86,7 +86,8 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 - vendored completions install to `$XDG_DATA_HOME/prezto-vendored-completions`, outside the repo, so a refresh never dirties the tree that `zprezto-update` stashes — keep them out
 - `cm` authenticates with `ANTHROPIC_API_KEY`, the macOS Keychain item
   `anthropic-api-key`, or the Claude Code OAuth token, and falls back to
-  `claude -p` — each fallback prints a 💥 line with its cause. Without a key,
+  `claude -p` — each fallback prints a 💥 line with its cause, the "no API
+  key" line only where `security` exists. Without a key,
   on a tty, it asks for one and stores it in the Keychain once the API accepts
   it. Commit types come from `cm.type` in
   `runcoms/gitconfig-cm`, which `runcoms/gitconfig` includes only for
