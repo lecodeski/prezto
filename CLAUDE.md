@@ -54,7 +54,9 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 
 - design rationale — decisions, rejected alternatives, accepted costs, verified
   non-problems — lives in docs, never inline.
-  Its contents are settled — reviews re-flag them only with new verified facts
+  Its contents are settled — reviews re-flag them only with new verified facts.
+  Review verdicts live in [`ADJUDICATIONS.md`](ADJUDICATIONS.md) — read it
+  before a review
 - repo prose is Simplified Technical English with dash-chained telegraphese.
   Dash-joined clauses count as separate sentence units, so the 25-word cap and
   the one-idea rule apply per clause, not per period. The style matches the
