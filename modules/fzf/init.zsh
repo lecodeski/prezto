@@ -102,16 +102,15 @@ if (( $+commands[fzf] )); then
   # Git commits / refs preview
   zstyle ':fzf-tab:complete:git-(diff|log|show|checkout|switch|reset|rebase|cherry-pick|revert):(*argument-rest|*)' \
     fzf-preview 'git show --stat --patch --color=always ${word%% *} 2>/dev/null | DELTA_FEATURES=+ delta --paging=never'
-  # preview for echoing and printing stuff
-  zstyle ':fzf-tab:complete:(-parameter-|echo|print):*' fzf-preview 'print -rl -- ${(P@)word}'
-  # preview for aliases, functions, commands, ...
+  # preview for aliases, functions, parameters, commands, ...
+  # must precede the generic path preview below — equal zstyle weight, first defined wins
   _fzf_command_preview=${0:h}/command-preview.zsh
-  zstyle -e ':fzf-tab:complete:(-command-|alias|unalias):*' fzf-preview '
+  zstyle -e ':fzf-tab:complete:(-command-|-parameter-|alias|unalias):*' fzf-preview '
     # $tmp_dir: local of fzf-tab -ftb-fzf, which deletes $tmp_dir/*.$$ after each run
     typeset -p >| $tmp_dir/parameters.$$
+    local -a l=(${(k)parameters[(R)*local*]}) p=($fpath)
     local -A a=("${(@kv)aliases}") c=("${(@kv)_comps[(I)-value-,*]}") f=("${(@kv)functions}")
-    local -a p=($fpath)
-    typeset -p a c p >| $tmp_dir/snapshot.$$
+    typeset -p a c l p >| $tmp_dir/snapshot.$$
     typeset -p f >| $tmp_dir/functions.$$
     reply=("source ${(q)_fzf_command_preview} ${(q)tmp_dir} $$ || { target=\$realpath; $_fzf_path_preview }")'
 

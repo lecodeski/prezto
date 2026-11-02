@@ -10,7 +10,8 @@ case $group in
   ('[shell function]')
     source $1/functions.$2
     if [[ $f[$word] == 'builtin autoload -X'* ]]; then
-      bat --color=always --style=plain -- ${^p}/$word(N[1])
+      local -a src=(${^p}/$word(N))
+      bat --color=always --style=plain --language=zsh -- $src[1]
     else
       print -rl -- "$word () {" $f[$word] '}' | bat --color=always --style=plain --language=zsh
     fi ;;
@@ -18,9 +19,11 @@ case $group in
     setopt extended_glob
     local -a line=(${(M)${(f)"$(<$1/parameters.$2)"}:#(typeset|export)( -[[:alnum:]]##)#( [[:alnum:]_]##)# ${(b)word}(=*| *|)})
     if (( $#line )); then
+      (( $l[(Ie)$word] )) && line[1]=$'# local of zle, completion or fzf-tab — not visible in your session\n'$line[1]
       print -r -- $line[1] | bat --color=always --style=plain --language=zsh
     else
-      print -r -- "unset — offered by ${(v)c[(I)-value-,${(b)word},*]}"
+      local v=${(v)c[(I)-value-,${(b)word},*]}
+      print -r -- "unset${v:+ — offered by $v}"
     fi ;;
   ('[external command]'|'[builtin command]')
     tldr --color=always -- $word 2>/dev/null || OPT_COLOR=true MANWIDTH=$FZF_PREVIEW_COLUMNS batman -- $word ;;
