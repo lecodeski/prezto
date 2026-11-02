@@ -3,8 +3,10 @@
 # ai-commit — generate a commit message for the staged diff and commit it.
 # Portable bash (macOS, Linux, Windows/Git Bash).
 # Fast path: one direct Haiku API call, authenticated via ANTHROPIC_API_KEY,
-# the macOS Keychain item "anthropic-api-key", or the unexpired Claude Code
-# OAuth token (macOS Keychain, or ~/.claude/.credentials.json on Linux/Windows).
+# the macOS Keychain item "anthropic-api-key", the file
+# ${XDG_CONFIG_HOME:-~/.config}/cm/anthropic-api-key (mode 600), or the
+# unexpired Claude Code OAuth token (macOS Keychain, or
+# ~/.claude/.credentials.json on Linux/Windows).
 # Fallback: `claude -p` with MCP servers stripped (uses Claude Code auth).
 # Commit types: multi-valued `git config cm.type` ("name = meaning") — when set,
 # the prompt lists them and a subject without "type(scope):" from that list is
@@ -157,16 +159,21 @@ for cand in python3 python; do
   fi
 done
 
-# Auth resolution: API key (env, then Keychain item "anthropic-api-key")
+# Auth resolution: API key (env, Keychain item "anthropic-api-key", key file)
 # > unexpired Claude Code OAuth token > claude -p. OAuth token lives in the
 # Keychain on macOS, in ~/.claude/.credentials.json on Linux and Windows.
 auth_mode='' secret='' new_key='' kc='' kc_locked=''
+key_file=${XDG_CONFIG_HOME:-$HOME/.config}/cm/anthropic-api-key
 command -v security >/dev/null 2>&1 && kc=1
 if [[ -n $py ]]; then
-  secret=${ANTHROPIC_API_KEY:-$(security find-generic-password -s anthropic-api-key -w 2>/dev/null)}
-  # security exit 44: item not found — any other failure: keychain locked or denied (e.g. over SSH)
-  kc_rc=$?
-  [[ -n $kc ]] && (( kc_rc != 0 && kc_rc != 44 )) && kc_locked=1
+  secret=${ANTHROPIC_API_KEY:-}
+  if [[ -z $secret && -n $kc ]]; then
+    secret=$(security find-generic-password -s anthropic-api-key -w 2>/dev/null)
+    # security exit 44: item not found — any other failure: keychain locked or denied (e.g. over SSH)
+    kc_rc=$?
+    (( kc_rc != 0 && kc_rc != 44 )) && kc_locked=1
+  fi
+  [[ -z $secret && -r $key_file ]] && secret=$(<"$key_file")
   if [[ -n $secret ]]; then
     auth_mode=apikey
   else
@@ -182,7 +189,7 @@ if e and e / 1000 <= time.time():
 print(c["accessToken"])' 2>/dev/null | tr -d '\r')
       [[ -n $secret ]] && auth_mode=oauth
     fi
-    if [[ -t 0 && -t 2 && -n $kc && -z $kc_locked ]]; then
+    if [[ -t 0 && -t 2 && -z $kc_locked ]]; then
       read -rsp "$me: no API key found. Paste one for $model (Enter skips): " new_key
       echo >&2
       [[ -n $new_key ]] && auth_mode=apikey secret=$new_key
@@ -197,7 +204,7 @@ api_model=$model api_effort=$effort
 [[ -n $kc_locked ]] && \
   warn "keychain not readable (security exit $kc_rc) — run 'security unlock-keychain' or set ANTHROPIC_API_KEY"
 case $auth_mode in
-  oauth) [[ -n $kc ]] && warn "no API key — falling back to $api_model via the Claude Code OAuth token" ;;
+  oauth) warn "no API key — falling back to $api_model via the Claude Code OAuth token" ;;
   '') [[ -n $py ]] && why='no API key and no valid OAuth token' || why='no python 3'
       warn "$why — falling back to claude -p" ;;
 esac
@@ -264,8 +271,12 @@ PY
     msg='' state=rejected
   fi
   if [[ -n $new_key ]] && (( api_rc != 1 )); then
-    printf 'add-generic-password -U -s anthropic-api-key -a %s -w %s\n' "$(id -un)" "$new_key" \
-      | security -i >/dev/null
+    if [[ -n $kc ]]; then
+      printf 'add-generic-password -U -s anthropic-api-key -a %s -w %s\n' "$(id -un)" "$new_key" \
+        | security -i >/dev/null
+    else
+      mkdir -p "${key_file%/*}" && (umask 077 && printf '%s\n' "$new_key" > "$key_file")
+    fi
   fi
   (( timing )) && printf '%s: api call (%s, %s) %s: %ss\n' \
     "$me" "$api_model" "$auth_mode" "$state" "$(elapsed "$t0" "$(now)")" >&2

@@ -43,11 +43,21 @@ reason — evidence.
 - **Keychain access dialog blocks `cm`** — non-problem. An item created with
   `security add-generic-password` lists `/usr/bin/security` as trusted, so the
   lookup runs without a dialog
-- **Key prompt when no API key is found** — chosen. Only on a tty and with
-  `security` on PATH — input hidden, Enter skips to OAuth. The key goes to
-  `security -i` on stdin, never into argv, where `ps` shows it. Enter asks
-  again on the next run — no skip memory until it annoys
-- **Pasted key reaches the Keychain once the API accepts it** — required.
+- **Key prompt when no API key is found** — chosen. Only on a tty — input
+  hidden, Enter skips to OAuth. The key goes to `security -i` on stdin, never
+  into argv, where `ps` shows it. Enter asks again on the next run — no skip
+  memory until it annoys
+- **Without `security`, the pasted key goes to
+  `${XDG_CONFIG_HOME:-~/.config}/cm/anthropic-api-key`, mode 600** — chosen.
+  Read after the Keychain, before the OAuth token. Written by the `printf`
+  builtin under `umask 077`, so it never shows in `ps`. Plaintext, but the same
+  protection Claude Code gives its own `~/.claude/.credentials.json` on Linux
+- **`export ANTHROPIC_API_KEY` in `~/.profile` as the store** — rejected.
+  Every process inherits it — Claude Code then can bill the API instead of the
+  subscription, and every tool sees the key. `secret-tool` and `pass` —
+  rejected for now: both need a desktop session or a gpg agent, which an SSH
+  login often lacks
+- **Pasted key is stored once the API accepts it** — required.
   Stored at once, a mistyped key suppressed the prompt for good and sent every
   run to the slow fallback. Python exits 3 when the API accepted the key but
   the reply is unusable — `cm` stores on every exit code but 1, so a bad
@@ -62,10 +72,9 @@ reason — evidence.
   36. `cm` prints a `💥` line with that code and the way out (`security
   unlock-keychain` or `ANTHROPIC_API_KEY`) and skips the key prompt — storing
   would fail and the prompt would come back on every run
-- **"No API key" `💥` line only where `security` exists** — decided by the
-  user. Off macOS no Keychain exists, so a missing key is the normal state —
-  the OAuth fallback runs silently there. The line for no key and no OAuth
-  token → `claude -p` stays everywhere, since it explains the slow path
+- **"No API key" `💥` line on every platform** — decided by the user, after a
+  short-lived macOS-only variant. `ANTHROPIC_API_KEY` works everywhere, so a
+  missing key is a fallback off macOS too
 - **Key prompt needs a tty on stdin and stderr** — required. With stderr
   redirected, `read -p` wrote its prompt nowhere and `cm` waited blind
 - **Every fallback prints a `💥` line with its cause** — chosen by the user,
@@ -75,11 +84,10 @@ reason — evidence.
 - **`💥` format exists in bash (`warn`) and in Python (`fall`)** — kept. Python
   writes straight to stderr — one shared helper needs a second channel from
   Python to bash, more code than the two definitions
-- **Keychain lookups run without a `command -v security` guard** —
-  non-problem. Off macOS, `2>/dev/null` also swallows bash's `command not
-  found`, and the value stays empty (verified in bash). One `command -v
-  security` check sets `kc` — it gates only the key prompt, the locked-keychain
-  check, and the "no API key" line
+- **One `command -v security` check sets `kc`** — required. It picks the
+  store for a pasted key (Keychain or key file) and gates the API-key lookup
+  with its locked-keychain check. The OAuth lookup runs unguarded — off macOS,
+  `2>/dev/null` also swallows bash's `command not found` (verified in bash)
 - **`429` quirk stays out of `CLAUDE.md`** — DRY. This file and the one-line
   `cm` comment at the OAuth override carry it — `CLAUDE.md` lists the auth
   sources only
