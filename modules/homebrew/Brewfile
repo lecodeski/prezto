@@ -352,8 +352,6 @@ cask "miro"
 cask "modrinth"
 # Menu bar utility for toggling dark mode
 cask "nightfall"
-# Desktop application for Open WebUI
-cask "open-webui"
 # Replacement for Docker Desktop
 cask "orbstack"
 # Control your Sonos system
