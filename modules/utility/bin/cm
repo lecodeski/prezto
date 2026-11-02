@@ -31,9 +31,10 @@ now() {
   if [[ -n ${EPOCHREALTIME:-} ]]; then printf '%s' "$EPOCHREALTIME"; else date +%s; fi
 }
 elapsed() { awk -v a="$1" -v b="$2" 'BEGIN { printf "%.2f", b - a }'; }
+warn() { echo "💥 $me: $*" >&2; }
 
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
-  echo "$me: not a repository work tree: $PWD" >&2
+  warn "not a repository work tree: $PWD — aborting"
   exit 1
 fi
 
@@ -44,7 +45,7 @@ if [[ -z $diff ]]; then
   [[ -n $diff ]] && echo "$me: nothing staged, staged all changes" >&2
 fi
 if [[ -z $diff ]]; then
-  echo "$me: nothing to commit" >&2
+  warn 'nothing to commit — aborting'
   exit 1
 fi
 diff=${diff:0:12000}
@@ -88,7 +89,6 @@ valid() {
   local subject=${1%%$'\n'*}
   [[ -z $prefixes || $subject =~ ^($prefixes)\([^\)]+\)!?: ]]
 }
-warn() { echo "💥 $me: $*" >&2; }
 rejected() { echo "prefix outside cm.type (allowed: $prefixes): ${1%%$'\n'*}"; }
 
 # Prompt tuned for Haiku: data first (query-at-end), rules grouped in XML tags,
@@ -170,10 +170,10 @@ if [[ -n $py ]]; then
   if [[ -z $secret && -n $kc ]]; then
     secret=$(security find-generic-password -s anthropic-api-key -w 2>/dev/null)
     kc_rc=$?
-    # security exit 44: item not found, 128: login keychain locked (e.g. over SSH)
+    # security exit 44: item not found, 36/128: login keychain locked (e.g. over SSH)
     case $kc_rc in
       0|44) ;;
-      128) kc_err="keychain locked (security exit 128) — run 'security unlock-keychain' or set ANTHROPIC_API_KEY" ;;
+      36|128) kc_err="keychain locked (security exit $kc_rc) — run 'security unlock-keychain' or set ANTHROPIC_API_KEY" ;;
       *) kc_err="keychain lookup failed (security exit $kc_rc)" ;;
     esac
   fi
@@ -216,6 +216,7 @@ msg='' t0=''
 if [[ -n $auth_mode ]]; then
   (( timing )) && t0=$(now)
   msg=$(AIC_AUTH_MODE=$auth_mode AIC_SECRET=$secret AIC_MODEL=$api_model AIC_EFFORT=$api_effort \
+    PYTHONIOENCODING=utf-8 \
     "$py" - "$request" "$me" <<'PY' | tr -d '\r'
 import json, os, sys, urllib.request
 
@@ -279,7 +280,7 @@ PY
         | security -i >/dev/null
     else
       mkdir -p "${key_file%/*}" && (umask 077 && printf '%s\n' "$new_key" > "$key_file")
-    fi
+    fi || warn 'could not store the API key — the next run asks again'
   fi
   (( timing )) && printf '%s: api call (%s, %s) %s: %ss\n' \
     "$me" "$api_model" "$auth_mode" "$state" "$(elapsed "$t0" "$(now)")" >&2
@@ -308,5 +309,5 @@ if ! valid "$msg"; then
   exit 1
 fi
 
-git commit -qm "$msg" || exit 1
+git commit -qm "$msg" || { warn 'git commit failed — aborting'; exit 1; }
 git -P log -1 --stat --summary --pretty=format:'%D [%h] %an%n%n%C(bold)%s%C(reset)%n%+b'

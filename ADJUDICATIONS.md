@@ -39,7 +39,9 @@ reason — evidence.
   bill the API instead of the subscription
 - **Broken API key does not fall through to OAuth** — accepted. A revoked or
   rotated key sends `cm` to the slow `claude -p` fallback — `cm` still works.
-  A second api-call chain costs more code than this rare case is worth
+  A second api-call chain costs more code than this rare case is worth. The
+  same holds for a key mistyped at the prompt while a valid OAuth token exists
+  — the `💥` line names the `401` at once
 - **Keychain access dialog blocks `cm`** — non-problem. An item created with
   `security add-generic-password` lists `/usr/bin/security` as trusted, so the
   lookup runs without a dialog
@@ -62,13 +64,18 @@ reason — evidence.
   run to the slow fallback. Python exits 3 when the API accepted the key but
   the reply is unusable — `cm` stores on every exit code but 1, so a bad
   prefix or a stopped reply does not lose a good key
+- **A failed store prints a `💥` line** — required. `security -i` exits
+  non-zero when its add fails (161 in the sandbox), and the key-file branch
+  fails on `mkdir` or the write — without the line the key vanished silently
+  and the prompt came back
 - **Key not stored after a network error, timeout, 400, 429, or 5xx** — kept.
   Exit 1 means the key is unproven — storing it there brings back the mistyped
   key that stays for good. The next run asks again. Passing the HTTP status
   from Python to bash as a second signal costs more than this rare case
 - **Locked or denied keychain is named, not hidden behind "no API key"** —
   required. Over SSH to the Mac the login keychain is often locked — then
-  `security` exits 128 (seen by the user). `cm` prints a `💥` line with the
+  `security` exits 128 (seen by the user) or 36 (`errSecInteractionNotAllowed`,
+  derived, not seen). `cm` prints a `💥` line with the
   way out (`security unlock-keychain` or `ANTHROPIC_API_KEY`). Any other exit
   code but 0 and 44 (item not found) gets a `💥` line with the code only — the
   unlock hint fits a locked keychain, not every failure. Both skip the key
@@ -129,8 +136,12 @@ reason — evidence.
 - **`cm -t` reports `ok`, `failed`, or `rejected`** — required. A reply that
   only failed the `cm.type` check showed as `failed`, like a network error
 - **Aborts and fallbacks share `warn` and the `💥` prefix** — chosen. `u` uses
-  `💥` for aborts too. The rejection text comes from one helper, `rejected`,
-  with the suffix `falling back to claude -p` or `aborting`
+  `💥` for aborts too — every abort, from "not a repository" to a failed
+  `git commit`, ends with `aborting`. The rejection text comes from one helper,
+  `rejected`, with the suffix `falling back to claude -p` or `aborting`
+- **`PYTHONIOENCODING=utf-8` for the API call** — required. On Windows/Git
+  Bash a piped stdout uses the ANSI code page — `print` of a subject with an
+  emoji raised `UnicodeEncodeError` and sent every run to the fallback
 - **Abort after `cm`'s own `git add -A` leaves the index staged** — kept,
   decided by the user
 - **30 s urllib timeout with Haiku 5.5 thinking** — open. Measure with `cm -t`
