@@ -242,6 +242,7 @@ alias lz='git -C ${ZDOTDIR:-$HOME}/.zprezto l'
 alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k l'
 
 [ $commands[batman] ] && alias man=batman && compdef batman=man
+alias md=${aliases[mkdir]}
 [ $commands[minikube] ] && alias mk=minikube
 [ $commands[mtr] ] && alias mtr='_ mtr'
 alias mv='command mv -i -v'
@@ -265,6 +266,7 @@ alias rg='batgrep --terminal-width=$(tput cols)' && compdef batgrep=rg
 alias rgp="${commands[rg]}"
 
 alias rm="${aliases[rm]:-rm} --verbose"
+alias rp="${aliases[rd]} --parents"
 alias rr='rm -I --recursive'
 
 alias scr='scp -r'
