@@ -205,6 +205,7 @@ alias gr='git restore'
 alias gra='git restore :/'
 alias grb='git rebase'
 alias grba="${aliases[grb]} --abort"
+alias grbc="${aliases[grb]} --continue"
 [ $commands[grc] ] && unalias grc && [[ -s $HOMEBREW_PREFIX/etc/grc.zsh ]] && source $HOMEBREW_PREFIX/etc/grc.zsh
 alias grm="${aliases[gRl]}"
 alias gRs='git restore --staged --patch'
