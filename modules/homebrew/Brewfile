@@ -133,8 +133,6 @@ brew "python@3.14"
 brew "grc"
 # Like cURL, but for gRPC
 brew "grpcurl"
-# Agent multiplexer that lives in your terminal
-brew "herdr"
 # Improved colored diff
 brew "icdiff"
 # Command-line tool to export and inspect local iMessage database
