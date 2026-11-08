@@ -587,6 +587,8 @@ Try '$0 --help' for more information." ; return 1 ;;
     fi
 
     print -P '\n%B🍻 Ferium upgrades:%b' && ferium upgrade && print -P '%BFerium upgrades finished 🍻%b\n'
+    
+    print -P '\n%B🍻 Amazon Linux upgrades:%b' && /usr/bin/dnf check-release-update && print -P '%BAmazon Linux upgrades finished 🍻%b\n'
 
     zprezto-restart
   } always {
