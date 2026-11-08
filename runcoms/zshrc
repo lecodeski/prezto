@@ -273,6 +273,7 @@ alias rr='rm -I --recursive'
 alias scr='scp -r'
 alias sf="functions | ${aliases[rg]}"
 [ $commands[subl] ] && alias sl=subl
+(( $+commands[it2ssh] )) && alias ssh=it2ssh
 
 [ $commands[abtop] ] && alias toa='abtop'
 [ $commands[btop] ] && alias top='btop'
