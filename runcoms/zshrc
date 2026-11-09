@@ -237,7 +237,7 @@ alias gw='git-open'
 [ -f ~/Projekte/Perl/SandBox/krazy-kase.pl ] && alias kk='perl ~/Projekte/Perl/SandBox/krazy-kase.pl'
 [ -x ~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh ] && alias kkc=~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh
 
-alias l=locate
+alias l='locate -i'
 alias ln="${aliases[ln]:-ln} --verbose"
 alias lz='git -C ${ZDOTDIR:-$HOME}/.zprezto l'
 alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k l'
