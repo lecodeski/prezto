@@ -8,6 +8,8 @@ tap "lecodeski/maple-font"
 tap "marco-arnold/lnka", trusted: true
 tap "sheprd-labs/tap"
 tap "sikarugir-app/sikarugir", "https://github.com/Sikarugir-App/homebrew-sikarugir", trusted: true
+# Simple, modern, secure file encryption
+brew "age"
 # Apple Intelligence from the command-line, with OpenAi-compatible API server
 brew "apfel"
 # Code searching, linting, rewriting
@@ -248,6 +250,8 @@ brew "shellspec"
 brew "shfmt"
 # Simple keystroke visualizer
 brew "showkey"
+# Editor of encrypted files
+brew "sops"
 # Tail multiple Kubernetes pods & their containers
 brew "stern"
 # User interface to the TELNET protocol
