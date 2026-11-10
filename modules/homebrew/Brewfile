@@ -100,8 +100,6 @@ brew "gdk-pixbuf"
 brew "gh"
 # Distributed revision control system
 brew "git"
-# Enable transparent encryption/decryption of files in a git repo
-brew "git-crypt"
 # Syntax-highlighting pager for git and diff output
 brew "git-delta"
 # Browse your latest git branches, formatted real fancy
