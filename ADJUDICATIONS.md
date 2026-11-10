@@ -52,8 +52,11 @@ reason — evidence.
 - **Without `security`, the pasted key goes to
   `${XDG_CONFIG_HOME:-~/.config}/cm/anthropic-api-key`, mode 600** — chosen.
   Read after the Keychain, before the OAuth token. Written by the `printf`
-  builtin under `umask 077`, so it never shows in `ps`. Plaintext, but the same
-  protection Claude Code gives its own `~/.claude/.credentials.json` on Linux
+  builtin, so it never shows in `ps`. Plaintext, but the same protection Claude
+  Code gives its own `~/.claude/.credentials.json` on Linux
+- **Key file written via `mktemp` + `mv`, not under `umask 077`** — required.
+  `umask` left an existing file at its old mode — `mktemp` always creates 600,
+  and `mv` replaces the old file with its mode in one step
 - **`export ANTHROPIC_API_KEY` in `~/.profile` as the store** — rejected.
   Every process inherits it — Claude Code then can bill the API instead of the
   subscription, and every tool sees the key. `secret-tool` and `pass` —
@@ -92,9 +95,9 @@ reason — evidence.
 - **`💥` format exists in bash (`warn`) and in Python (`fall`)** — kept. Python
   writes straight to stderr — one shared helper needs a second channel from
   Python to bash, more code than the two definitions
-- **One `command -v security` check sets `kc`** — required. It picks the
-  store for a pasted key (Keychain or key file) and gates the API-key lookup
-  with its locked-keychain check. The OAuth lookup runs unguarded — off macOS,
+- **One `command -v security` check sets `has_security`** — required. It picks
+  the store for a pasted key (Keychain or key file) and gates the API-key
+  lookup with its locked-keychain check. The OAuth lookup runs unguarded — off macOS,
   `2>/dev/null` also swallows bash's `command not found` (verified in bash)
 - **`429` quirk stays out of `CLAUDE.md`** — DRY. This file and the one-line
   `cm` comment at the OAuth override carry it — `CLAUDE.md` lists the auth
@@ -107,7 +110,7 @@ reason — evidence.
   one shows up
 - **A repo with both a `lecodeski` SSH and HTTPS remote gets `cm.type` twice**
   — accepted. Both `includeIf` blocks fire, so the list doubles in the prompt —
-  `valid()` still works. No single `hasconfig` glob covers both forms:
+  `rejection()` still works. No single `hasconfig` glob covers both forms:
   `**github.com?lecodeski/**` and `**github.com[:/]lecodeski/**` match the SSH
   form only (tested 2026-11-01). Deduplication in `cm` and `/commit` costs a
   pipe stage for a case that does not occur here
@@ -137,8 +140,9 @@ reason — evidence.
   only failed the `cm.type` check showed as `failed`, like a network error
 - **Aborts and fallbacks share `warn` and the `💥` prefix** — chosen. `u` uses
   `💥` for aborts too — every abort, from "not a repository" to a failed
-  `git commit`, ends with `aborting`. The rejection text comes from one helper,
-  `rejected`, with the suffix `falling back to claude -p` or `aborting`
+  `git commit`, goes through `die`, which appends `aborting`. The rejection
+  text comes from `rejection()`, with the suffix `falling back to claude -p` or
+  `aborting`
 - **`PYTHONIOENCODING=utf-8` for the API call** — required. On Windows/Git
   Bash a piped stdout uses the ANSI code page — `print` of a subject with an
   emoji raised `UnicodeEncodeError` and sent every run to the fallback
@@ -218,16 +222,20 @@ reason — evidence.
 - **House types also apply in a `lecodeski` fork of a foreign project** —
   kept, decided by the user. `includeIf` keys on the remote owner, not on the
   repo's convention — no per-repo opt-out
-- **`valid()` checks the first line only** — required. Before, `${1%%:*}`
+- **`rejection()` checks the first line only** — required. Before, `${1%%:*}`
   could span the subject and the body — `add(cm` passed when the body held
   `):`
-- **`valid()` matches `type(scope)!?:` on the whole subject** — required.
+- **`rejection()` matches `type(scope)!?:` on the whole subject** — required.
   Cutting at the first colon with `${subject%%:*}` let a subject without any
   colon pass whole — `fix(cm)` with no description got committed
-- **`rejected` takes the message as an argument** — required. Reading the
-  global `msg` worked only before `msg=''` — a natural reorder blanked the
-  subject in the `💥` line
-- **Type names not regex-escaped in `valid()`** — YAGNI. The types are plain
+- **One `rejection()` both checks and explains** — required. It cuts the
+  subject once, prints the reason and succeeds on a breach, fails silently
+  otherwise. Before, `valid()` and `rejected` each cut the first line, and
+  `rejected` read the global `msg`, which worked only before `msg=''`. It also
+  rejects an empty subject, so the final check is one line. On the api path an
+  `if`/`elif` tests `msg` once and sets `state` — an empty reply there is
+  `failed`, since Python already printed its cause
+- **Type names not regex-escaped in `rejection()`** — YAGNI. The types are plain
   words — a name like `c++` does not exist
 - **Malformed `cm.type` value without `=`** — no guard. The abort message
   names the allowed prefixes, so a broken entry shows at once
@@ -237,16 +245,54 @@ reason — evidence.
   one emoji (2026-11-01)
 - **Header comment on `cm.type` and the "Auth resolution" comment in `cm`** —
   kept, decided by the user
-- **Multi-line comments on the prefix regex and on `valid()`** — asked for by
+- **Multi-line comments on the prefix regex and on `rejection()`** — asked for by
   the user. They explain each regex part, `<<<`, and `%%` — an exception to the
   one-line comment rule
-- **Scope with a colon (`mod(zsh:opts):`) fails `valid()`** — YAGNI. The
+- **Scope with a colon (`mod(zsh:opts):`) fails `rejection()`** — YAGNI. The
   prompt asks for one short word — a colon or a path is no scope
 - **`cm` prompt names `type(scope)!:` and "no other" prefix** — synced with
   `/commit`, which already allowed `!` and said "No other prefix". Haiku 4.5,
   6 diffs × 4 runs (2026-11-02): no `!` in 70 replies without a breaking
   change, `cm.type` repo 24/24 valid, and `fsmonitor` off went from `del` 4/4
   to `mod` 3/4
+
+### Structure
+
+- **Key lookup and store live in `find_key` and `store_key`** — chosen. The
+  auth block only decides the order — a new store or source changes one
+  function
+- **Each fallback warning sits where its cause is known** — chosen. "no python
+  3" after the python probe, "no API key and no valid OAuth token" at the end of
+  the auth block, the OAuth line in the model override. Before, a two-arm `case`
+  on `auth_mode` re-derived the causes later
+- **Keychain warning only when no key was found** — required. A key file or
+  env key after a locked keychain made the run succeed under a misleading
+  "keychain locked" `💥` line
+- **CR stripped from every API key** — required. A key file saved with CRLF or
+  an env key with `\r` made urllib reject the header — its error text put the
+  whole key into the `💥` line
+- **Names `choice_rule`, `scope_rule`, `has_security`** — required. `pick` and
+  `scope` held prompt sentences, `kc` meant "`security` exists"
+- **`2>&1` dropped on `command -v`** — required. `command -v` prints nothing to
+  stderr when the name is missing
+- **Tabs in `runcoms/gitconfig-cm`** — rejected as a finding. Git writes config
+  files with tabs — the format's own convention beats the repo-wide
+  `.editorconfig` default. `.editorconfig` now says so for `runcoms/gitconfig*`,
+  and the user's global `CLAUDE.md` names the rule
+- **`api_model`/`api_effort` and `auth_mode`/`secret` as a data clump** —
+  rejected. bash has no records — an `env` array adds a level of indirection
+  and saves no line, and choosing the model in Python moves the `429`
+  workaround away from where `cm -t` reports the model
+- **Commit-type source named twice in `CLAUDE.md`** — rejected as a finding.
+  DRY targets code — a doc may repeat a fact where a reader needs it
+- **Trailing-whitespace cleanup in `runcoms/gitconfig` inside this branch** —
+  rejected as a finding. Three lines, no behaviour change
+- **"Review verdicts live in `ADJUDICATIONS.md`" in `CLAUDE.md`** — rejected as
+  a finding. Meta-doc for reviewers, harmless
+- **Non-JSON HTTP error body keeps its newlines in the `💥` line** — rejected.
+  Rare, still readable, cut at 200 characters
+- **`auth_mode` tested in bash and again in Python** — rejected as a finding.
+  Linear script, one value read at its point of use
 
 ### Measurement method
 

@@ -7,3 +7,6 @@ trim_trailing_whitespace = true
 
 [{.gitattributes,.gitignore,.gitmodules}]
 indent_style = tab
+
+[runcoms/gitconfig*]
+indent_style = tab

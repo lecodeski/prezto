@@ -32,11 +32,9 @@ now() {
 }
 elapsed() { awk -v a="$1" -v b="$2" 'BEGIN { printf "%.2f", b - a }'; }
 warn() { echo "💥 $me: $*" >&2; }
+die() { warn "$* — aborting"; exit 1; }
 
-if ! git rev-parse --git-dir >/dev/null 2>&1; then
-  warn "not a repository work tree: $PWD — aborting"
-  exit 1
-fi
+git rev-parse --git-dir >/dev/null 2>&1 || die "not a repository work tree: $PWD"
 
 diff=$(git diff --cached)
 if [[ -z $diff ]]; then
@@ -44,26 +42,23 @@ if [[ -z $diff ]]; then
   diff=$(git diff --cached)
   [[ -n $diff ]] && echo "$me: nothing staged, staged all changes" >&2
 fi
-if [[ -z $diff ]]; then
-  warn 'nothing to commit — aborting'
-  exit 1
-fi
+[[ -n $diff ]] || die 'nothing to commit'
 diff=${diff:0:12000}
 
 stat=$(git diff --cached --stat | tail -20)
 style=$(git log -15 --format='%s' 2>/dev/null)
 types=$(git config --get-all cm.type)
 prefixes=$(sed 's/ *=.*//' <<<"$types" | paste -sd'|' -)
-pick='pick it from what the diff does, never from how often it appears above'
-scope='Follow the prefix with a scope in parentheses, then the colon, as in
+choice_rule='pick it from what the diff does, never from how often it appears above'
+scope_rule='Follow the prefix with a scope in parentheses, then the colon, as in
   type(scope): — the scope is the module, directory, or file the diff touches,
   one short lowercase word. A breaking change may add ! before the colon:
   type(scope)!:'
 if [[ -n $types ]]; then
   prefix_rule="- Start the subject with exactly one of these prefixes, no other —
-  $pick:
+  $choice_rule:
 $(sed 's/^/  /' <<<"$types")
-- $scope"
+- $scope_rule"
 # no cm.type: does any of the last 15 subjects carry a commit-type prefix?
 #   ^[a-z]+         lowercase type at line start      feat, fix, chore, refac
 #   (\([^)]*\))?    optional scope in parentheses     (api), (fzf)
@@ -73,23 +68,25 @@ $(sed 's/^/  /' <<<"$types")
 # <<< "here-string": feeds $style to grep's stdin, no echo pipe
 elif grep -qE '^[a-z]+(\([^)]*\))?!?:' <<<"$style"; then
   prefix_rule="- Start the subject with a commit-type prefix from the set the recent
-  subjects above use — $pick.
-- $scope"
+  subjects above use — $choice_rule.
+- $scope_rule"
 else
   prefix_rule='- Use no commit-type prefix — the recent subjects above use none.'
 fi
-# true when no cm.type is set, else the subject must open with "type(scope):"
+# prints why the subject is unusable — empty, or breaking cm.type — and succeeds;
+# fails silently when it is fine: no cm.type set, or it opens with "type(scope):"
 # ${var%%pat}: cut the longest suffix that matches pat — %% from the first match on
 #   ${1%%$'\n'*}        subject = first line of the message
 #   ^($prefixes)        one configured type            e.g. add|mod|del|...
 #   \([^\)]+\)          non-empty scope in parentheses (cm)
 #   !?:                 optional breaking-change mark, then the colon
-# "feat(x):", "mod:" without scope, "Fix(fzf):", "fix(cm)" without colon all fail
-valid() {
+# "feat(x):", "mod:" without scope, "Fix(fzf):", "fix(cm)" without colon all break it
+rejection() {
   local subject=${1%%$'\n'*}
-  [[ -z $prefixes || $subject =~ ^($prefixes)\([^\)]+\)!?: ]]
+  [[ -n $subject ]] || { echo 'empty subject from model'; return; }
+  [[ -n $prefixes && ! $subject =~ ^($prefixes)\([^\)]+\)!?: ]] &&
+    echo "prefix outside cm.type (allowed: $prefixes): $subject"
 }
-rejected() { echo "prefix outside cm.type (allowed: $prefixes): ${1%%$'\n'*}"; }
 
 # Prompt tuned for Haiku: data first (query-at-end), rules grouped in XML tags,
 # no literal backticks (double-quoted string -> would run command substitution).
@@ -152,35 +149,56 @@ Decide whether to write a body from the size and complexity of the staged diff:
 # broken installs and the Windows Store python stub
 py=''
 for cand in python3 python; do
-  if command -v "$cand" >/dev/null 2>&1 \
+  if command -v "$cand" >/dev/null \
       && "$cand" -c 'import sys; sys.exit(sys.version_info[0] < 3)' >/dev/null 2>&1; then
     py=$cand
     break
   fi
 done
+[[ -n $py ]] || warn 'no python 3 — falling back to claude -p'
 
-# Auth resolution: API key (env, Keychain item "anthropic-api-key", key file)
-# > unexpired Claude Code OAuth token > claude -p. OAuth token lives in the
-# Keychain on macOS, in ~/.claude/.credentials.json on Linux and Windows.
-auth_mode='' secret='' new_key='' kc='' kc_err=''
 key_file=${XDG_CONFIG_HOME:-$HOME/.config}/cm/anthropic-api-key
-command -v security >/dev/null 2>&1 && kc=1
-if [[ -n $py ]]; then
+has_security=''
+command -v security >/dev/null && has_security=1
+
+# API key: env, then Keychain item "anthropic-api-key", then key file — sets secret and kc_err
+find_key() {
   secret=${ANTHROPIC_API_KEY:-}
-  if [[ -z $secret && -n $kc ]]; then
+  if [[ -z $secret && -n $has_security ]]; then
     secret=$(security find-generic-password -s anthropic-api-key -w 2>/dev/null)
-    kc_rc=$?
+    local rc=$?
     # security exit 44: item not found, 36/128: login keychain locked (e.g. over SSH)
-    case $kc_rc in
+    case $rc in
       0|44) ;;
-      36|128) kc_err="keychain locked (security exit $kc_rc) — run 'security unlock-keychain' or set ANTHROPIC_API_KEY" ;;
-      *) kc_err="keychain lookup failed (security exit $kc_rc)" ;;
+      36|128) kc_err="keychain locked (security exit $rc) — run 'security unlock-keychain' or set ANTHROPIC_API_KEY" ;;
+      *) kc_err="keychain lookup failed (security exit $rc)" ;;
     esac
   fi
   [[ -z $secret && -r $key_file ]] && secret=$(<"$key_file")
+  secret=${secret//$'\r'}
+}
+
+store_key() {
+  local tmp
+  if [[ -n $has_security ]]; then
+    printf 'add-generic-password -U -s anthropic-api-key -a %s -w %s\n' "$(id -un)" "$1" \
+      | security -i >/dev/null
+  else
+    mkdir -p "${key_file%/*}" && tmp=$(mktemp "$key_file.XXXXXX") \
+      && printf '%s\n' "$1" > "$tmp" && mv "$tmp" "$key_file"
+  fi || warn 'could not store the API key — the next run asks again'
+}
+
+# Auth resolution: API key > unexpired Claude Code OAuth token > claude -p.
+# OAuth token lives in the Keychain on macOS, in ~/.claude/.credentials.json
+# on Linux and Windows.
+auth_mode='' secret='' new_key='' kc_err=''
+if [[ -n $py ]]; then
+  find_key
   if [[ -n $secret ]]; then
     auth_mode=apikey
   else
+    [[ -n $kc_err ]] && warn "$kc_err"
     creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
     creds_file=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.credentials.json
     [[ -z $creds && -r $creds_file ]] && creds=$(cat "$creds_file")
@@ -199,18 +217,15 @@ print(c["accessToken"])' 2>/dev/null | tr -d '\r')
       [[ -n $new_key ]] && auth_mode=apikey secret=$new_key
     fi
   fi
+  [[ -n $auth_mode ]] || warn 'no API key and no valid OAuth token — falling back to claude -p'
 fi
 
 # OAuth token: raw API answers 429 for 5.x models; 4.5 rejects effort
 api_model=$model api_effort=$effort
-[[ $auth_mode == oauth ]] && api_model=claude-haiku-4-5 api_effort=''
-
-[[ -n $kc_err ]] && warn "$kc_err"
-case $auth_mode in
-  oauth) warn "no API key — falling back to $api_model via the Claude Code OAuth token" ;;
-  '') [[ -n $py ]] && why='no API key and no valid OAuth token' || why='no python 3'
-      warn "$why — falling back to claude -p" ;;
-esac
+if [[ $auth_mode == oauth ]]; then
+  api_model=claude-haiku-4-5 api_effort=''
+  warn "no API key — falling back to $api_model via the Claude Code OAuth token"
+fi
 
 msg='' t0=''
 if [[ -n $auth_mode ]]; then
@@ -268,20 +283,14 @@ if not text:
 print(text)
 PY
 )
-  api_rc=$?
-  [[ -n $msg ]] && state=ok || state=failed
-  if [[ -n $msg ]] && ! valid "$msg"; then
-    warn "$(rejected "$msg") — falling back to claude -p"
+  api_rc=$? state=ok
+  if [[ -z $msg ]]; then
+    state=failed
+  elif why=$(rejection "$msg"); then
+    warn "$why — falling back to claude -p"
     msg='' state=rejected
   fi
-  if [[ -n $new_key ]] && (( api_rc != 1 )); then
-    if [[ -n $kc ]]; then
-      printf 'add-generic-password -U -s anthropic-api-key -a %s -w %s\n' "$(id -un)" "$new_key" \
-        | security -i >/dev/null
-    else
-      mkdir -p "${key_file%/*}" && (umask 077 && printf '%s\n' "$new_key" > "$key_file")
-    fi || warn 'could not store the API key — the next run asks again'
-  fi
+  [[ -n $new_key ]] && (( api_rc != 1 )) && store_key "$new_key"
   (( timing )) && printf '%s: api call (%s, %s) %s: %ss\n' \
     "$me" "$api_model" "$auth_mode" "$state" "$(elapsed "$t0" "$(now)")" >&2
 fi
@@ -291,23 +300,14 @@ if [[ -z $msg ]]; then
   # request via stdin: --mcp-config is variadic and would swallow a trailing arg
   # --setting-sources user: skip workspace settings — untrusted dirs warn otherwise
   msg=$(printf '%s\n' "$request" | claude -p --model "$model" --effort "$effort" --no-session-persistence \
-    --setting-sources user --strict-mcp-config --mcp-config '{"mcpServers":{}}' | tr -d '\r') || {
-    warn 'claude -p failed — aborting'
-    exit 1
-  }
+    --setting-sources user --strict-mcp-config --mcp-config '{"mcpServers":{}}' | tr -d '\r') \
+    || die 'claude -p failed'
   msg=${msg#"${msg%%[![:space:]]*}"}
   (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
     "$me" "$model" "$(elapsed "$t0" "$(now)")" >&2
 fi
 
-if [[ -z $msg ]]; then
-  warn 'empty message from model — aborting'
-  exit 1
-fi
-if ! valid "$msg"; then
-  warn "$(rejected "$msg") — aborting"
-  exit 1
-fi
+why=$(rejection "$msg") && die "$why"
 
-git commit -qm "$msg" || { warn 'git commit failed — aborting'; exit 1; }
+git commit -qm "$msg" || die 'git commit failed'
 git -P log -1 --stat --summary --pretty=format:'%D [%h] %an%n%n%C(bold)%s%C(reset)%n%+b'
