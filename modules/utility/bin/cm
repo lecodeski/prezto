@@ -170,12 +170,11 @@ find_key() {
     # security exit 44: item not found, 36/128: login keychain locked (e.g. over SSH)
     case $rc in
       0|44) ;;
-      36|128) kc_err="keychain locked (security exit $rc) — run 'security unlock-keychain' or set ANTHROPIC_API_KEY" ;;
+      36|128) kc_err="keychain locked or access cancelled (security exit $rc) — run 'security unlock-keychain' or set ANTHROPIC_API_KEY" ;;
       *) kc_err="keychain lookup failed (security exit $rc)" ;;
     esac
   fi
-  [[ -z $secret && -r $key_file ]] && secret=$(<"$key_file")
-  secret=${secret//$'\r'}
+  [[ -z $secret && -r $key_file ]] && read -r secret < "$key_file"
 }
 
 store_key() {
@@ -201,14 +200,14 @@ if [[ -n $py ]]; then
     [[ -n $kc_err ]] && warn "$kc_err"
     creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
     creds_file=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.credentials.json
-    [[ -z $creds && -r $creds_file ]] && creds=$(cat "$creds_file")
+    [[ -z $creds && -r $creds_file ]] && creds=$(<"$creds_file")
     if [[ -n $creds ]]; then
       secret=$(printf '%s' "$creds" | "$py" -c 'import json, sys, time
 c = json.load(sys.stdin)["claudeAiOauth"]
 e = c.get("expiresAt")
 if e and e / 1000 <= time.time():
     sys.exit(1)
-print(c["accessToken"])' 2>/dev/null | tr -d '\r')
+print(c["accessToken"])' 2>/dev/null)
       [[ -n $secret ]] && auth_mode=oauth
     fi
     if [[ -t 0 && -t 2 && -z $kc_err ]]; then
@@ -217,6 +216,7 @@ print(c["accessToken"])' 2>/dev/null | tr -d '\r')
       [[ -n $new_key ]] && auth_mode=apikey secret=$new_key
     fi
   fi
+  secret=${secret//[[:space:]]}
   [[ -n $auth_mode ]] || warn 'no API key and no valid OAuth token — falling back to claude -p'
 fi
 
@@ -224,7 +224,7 @@ fi
 api_model=$model api_effort=$effort
 if [[ $auth_mode == oauth ]]; then
   api_model=claude-haiku-4-5 api_effort=''
-  warn "no API key — falling back to $api_model via the Claude Code OAuth token"
+  warn "no usable API key — falling back to $api_model via the Claude Code OAuth token"
 fi
 
 msg='' t0=''
@@ -264,7 +264,7 @@ except urllib.error.HTTPError as e:
     cause = ""
     try:
         cause = e.read().decode(errors="replace")
-        cause = json.loads(cause)["error"]["message"]
+        cause = str(json.loads(cause)["error"]["message"])
     except Exception:
         pass
     fall(f"API call failed ({e}: {cause[:200]})", 1)
@@ -290,7 +290,7 @@ PY
     warn "$why — falling back to claude -p"
     msg='' state=rejected
   fi
-  [[ -n $new_key ]] && (( api_rc != 1 )) && store_key "$new_key"
+  [[ -n $new_key ]] && (( api_rc != 1 )) && store_key "$secret"
   (( timing )) && printf '%s: api call (%s, %s) %s: %ss\n' \
     "$me" "$api_model" "$auth_mode" "$state" "$(elapsed "$t0" "$(now)")" >&2
 fi
@@ -309,5 +309,9 @@ fi
 
 why=$(rejection "$msg") && die "$why"
 
-git commit -qm "$msg" || die 'git commit failed'
+if ! git commit -qm "$msg"; then
+  editmsg=$(git rev-parse --git-path COMMIT_EDITMSG)
+  printf '%s\n' "$msg" > "$editmsg"
+  die "git commit failed (message kept, retry: git commit -F $editmsg)"
+fi
 git -P log -1 --stat --summary --pretty=format:'%D [%h] %an%n%n%C(bold)%s%C(reset)%n%+b'

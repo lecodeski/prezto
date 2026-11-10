@@ -268,9 +268,38 @@ reason — evidence.
 - **Keychain warning only when no key was found** — required. A key file or
   env key after a locked keychain made the run succeed under a misleading
   "keychain locked" `💥` line
-- **CR stripped from every API key** — required. A key file saved with CRLF or
-  an env key with `\r` made urllib reject the header — its error text put the
-  whole key into the `💥` line
+- **All whitespace stripped from the resolved key, once** — required. A CR or
+  LF in the key — a CRLF key file, an env key with a trailing newline — made
+  urllib reject the header, and its error text put the whole key into the `💥`
+  line. Stripping only CR left the LF case open. One strip after the auth
+  block covers env, Keychain, key file, OAuth token, and a pasted key — the
+  OAuth `tr -d '\r'` pipe stage is gone
+- **Key file read with `read -r`, first line only** — required. `$(<file)`
+  kept inner lines, so a comment line glued itself onto the key
+- **`$(<file)` for the credentials file too** — required. `$(cat …)` next to
+  `$(<…)` was two idioms for one job and one extra process
+- **Failed `git commit` keeps the message** — required. With `commit.gpgSign`
+  a cancelled pinentry, or a failing hook, lost the generated message, and a
+  retry paid a new API call. `cm` writes it to `COMMIT_EDITMSG` itself — git
+  writes that file only after the `pre-commit` hook — and names the retry
+  `git commit -F …` (tested with a failing `pre-commit` hook and a failing
+  `gpg.program`)
+- **Exit 36/128 reads "keychain locked or access cancelled"** — required. 128
+  is the low byte of `errSecUserCanceled` (-128): over SSH no unlock dialog can
+  show, but a denied access dialog gives 128 too — "locked" alone was wrong
+  there
+- **OAuth line says "no usable API key"** — required. After "keychain locked",
+  "no API key" contradicted it — the key exists, it is unreachable
+- **`error.message` passed through `str()`** — required. A proxy body
+  `{"error":{"message":null}}` made `cause[:200]` raise outside the `try` —
+  a bare traceback instead of the `💥` line
+- **Comment above `find_key` stays** — kept, decided by the user
+- **Orphan `anthropic-api-key.XXXXXX` after a failed write or `mv`** — kept.
+  Only on a full disk or a write error — removing it costs more syntax than the
+  case is worth, and the file is mode 600
+- **Python starts three times on the OAuth path** — kept. About 20–40 ms on a
+  0.6–2.7 s path — parsing the credentials inside the API script would pull
+  auth selection and its warnings out of bash
 - **Names `choice_rule`, `scope_rule`, `has_security`** — required. `pick` and
   `scope` held prompt sentences, `kc` meant "`security` exists"
 - **`2>&1` dropped on `command -v`** — required. `command -v` prints nothing to
