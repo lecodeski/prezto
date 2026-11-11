@@ -6,7 +6,6 @@ tap "buo/cask-upgrade", trusted: true
 tap "datahub-project/tap"
 tap "lecodeski/maple-font"
 tap "marco-arnold/lnka", trusted: true
-tap "sheprd-labs/tap"
 tap "sikarugir-app/sikarugir", "https://github.com/Sikarugir-App/homebrew-sikarugir", trusted: true
 # Simple, modern, secure file encryption
 brew "age"
@@ -357,8 +356,6 @@ cask "modrinth"
 cask "nightfall"
 # Replacement for Docker Desktop
 cask "orbstack"
-# Sheprd native workspace for coding agents and terminals
-cask "sheprd-labs/tap/sheprd", trusted: true
 # Control your Sonos system
 cask "sonos"
 # Text editor for code, markup and prose
