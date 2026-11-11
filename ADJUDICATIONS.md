@@ -268,12 +268,27 @@ reason — evidence.
 - **Keychain warning only when no key was found** — required. A key file or
   env key after a locked keychain made the run succeed under a misleading
   "keychain locked" `💥` line
-- **All whitespace stripped from the resolved key, once** — required. A CR or
+- **All whitespace stripped from an API key at its source** — required. A CR or
   LF in the key — a CRLF key file, an env key with a trailing newline — made
   urllib reject the header, and its error text put the whole key into the `💥`
-  line. Stripping only CR left the LF case open. One strip after the auth
-  block covers env, Keychain, key file, OAuth token, and a pasted key — the
-  OAuth `tr -d '\r'` pipe stage is gone
+  line. Stripping only CR left the LF case open. The strip sits at the end of
+  `find_key` and right after the prompt's `read`, before the emptiness checks —
+  one strip after the auth decision let a whitespace-only key choose the
+  API-key path with `x-api-key: ''`. The OAuth `tr -d '\r'` pipe stage is gone
+- **`claude -p` fallback runs `--safe-mode --tools ""`** — required. With the
+  default tools, text in the staged diff could make Haiku read files or run an
+  allowlisted command — a prompt injection from the commit itself. `--safe-mode`
+  also drops plugins, hooks, skills, CLAUDE.md and MCP servers, and replaces
+  `--strict-mcp-config --mcp-config '{…}'`. `--setting-sources user` stays —
+  without it, `--safe-mode` still warns on workspace settings in an untrusted
+  dir (tested 2026-11-11, both runs 3 s against 4.7 s before)
+- **Fallback prompt names the rejection** — required. After a `cm.type`
+  rejection, `claude -p` got the same prompt and the same model, so it likely
+  repeated the mistake and `cm` aborted. The request now ends with "A previous
+  draft was rejected: … Fix that."
+- **Hand-made key file not checked for mode 600** — kept. `stat` options differ
+  between macOS and Linux — a portable check is clumsy. The file `cm` writes is
+  always 600, a hand-made one is the user's call
 - **Key file read with `read -r`, first line only** — required. `$(<file)`
   kept inner lines, so a comment line glued itself onto the key
 - **`$(<file)` for the credentials file too** — required. `$(cat …)` next to

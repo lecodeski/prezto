@@ -7,7 +7,7 @@
 # ${XDG_CONFIG_HOME:-~/.config}/cm/anthropic-api-key (mode 600), or the
 # unexpired Claude Code OAuth token (macOS Keychain, or
 # ~/.claude/.credentials.json on Linux/Windows).
-# Fallback: `claude -p` with MCP servers stripped (uses Claude Code auth).
+# Fallback: `claude -p` in safe mode without tools (uses Claude Code auth).
 # Commit types: multi-valued `git config cm.type` ("name = meaning") — when set,
 # the prompt lists them and a subject without "type(scope):" from that list is
 # rejected.
@@ -167,7 +167,7 @@ find_key() {
   if [[ -z $secret && -n $has_security ]]; then
     secret=$(security find-generic-password -s anthropic-api-key -w 2>/dev/null)
     local rc=$?
-    # security exit 44: item not found, 36/128: login keychain locked (e.g. over SSH)
+    # security exit 44: item not found, 36: keychain locked, 128: locked or access cancelled (e.g. over SSH)
     case $rc in
       0|44) ;;
       36|128) kc_err="keychain locked or access cancelled (security exit $rc) — run 'security unlock-keychain' or set ANTHROPIC_API_KEY" ;;
@@ -175,6 +175,7 @@ find_key() {
     esac
   fi
   [[ -z $secret && -r $key_file ]] && read -r secret < "$key_file"
+  secret=${secret//[[:space:]]}
 }
 
 store_key() {
@@ -213,10 +214,10 @@ print(c["accessToken"])' 2>/dev/null)
     if [[ -t 0 && -t 2 && -z $kc_err ]]; then
       read -rsp "$me: no API key found. Paste one for $model (Enter skips): " new_key
       echo >&2
+      new_key=${new_key//[[:space:]]}
       [[ -n $new_key ]] && auth_mode=apikey secret=$new_key
     fi
   fi
-  secret=${secret//[[:space:]]}
   [[ -n $auth_mode ]] || warn 'no API key and no valid OAuth token — falling back to claude -p'
 fi
 
@@ -289,6 +290,7 @@ PY
   elif why=$(rejection "$msg"); then
     warn "$why — falling back to claude -p"
     msg='' state=rejected
+    request+=$'\n\n'"A previous draft was rejected: $why. Fix that."
   fi
   [[ -n $new_key ]] && (( api_rc != 1 )) && store_key "$secret"
   (( timing )) && printf '%s: api call (%s, %s) %s: %ss\n' \
@@ -297,10 +299,10 @@ fi
 
 if [[ -z $msg ]]; then
   (( timing )) && t0=$(now)
-  # request via stdin: --mcp-config is variadic and would swallow a trailing arg
-  # --setting-sources user: skip workspace settings — untrusted dirs warn otherwise
+  # request via stdin: --tools is variadic and would swallow a trailing arg
+  # --setting-sources user: skip workspace settings — untrusted dirs warn otherwise, --safe-mode included
   msg=$(printf '%s\n' "$request" | claude -p --model "$model" --effort "$effort" --no-session-persistence \
-    --setting-sources user --strict-mcp-config --mcp-config '{"mcpServers":{}}' | tr -d '\r') \
+    --safe-mode --setting-sources user --tools "" | tr -d '\r') \
     || die 'claude -p failed'
   msg=${msg#"${msg%%[![:space:]]*}"}
   (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
