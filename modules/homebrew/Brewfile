@@ -5,7 +5,6 @@ tap "bradyjoslin/sharewifi"
 tap "buo/cask-upgrade", trusted: true
 tap "datahub-project/tap"
 tap "lecodeski/maple-font"
-tap "marco-arnold/lnka", trusted: true
 tap "sikarugir-app/sikarugir", "https://github.com/Sikarugir-App/homebrew-sikarugir", trusted: true
 # Simple, modern, secure file encryption
 brew "age"
@@ -301,8 +300,6 @@ brew "bellicose100xp/tap/jiq", trusted: true
 brew "bradyjoslin/sharewifi/sharewifi", trusted: true
 # CLI for DataHub, the open-source context platform for humans and AI agents
 brew "datahub-project/tap/datahub", trusted: true
-# CLI tool for managing symlinks with interactive Terminal UI
-brew "marco-arnold/lnka/lnka", trusted: true
 # Enable Windows-like alt-tab
 cask "alt-tab"
 # Allows connection to a computer remotely
