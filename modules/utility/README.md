@@ -211,9 +211,16 @@ standalone commands available:
 - `cm` generates a commit message for the staged diff via Claude and commits
   it (stages all changes if nothing is staged).
   - `cm -t` prints the time of each step.
+  - `cm <type>` (e.g. `cm feat`) fixes the commit type — it must be one of
+    `cm.type` where those apply.
   - `git config --add cm.type "<name> = <meaning>"`, once per type, sets the
     commit types — the subject then must start with `<name>(<scope>):` from that list,
     or `<name>(<scope>)!:` for a breaking change.
+  - the types apply in an own repo — no remote, or a remote URL that contains a
+    `cm.own` value (`git config --add cm.own lecodeski/`). Other repos follow
+    their history.
+  - `git config cm.prefix true` forces the types, `false` turns prefixes off —
+    per repo.
   - review verdicts: [ADJUDICATIONS.md](../../ADJUDICATIONS.md#cm-modulesutilitybincm)
 - `cpy` copies stdin to the clipboard (`pbcopy`, `xsel` or `ncat` over SSH).
 - `pst` pastes the clipboard to stdout (`pbpaste`, `xsel` or `ncat` over SSH).

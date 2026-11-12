@@ -2,22 +2,25 @@
 #
 # ai-commit — generate a commit message for the staged diff and commit it.
 # Portable bash (macOS, Linux, Windows/Git Bash).
-# Fast path: one direct Haiku API call, authenticated via ANTHROPIC_API_KEY,
+# Fast path: one direct API call, authenticated via ANTHROPIC_API_KEY,
 # the macOS Keychain item "anthropic-api-key", the file
 # ${XDG_CONFIG_HOME:-~/.config}/cm/anthropic-api-key (mode 600), or the
 # unexpired Claude Code OAuth token (macOS Keychain, or
 # ~/.claude/.credentials.json on Linux/Windows).
 # Fallback: `claude -p` in safe mode without tools (uses Claude Code auth).
-# Commit types: multi-valued `git config cm.type` ("name = meaning") — when set,
-# the prompt lists them and a subject without "type(scope):" from that list is
-# rejected.
-# Pass -t/--time to print per-step timings (api call, fallback) to stderr.
+# Commit types: multi-valued `git config cm.type` ("name = meaning") — used in an
+# own repo (no remote, or a remote URL holding a `cm.own` value) or with
+# `cm.prefix=true`; the prompt lists them and a subject without "type(scope):"
+# from that list is rejected. `cm.prefix=false`: no prefix at all.
+# Usage: cm [-t|--time] [type] — -t prints per-step timings (api call, fallback)
+# to stderr; a type (e.g. `cm feat`) fixes the commit type and must be in
+# cm.type when that applies.
 #
 
 set -u -o pipefail
 
-model=claude-haiku-5-5
-effort=low
+model=claude-sonnet-5-5
+effort=medium
 me=${0##*/}
 
 timing=0
@@ -25,6 +28,7 @@ if [[ ${1:-} == -t || ${1:-} == --time ]]; then
   timing=1
   shift
 fi
+type_arg=${1:-}
 
 # EPOCHREALTIME needs bash >= 5; fall back to whole seconds elsewhere
 now() {
@@ -47,14 +51,26 @@ diff=${diff:0:12000}
 
 stat=$(git diff --cached --stat | tail -20)
 style=$(git log -15 --format='%s' 2>/dev/null)
-types=$(git config --get-all cm.type)
+types='' no_prefix='' prefix=$(git config --type=bool cm.prefix) remotes=$(git remote -v)
+if [[ $prefix == false ]]; then
+  no_prefix=1
+elif [[ $prefix == true || -z $remotes ]] || grep -qF -f <(git config --get-all cm.own) <<<"$remotes"; then
+  types=$(git config --get-all cm.type)
+fi
 prefixes=$(sed 's/ *=.*//' <<<"$types" | paste -sd'|' -)
 choice_rule='pick it from what the diff does, never from how often it appears above'
 scope_rule='Follow the prefix with a scope in parentheses, then the colon, as in
   type(scope): — the scope is the module, directory, or file the diff touches,
   one short lowercase word. A breaking change may add ! before the colon:
   type(scope)!:'
-if [[ -n $types ]]; then
+if [[ -n $type_arg ]]; then
+  [[ -z $types || $type_arg =~ ^($prefixes)$ ]] || die "unknown type $type_arg (cm.type: $prefixes)"
+  prefixes=$type_arg
+  prefix_rule="- Start the subject with the prefix $type_arg — set by the user, no other.
+- $scope_rule"
+elif [[ -n $no_prefix ]]; then
+  prefix_rule='- Use no commit-type prefix.'
+elif [[ -n $types ]]; then
   prefix_rule="- Start the subject with exactly one of these prefixes, no other —
   $choice_rule:
 $(sed 's/^/  /' <<<"$types")
@@ -88,7 +104,7 @@ rejection() {
     echo "prefix outside cm.type (allowed: $prefixes): $subject"
 }
 
-# Prompt tuned for Haiku: data first (query-at-end), rules grouped in XML tags,
+# Prompt tuned for Haiku and Sonnet: data first (query-at-end), rules grouped in XML tags,
 # no literal backticks (double-quoted string -> would run command substitution).
 # Keep the rules in sync with ~/.claude/commands/commit.md (/commit).
 request="Write a git commit message for the staged changes shown below.
@@ -245,7 +261,7 @@ else:
 
 body = {
     "model": os.environ["AIC_MODEL"],
-    "max_tokens": 4000,
+    "max_tokens": 16000,
     "messages": [{"role": "user", "content": sys.argv[1]}],
 }
 if os.environ["AIC_EFFORT"]:

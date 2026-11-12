@@ -1,8 +1,0 @@
-# commit types for `cm` (modules/utility/bin/cm) — included by gitconfig per remote
-[cm]
-	type = "add = new file, feature, alias, or entry"
-	type = "mod = changed behavior, or a setting changed, enabled, or disabled"
-	type = "del = removal"
-	type = "fix = bug fix"
-	type = "refac = same behavior, new structure"
-	type = "bump = version, lib, framework, or submodule update"

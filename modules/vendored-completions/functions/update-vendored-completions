@@ -89,7 +89,7 @@ zprezto-update-trylock || return
 
     # install if content changed
     changed=0
-    if ! cmp -s "$tmp" "$file"; then
+    if ! command cmp -s "$tmp" "$file"; then
       mv -f "$tmp" "$file" ||
         { print -u2 "    💥 $name (mv failed, kept previous version)"; failed=1; continue }
       changed=1

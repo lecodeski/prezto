@@ -38,7 +38,7 @@ No build or test suite. Instead:
 
 ## Commit convention
 
-`<type>(<scope>): <message with `backticked` names>` — types and their meanings: `cm.type` in `runcoms/gitconfig-cm`. Exactly one trailing emoji, varied across commits. The `cm` script (`modules/utility/bin/cm`) and `/commit` generate these — both read `cm.type` and carry the scope and type-choice rules.
+`<type>(<scope>): <message with `backticked` names>` — types and their meanings: `cm.type` in the `[cm]` section of `runcoms/gitconfig`. Exactly one trailing emoji, varied across commits. The `cm` script (`modules/utility/bin/cm`) and `/commit` generate these — both read `cm.type` and carry the scope and type-choice rules.
 
 ## Architecture
 
@@ -47,7 +47,7 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 - `init.zsh` — loader. Reads `zstyle ':prezto:load' pmodule` from `runcoms/zpreztorc` and sources each `modules/<name>/init.zsh` **in listed order** (order matters: `syntax-highlighting` before `history-substring-search`, `completion` before `autosuggestions`, `prompt` late). Also defines the fork's `zprezto-update` + `zprezto-restart`.
 - `runcoms/zpreztorc` — the switchboard: module list plus every `zstyle ':prezto:*'` setting (including the vendored-completion URLs). A module reads its own settings; it does not read the list.
 - `modules/<name>/` — `init.zsh` plus optional `functions/` (autoloaded, `_*`/`README*` skipped), `bin/` (module puts it on PATH itself — only `utility` does), and `external/` (git submodules of third-party plugins). Fork additions: `fzf` module (fzf-tab, fzf-git), `vendored-completions` module, `utility/bin/` (`cm`, `cpy`, `pst`).
-- `runcoms/` — zsh startup files plus non-zsh dotfiles symlinked too (`gitconfig`, `gitconfig-cm`, `vimrc`, `batrc`, `ripgreprc`, `p10k.zsh`, `p10k-intellij.zsh`). Bulk of personal aliases/keybindings: `runcoms/zshrc` (~500 added lines vs upstream), grouped by `###` section headers.
+- `runcoms/` — zsh startup files plus non-zsh dotfiles symlinked too (`gitconfig`, `vimrc`, `batrc`, `ripgreprc`, `p10k.zsh`, `p10k-intellij.zsh`). Bulk of personal aliases/keybindings: `runcoms/zshrc` (~500 added lines vs upstream), grouped by `###` section headers.
 - `setup_homebrew_prezto.sh` / `setup_prezto.zsh` — one-time machine bootstrap; rarely touched.
 
 ## Fork policies & gotchas
@@ -89,9 +89,9 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
   (mode 600), or the Claude Code OAuth token, and falls back to `claude -p` —
   each fallback prints a 💥 line with its cause. Without a key, on a tty, it
   asks for one and stores it once the API accepts it — in the Keychain where
-  `security` exists, else in that file. Commit types come from `cm.type` in
-  `runcoms/gitconfig-cm`, which `runcoms/gitconfig` includes only for
-  `lecodeski` remotes, SSH and HTTPS
+  `security` exists, else in that file. Commit types come from the `[cm]`
+  section in `runcoms/gitconfig` — `cm` uses them in own repos, per
+  [README](modules/utility/README.md#commands)
 - two wrapper layers cover the command names. First ~570 aliases. Then prezto's
   `gnu-utility` functions, which exec the homebrew `g*` GNU binaries — 103 names
   are live, among them `ls rm cp mv sed awk find date stat head tail wc sort
@@ -111,6 +111,6 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
   prompt, and exits 0 with the file intact. On a tty the alias prompts and
   deletes as usual. For a delete that must not prompt, use `\rm` — it drops the
   alias and with it the `-i` guard
-- `cmp` is aliased to `cm && git push` in `zshrc` — use `\cmp` or `command cmp` for the real binary
+- `cmp` is a function in `zshrc`, `cm "$@" && git push`, so `cmp feat` passes the type to `cm` — `command cmp` is the sole route to the real binary, `\cmp` skips only aliases and still hits the function
 - in `runcoms/gitconfig`, the `env -u GIT_DIR` wrapper and absolute difftool paths are load-bearing (IntelliJ Settings Sync can otherwise wipe repos on cold start) — don't "simplify" them away
 - style per `.editorconfig`: 2-space indent, LF, final newline, no trailing whitespace

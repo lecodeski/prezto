@@ -22,15 +22,44 @@ reason — evidence.
 - **Different models on the OAuth path (4.5) and the `claude -p` fallback
   (5.5)** — accepted. The fallback runs only after a failed api call — same
   `429` reason as above
-- **`effort=low` on Haiku 5.5** — chosen. With adaptive thinking, the model
-  skips thinking on trivial diffs — most commits here change 1–6 lines — and
-  thinks briefly on large ones. `medium` more than doubled output tokens in
-  Anthropic's tests. `thinking: disabled` leaks reasoning-like text into the
-  reply more often, which would land in the commit message. Latency on the
-  API-key path is not measured yet
-- **`max_tokens` 4000** — required. Haiku 5.5 thinking counts toward
-  `max_tokens` — the old 400 could end the reply before any text. The value is
-  a cap only and costs nothing unused
+- **Sonnet 5.5 at `effort=medium` on the API-key path and the fallback** —
+  chosen by the user. Measured via `claude -p` on 6 diffs × 3 runs, neutral
+  `main` history (2026-11-12) — "feat" means the 2 true feature diffs, "small"
+  the alias, setting, and removal diffs:
+
+  | model, effort | feat | small right | large diff | small diff | cost/large | over 50 chars |
+  |---|---|---|---|---|---|---|
+  | Haiku 5.5 low | 2/6 | most | ~3 s | ~3 s | — | — |
+  | Haiku 5.5 high | 6/6 | 7/9 | 11–23 s | 1–3 s | ~$0.002 | 7/18 |
+  | Sonnet 5.5 low | 4/6 | 9/9 | ~2 s | ~1 s | ~$0.003 | 7/18 |
+  | **Sonnet 5.5 medium** (3 runs) | 18/18 | 27/27 | ~2.3 s | ~1.2 s | ~$0.003 | 35/54 |
+  | Sonnet 5.5 high | 6/6 | 9/9 | 8–12 s | ~1 s | ~$0.014 | 4/18 |
+  | Opus 5.5 high | 4/6 | 9/9 | 5–19 s | 1–4 s | ~$0.016 | 1/18 |
+
+  Fastest with the best types, about $0.40 for 300 commits a month. Haiku at
+  `high` thinks 3–5× longer than Sonnet and is slower on large diffs. `medium`
+  thinks rarely — one run in 54 took 13 s. `thinking: disabled` leaks
+  reasoning-like text into the reply more often. Latency on the direct
+  API-key path is not measured yet — `claude -p` adds no start-up time to
+  these numbers
+- **Subjects over 50 characters at `medium`** — accepted by the user. 35/54
+  were too long — 24 of them by 1–3 characters, mostly the backticks and the
+  emoji the prompt itself asks for, at most +11. Without thinking the model
+  does not count exactly
+- **`effort=high` for exact length** — rejected. 4/18 over 50, but 8–12 s per
+  large diff
+- **Length check in `cm` with one retry** — rejected. 17/18 within 50 after the
+  retry, but large diffs took ~7 s on average, and a second miss would need its
+  own rule
+- **Length rule "not counting backticks and the emoji"** — rejected. Sonnet
+  used the room: raw over-50 rose from 65 % to 75 %, text over-50 from 35 % to
+  42 %, and thinking set in more often
+- **Opus 5.5** — rejected. Costlier, less steady, `feat` 4/6
+- **Effort chosen by diff size (`low` small, `high` large)** — rejected by the
+  user. One fixed effort is simpler
+- **`max_tokens` 16000** — required. Thinking counts toward `max_tokens` and
+  can grow on a 12000-character diff — 4000 could end the reply before any
+  text. The value is a cap only and costs nothing unused
 
 ### Authentication
 
@@ -39,9 +68,13 @@ reason — evidence.
   bill the API instead of the subscription
 - **Broken API key does not fall through to OAuth** — accepted. A revoked or
   rotated key sends `cm` to the slow `claude -p` fallback — `cm` still works.
-  A second api-call chain costs more code than this rare case is worth. The
-  same holds for a key mistyped at the prompt while a valid OAuth token exists
-  — the `💥` line names the `401` at once
+  A second api-call chain costs more code than this rare case is worth.
+- **A key mistyped at the prompt replaces a valid OAuth token for that one run
+  only** — accepted. The API answers `401`, the `💥` line names it, and the run
+  goes through `claude -p` (about 3 s with `--safe-mode --tools ""`). The key is
+  never stored — exit 1 means unproven — so the next run finds no key, takes
+  the OAuth token again, and asks again. Nothing hides OAuth for good. A retry
+  with the OAuth token after the `401` is the second api-call chain above
 - **Keychain access dialog blocks `cm`** — non-problem. An item created with
   `security add-generic-password` lists `/usr/bin/security` as trusted, so the
   lookup runs without a dialog
@@ -102,18 +135,6 @@ reason — evidence.
 - **`429` quirk stays out of `CLAUDE.md`** — DRY. This file and the one-line
   `cm` comment at the OAuth override carry it — `CLAUDE.md` lists the auth
   sources only
-- **`includeIf` for SSH and HTTPS remotes** — required. A `lecodeski` clone
-  over `https://github.com/…` matched no `includeIf` and silently lost the
-  types
-- **No `includeIf` for `ssh://git@github.com/lecodeski/…`** — YAGNI. Every
-  remote here uses the `git@github.com:` form — the block is two lines once
-  one shows up
-- **A repo with both a `lecodeski` SSH and HTTPS remote gets `cm.type` twice**
-  — accepted. Both `includeIf` blocks fire, so the list doubles in the prompt —
-  `rejection()` still works. No single `hasconfig` glob covers both forms:
-  `**github.com?lecodeski/**` and `**github.com[:/]lecodeski/**` match the SSH
-  form only (tested 2026-11-01). Deduplication in `cm` and `/commit` costs a
-  pipe stage for a case that does not occur here
 - **Keychain account from `id -un`, not `$USER`** — required. Under `set -u`,
   an environment without `USER` aborted `cm` after a successful API call and
   lost the commit
@@ -157,10 +178,26 @@ reason — evidence.
 ### Commit-type prompt
 
 - **Commit types come from `git config cm.type`, not from the history** —
-  chosen. The house types live in `runcoms/gitconfig-cm`, which
-  `runcoms/gitconfig` includes per remote URL — `git@github.com:lecodeski/**`
-  and `https://github.com/lecodeski/**`.
-  Config decides which taxonomy applies — Haiku only picks within it
+  chosen. The house types live in the `[cm]` section of `runcoms/gitconfig`.
+  Config holds the data, `cm` decides — Haiku only picks within the list
+- **`cm` decides where the types apply, config holds data only** — chosen.
+  `cm.prefix=false` → no prefix, `cm.prefix=true` → types, unset → types in an
+  own repo: no remote, or a remote URL that contains a `cm.own` value
+  (`lecodeski/`). Any other repo follows its history. Tested 2026-11-12: no
+  remote, `lecodeski` over SSH, HTTPS, and `ssh://` → types; `mayflower` → none;
+  `cm.prefix` overrides both ways
+- **Repos without a remote get the types** — required by the user. A fresh
+  `git init` has no other local convention, so it needs the prefixes most
+- **`includeIf` layers as the switch** — rejected. Several `includeIf` blocks
+  plus a reset runcom with an empty `type =` — "house everywhere, reset for any
+  remote, house again for own remotes" — rebuilt an `if` in config files, and
+  the reset file configured nothing. Before that, `includeIf` per own remote
+  could not reach repos without a remote — git has no "no remote" or negated
+  condition
+- **`includeIf "gitdir:~/…"` per path** — rejected. Own and client repos share
+  the home directory without a fixed root
+- **`init.templateDir` with `cm.type`** — rejected. `git clone` applies the
+  template too, so client clones would get the house types
 - **Meanings appear in the prompt only when `cm.type` is set** — required.
   Measured with Haiku 4.5, a `feat:`/`chore:` history, 4 diffs × 4 runs —
   foreign `add:`/`mod:` prefixes: no meanings 0/16, meanings always on 3/16,
@@ -170,9 +207,10 @@ reason — evidence.
   `cm.type`. It guessed — Commitizen's default `bump: version X → Y` subject
   switched the house taxonomy on in `feat:` repos, and 15 `fix:` subjects in a
   row locked the set to `fix`
-- **`git config --local cm.type` per repo instead of `includeIf`** — rejected
-  as the default. `.git/config` is not versioned — a fresh clone loses it. It
-  stays available for a single foreign repo with its own types
+- **`git config --local cm.type` per repo as the default** — rejected.
+  `.git/config` is not versioned — a fresh clone loses it. It stays available
+  for a single foreign repo with its own types, and `cm.prefix` is the light
+  per-repo switch
 - **Subject validated as `type(scope):` against `cm.type`** — chosen. A prefix
   outside the list or a missing scope fails like an empty reply — the api path
   falls back to `claude -p`, and a second miss stops `cm` before `git commit`.
@@ -207,21 +245,40 @@ reason — evidence.
   chosen. A bullet that says "pick the prefix" can push a prefix into a repo
   without one. It breaks the loop where frequent `refac:` subjects make every
   new subject `refac:`
-- **Prefix meanings live once — `cm.type` in `runcoms/gitconfig-cm`** —
-  chosen. `cm` and `/commit` both read git config — `CLAUDE.md` only points
-  there. A repo under the `includeIf` remote without its own `CLAUDE.md` still
-  gets the types
+- **Prefix meanings live once — `cm.type` in `runcoms/gitconfig`** — chosen.
+  `cm` and `/commit` both read git config — `CLAUDE.md` only points there. An
+  own repo without its own `CLAUDE.md` still gets the types
+- **`feat` = "a feature — too big for add or mod"** — the user's wording, also
+  for a feature that is only half done. `add` and `mod` say "small". 3
+  feature-sized diffs × 3 runs via `claude -p`, neutral `main` history
+  (2026-11-12), Haiku 5.5: `feat` 2/9 at `low`, 1/9 at `medium`, 6/9 at
+  `high`. Sonnet 5.5 at `medium` gets both true feature diffs right in 18/18
+  runs — see the model table above. The fallback-hardening diff mostly gets
+  `fix`, which is close to a fix. A sharper wording — `feat` "a new capability,
+  or one part of it", `fix` "never a new capability" — gave Haiku 2/9 at `low`,
+  no better
+- **Optional type argument, `cm feat`** — chosen by the user. It fixes the
+  type in the prompt and in `rejection()`. Where `cm.type` applies, the type
+  must be in it, else `cm` aborts with the list — elsewhere any type passes.
+  The model still picks the scope and writes the message
+- **4 of 18 Haiku `high` runs hung about 300 s** — measurement artefact. The
+  same runs showed blocked connections to `downloads.claude.ai` in the
+  sandbox. With `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` no later run hung
+- **Measure only on a stable `cm`** — method. A run that reads the prompt
+  from `cm` while `cm` changes, or reads `cm.type` from a removed file, measures
+  a different prompt — two such runs were thrown away
 - **Haiku 4.5 types the `fts` sort fix (`7b2913dc`) as `refac`** — known
   limit. The diff only adds `LC_ALL=C` — the bug is not visible in it. With
   the `feat:` history the same diff got `fix` 4/4
-- **`/commit` (`~/.claude/commands/commit.md`) reads `cm.type` with one `!`
-  line, no gating logic** — decided by the user. The line is data, not a
-  switch — the session agent applies the rules itself. Without `cm.type`, repo
-  docs define the meanings. A bash gate like the one in `cm` stays out —
-  overkill for an in-session agent
+- **`/commit` (`~/.claude/commands/commit.md`) reads `cm.type`, `cm.prefix`,
+  `cm.own`, and the remotes with `!` lines, no gating logic** — decided by the
+  user. The lines are data — the session agent applies the same three rules
+  as `cm` itself. Without types, repo docs define the meanings. A bash gate
+  like the one in `cm` stays out — overkill for an in-session agent
 - **House types also apply in a `lecodeski` fork of a foreign project** —
-  kept, decided by the user. `includeIf` keys on the remote owner, not on the
-  repo's convention — no per-repo opt-out
+  kept, decided by the user. `cm.own` matches the remote owner, not the repo's
+  convention — `git config cm.prefix false` or a local `cm.type` turns it off
+  per repo
 - **`rejection()` checks the first line only** — required. Before, `${1%%:*}`
   could span the subject and the body — `add(cm` passed when the body held
   `):`
@@ -319,7 +376,7 @@ reason — evidence.
   `scope` held prompt sentences, `kc` meant "`security` exists"
 - **`2>&1` dropped on `command -v`** — required. `command -v` prints nothing to
   stderr when the name is missing
-- **Tabs in `runcoms/gitconfig-cm`** — rejected as a finding. Git writes config
+- **Tabs in the `[cm]` section of `runcoms/gitconfig`** — rejected as a finding. Git writes config
   files with tabs — the format's own convention beats the repo-wide
   `.editorconfig` default. `.editorconfig` now says so for `runcoms/gitconfig*`,
   and the user's global `CLAUDE.md` names the rule

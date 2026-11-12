@@ -89,7 +89,12 @@
 [credential "https://gist.github.com"]
 	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
-[includeIf "hasconfig:remote.*.url:git@github.com:lecodeski/**"]
-	path = ~/.gitconfig-cm
-[includeIf "hasconfig:remote.*.url:https://github.com/lecodeski/**"]
-	path = ~/.gitconfig-cm
+[cm]
+	own = lecodeski/
+	type = "add = new file, alias, or entry — a small addition"
+	type = "mod = changed behavior, or a setting changed, enabled, or disabled — a small change"
+	type = "feat = a feature — too big for add or mod"
+	type = "del = removal"
+	type = "fix = bug fix"
+	type = "refac = same behavior, new structure"
+	type = "bump = version, lib, framework, or submodule update"
