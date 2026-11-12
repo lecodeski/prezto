@@ -147,7 +147,7 @@ Decide whether to write a body from the size and complexity of the staged diff:
   behavior; or ~10+ changed lines) → write a body.
   - One blank line after the subject, then 1-6 sentences or bullets covering what
     changed, why, and notable design decisions visible in the diff.
-  - Every body line is 72 characters max, with NO blank lines between them.
+  - One sentence or bullet per line, with NO blank lines between them.
   - Start every sentence with an emoji; for bullets, use an emoji in place of the
     '-' marker.
 </body>
@@ -330,6 +330,7 @@ if [[ -z $msg ]]; then
 fi
 
 why=$(rejection "$msg") && die "$why"
+[[ $msg == *$'\n'* ]] && msg=${msg%%$'\n'*}$'\n'$(fold -s -w 72 <<<"${msg#*$'\n'}")
 
 if ! git commit -qm "$msg"; then
   editmsg=$(git rev-parse --git-path COMMIT_EDITMSG)

@@ -174,6 +174,15 @@ reason — evidence.
 - **`refusal` via `claude -p` could commit refusal text** — open, not verified.
   Not new — before this change, a refusal without a text block also went to
   the fallback. Rare for commit diffs
+- **Body wrapped by `fold -s -w 72` in `cm`, no length rule in the prompt** —
+  chosen. With "72 characters max" in the prompt, Sonnet at `medium` still
+  wrote body lines of 100–118 characters (seen 2026-11-12) — without thinking
+  the model does not count. The prompt now asks for one sentence per line,
+  `fold` breaks only at spaces, so every sentence still starts its line with
+  its emoji. The subject is never folded — git would read a second subject
+  line as body without the blank line. `fmt` was rejected: it joins the
+  sentences into one paragraph. `/commit` keeps the 72-character rule — it has
+  no `fold` step
 
 ### Commit-type prompt
 
