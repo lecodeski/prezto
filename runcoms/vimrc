@@ -70,11 +70,13 @@ set ruler
 set clipboard=unnamedplus
 
 if has('clipboard_provider')
+  " trailing newline in the clipboard ↔ linewise register
   func s:Copy(reg, type, lines)
-    call system('cpy', a:lines)
+    silent call system('cpy', join(a:lines, "\n") .. (a:type ==# 'V' ? "\n" : ''))
   endfunc
   func s:Paste(reg)
-    return ['', systemlist('pst')]
+    silent let lines = split(system('pst'), "\n", 1)
+    return lines[-1] == '' ? ['V', lines[:-2]] : ['v', lines]
   endfunc
   let v:clipproviders.cpy = {
     \   'copy':  {'+': function('s:Copy'), '*': function('s:Copy')},
