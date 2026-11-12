@@ -155,6 +155,9 @@ fi
 
 if (( $+commands[claude] )); then
   alias cc='claude'
+  alias cip='ci -- "$(pst)"'
+  alias cihp='cih -- "$(pst)"'
+  alias cisp='cis -- "$(pst)"'
   alias cmp='cm && git push'
   alias compare='\cmp'
   alias cr='claude --resume'
