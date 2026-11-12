@@ -51,10 +51,14 @@ diff=${diff:0:12000}
 
 stat=$(git diff --cached --stat | tail -20)
 style=$(git log -15 --format='%s' 2>/dev/null)
-types='' no_prefix='' prefix=$(git config --type=bool cm.prefix) remotes=$(git remote -v)
-if [[ $prefix == false ]]; then
-  no_prefix=1
-elif [[ $prefix == true || -z $remotes ]] || grep -qF -f <(git config --get-all cm.own) <<<"$remotes"; then
+is_own_repo() {
+  local remotes
+  remotes=$(git remote -v)
+  [[ -z $remotes ]] || grep -qF -f <(git config --get-all cm.own) <<<"$remotes"
+}
+types=''
+prefix=$(git config --type=bool cm.prefix)
+if [[ -z $prefix ]] && is_own_repo || [[ $prefix == true ]]; then
   types=$(git config --get-all cm.type)
 fi
 prefixes=$(sed 's/ *=.*//' <<<"$types" | paste -sd'|' -)
@@ -68,7 +72,7 @@ if [[ -n $type_arg ]]; then
   prefixes=$type_arg
   prefix_rule="- Start the subject with the prefix $type_arg — set by the user, no other.
 - $scope_rule"
-elif [[ -n $no_prefix ]]; then
+elif [[ $prefix == false ]]; then
   prefix_rule='- Use no commit-type prefix.'
 elif [[ -n $types ]]; then
   prefix_rule="- Start the subject with exactly one of these prefixes, no other —
