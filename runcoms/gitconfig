@@ -93,7 +93,7 @@
 	own = lecodeski/
 	type = "add = new file, alias, or entry — a small addition"
 	type = "mod = changed behavior, or a setting changed, enabled, or disabled — a small change"
-	type = "feat = a feature — too big for add or mod"
+	type = "feat = a new capability, even when only part of it is done — too big for add or mod"
 	type = "del = removal"
 	type = "fix = bug fix"
 	type = "refac = same behavior, new structure"

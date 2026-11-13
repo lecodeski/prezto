@@ -62,23 +62,22 @@ if [[ -z $prefix ]] && is_own_repo || [[ $prefix == true ]]; then
   types=$(git config --get-all cm.type)
 fi
 prefixes=$(sed 's/ *=.*//' <<<"$types" | paste -sd'|' -)
-choice_rule='pick it from what the diff does, never from how often it appears above'
-scope_rule='Follow the prefix with a scope in parentheses, then the colon, as in
-  type(scope): — the scope is the module, directory, or file the diff touches,
-  one short lowercase word. A breaking change may add ! before the colon:
-  type(scope)!:'
+choice_rule='Pick it from what the whole diff does, never from how often it appears above'
+prefixed_format='- Format: {type}({scope}): {emoji} {description}
+  A breaking change adds ! before the colon: {type}({scope})!: {emoji} {description}
+- {scope}: the module, directory, or file the diff touches, one short lowercase word.'
+plain_format='- Format: {description} {emoji}'
 if [[ -n $type_arg ]]; then
   [[ -z $types || $type_arg =~ ^($prefixes)$ ]] || die "unknown type $type_arg (cm.type: $prefixes)"
   prefixes=$type_arg
-  prefix_rule="- Start the subject with the prefix $type_arg — set by the user, no other.
-- $scope_rule"
+  prefix_rule="$prefixed_format
+- {type}: $type_arg — set by the user, no other."
 elif [[ $prefix == false ]]; then
-  prefix_rule='- Use no commit-type prefix.'
+  prefix_rule=$plain_format
 elif [[ -n $types ]]; then
-  prefix_rule="- Start the subject with exactly one of these prefixes, no other —
-  $choice_rule:
-$(sed 's/^/  /' <<<"$types")
-- $scope_rule"
+  prefix_rule="$prefixed_format
+- {type} MUST be exactly one of these prefixes — no other. $choice_rule:
+$(sed 's/^/  /' <<<"$types")"
 # no cm.type: does any of the last 15 subjects carry a commit-type prefix?
 #   ^[a-z]+         lowercase type at line start      feat, fix, chore, refac
 #   (\([^)]*\))?    optional scope in parentheses     (api), (fzf)
@@ -87,11 +86,10 @@ $(sed 's/^/  /' <<<"$types")
 # one match is enough to switch prefix-plus-scope mode on
 # <<< "here-string": feeds $style to grep's stdin, no echo pipe
 elif grep -qE '^[a-z]+(\([^)]*\))?!?:' <<<"$style"; then
-  prefix_rule="- Start the subject with a commit-type prefix from the set the recent
-  subjects above use — $choice_rule.
-- $scope_rule"
+  prefix_rule="$prefixed_format
+- {type} MUST be one prefix from the set the recent subjects above use. $choice_rule."
 else
-  prefix_rule='- Use no commit-type prefix — the recent subjects above use none.'
+  prefix_rule=$plain_format
 fi
 # prints why the subject is unusable — empty, or breaking cm.type — and succeeds;
 # fails silently when it is fine: no cm.type set, or it opens with "type(scope):"
@@ -133,11 +131,11 @@ fences, and no 'subject:' or 'body:' labels.
 </output>
 
 <subject>
-- Imperative mood, 50 characters max, no trailing period.
-- Exactly one emoji: right after the prefix's colon and space, as in
-  'fix(greet): 🐛 reject empty names' — without a prefix, at the end.
-- Count the characters; if a draft exceeds 50, drop filler words before answering.
 $prefix_rule
+- {emoji}: exactly one emoji, only there.
+- {description}: imperative mood, no trailing period.
+- The whole subject is 50 characters max. Count the characters; if a draft
+  exceeds 50, drop filler words before answering.
 </subject>
 
 <body>

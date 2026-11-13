@@ -336,6 +336,34 @@ reason — evidence.
   6 diffs × 4 runs (2026-11-02): no `!` in 70 replies without a breaking
   change, `cm.type` repo 24/24 valid, and `fsmonitor` off went from `del` 4/4
   to `mod` 3/4
+- **Subject as format lines with `{placeholders}`** — chosen by the user, in
+  `cm` and `/commit`: `{type}({scope}): {emoji} {description}`, without a
+  prefix `{description} {emoji}`, each placeholder explained in one line.
+  Curly braces, not `<…>` — the `cm` prompt already uses XML tags as
+  sections. Sonnet 5.5 `medium`, 2 × 18 runs each (2026-11-13):
+
+  | prompt | feat | small right | emoji after prefix | over 50 |
+  |---|---|---|---|---|
+  | prose (before) | 12/12 | 18/18 | 36/36 | 25/36 |
+  | format lines, "{type}: exactly one of these" | 5/12 | 18/18 | 36/36 | 14/36 |
+  | v1, old intro "Start the subject with exactly one …" | 3/12 | 18/18 | 36/36 | 14/36 |
+  | v2, "{type} MUST be exactly one … A new capability is feat …" | 11/12 | 18/18 | 36/36 | 15/36 |
+  | **v3, "{type} MUST be exactly one …" + `feat` meaning in config** | **10/12** | **18/18** | **36/36** | **13/36** |
+
+  The intro wording was not the cause — v1 fell further. What brought `feat`
+  back is saying what `feat` is. v3 keeps that in `cm.type` — "a new
+  capability, even when only part of it is done" — so the prompt stays free
+  of house types. "The whole subject is 50 characters max" halved the
+  overlong subjects. Other branches with format lines: `feat:` history 18/18
+  prefixed from its own set, plain history 18/18 without prefix, emoji at the
+  end. Cross-check on 6 diffs from `main` × 3 runs, history from `git log
+  $c^` (2026-11-13): no `feat` in either prompt — none of these diffs adds a
+  capability, so v3 does not hand out `feat` too early. v3 gave each diff the
+  same type in 3/3 runs, prose wavered on two — the Shift+Enter binding is
+  `add` 3/3 under v3, 1/3 under prose. Known loss: the `fts` sort fix
+  (`7b2913dc`) is `mod` 3/3 under v3, `fix` 2/3 under prose — the diff only
+  adds `LC_ALL=C`, the bug is not visible in it. Over 50 characters: 6/18
+  against 7/18
 
 ### Structure
 
