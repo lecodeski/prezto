@@ -359,6 +359,8 @@ cask "sonos"
 cask "sublime-text"
 # Visualise network connections on an interactive world map
 cask "tapmap"
+# Multiplayer code editor
+cask "zed"
 mas "AdGuard for Safari", id: 1440147259
 mas "AllMyBatteries", id: 1621263412
 mas "Bee DICOM Viewer", id: 1590273176
