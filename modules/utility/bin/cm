@@ -134,7 +134,8 @@ fences, and no 'subject:' or 'body:' labels.
 
 <subject>
 - Imperative mood, 50 characters max, no trailing period.
-- Ends with exactly one emoji.
+- Exactly one emoji: right after the prefix's colon and space, as in
+  'fix(greet): 🐛 reject empty names' — without a prefix, at the end.
 - Count the characters; if a draft exceeds 50, drop filler words before answering.
 $prefix_rule
 </subject>
@@ -159,7 +160,7 @@ Decide whether to write a body from the size and complexity of the staged diff:
 
 <content>
 - Be concrete: name the actual functions, files, or behavior that changed (e.g.
-  'fix(greet): reject empty names', not 'fix(greet): improve validation').
+  'fix(greet): 🐛 reject empty names', not 'fix(greet): 🐛 improve validation').
 - Wrap any code, command, filename, or identifier in backticks.
 - Never present the commit as AI-authored: no AI or assistant attribution and no
   trailers. Describing AI functionality that the diff itself implements is fine.

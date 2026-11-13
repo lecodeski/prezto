@@ -38,7 +38,7 @@ No build or test suite. Instead:
 
 ## Commit convention
 
-`<type>(<scope>): <message with `backticked` names>` — types and their meanings: `cm.type` in the `[cm]` section of `runcoms/gitconfig`. Exactly one trailing emoji, varied across commits. The `cm` script (`modules/utility/bin/cm`) and `/commit` generate these — both read `cm.type` and carry the scope and type-choice rules.
+`<type>(<scope>): <emoji> <message with `backticked` names>` — types and their meanings: `cm.type` in the `[cm]` section of `runcoms/gitconfig`. Exactly one emoji, right after the prefix, varied across commits. The `cm` script (`modules/utility/bin/cm`) and `/commit` generate these — both read `cm.type` and carry the scope and type-choice rules.
 
 ## Architecture
 

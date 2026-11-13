@@ -305,10 +305,25 @@ reason — evidence.
   words — a name like `c++` does not exist
 - **Malformed `cm.type` value without `=`** — no guard. The abort message
   names the allowed prefixes, so a broken entry shows at once
-- **Subject ends with exactly one emoji** — aligned with `CLAUDE.md`, in `cm`
-  and `/commit`. Before, "at least one emoji" also let one lead the subject.
-  Haiku 4.5, 3 histories × 6 diffs × 4 runs: 71/71 replies end with exactly
-  one emoji (2026-11-01)
+- **Exactly one emoji, right after `type(scope): `** — chosen by the user, in
+  `cm`, `/commit`, and `CLAUDE.md`. Without a prefix it stays at the end. A
+  leading emoji before the type breaks commitlint — its header pattern starts
+  with `\w*`, so `📋 fix(…)` has no type (`type-empty`). After `: ` it is part
+  of the description, which `subject-case` does not judge. This rests on the
+  parser, not on a commitlint run — the run was blocked (npm download) and is
+  open for the user. Sonnet 5.5 `medium`, 2 × 18 runs (2026-11-13): 35/36 one
+  emoji right after the prefix, 0 at the end. The miss added a second emoji
+  for a diff that introduces the `💥` warnings. Types unchanged — `feat`
+  12/12, small diffs 18/18. Before (2026-11-01), "ends with exactly one emoji"
+  held 71/71 on Haiku 4.5
+- **The full Conventional Commits spec in the prompt** — rejected. Rules 1, 4,
+  5, 6, and 13 — type, scope, `!`, colon and space, body after a blank line —
+  are already in it. "Commits MUST be prefixed with a type" contradicts repos
+  without prefixes, where one scope sentence already leaked prefixes 2/24.
+  `feat`, `fix`, `docs` as names leak foreign types into own repos — meanings
+  in the prompt gave 3/16 foreign prefixes. The footer and `BREAKING CHANGE:`
+  rules contradict "no trailers". Rule 15 addresses parser authors. About 600
+  input tokens more per commit
 - **Header comment on `cm.type` and the "Auth resolution" comment in `cm`** —
   kept, decided by the user
 - **Multi-line comments on the prefix regex and on `rejection()`** — asked for by
