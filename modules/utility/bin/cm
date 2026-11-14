@@ -50,7 +50,7 @@ rejection() {
   local subject=${1%%$'\n'*}
   [[ -n $subject ]] || { echo 'empty subject from model'; return; }
   [[ -n $prefixes && ! $subject =~ ^($prefixes)\([^\)]+\)!?:\ .*[[:alnum:]] ]] &&
-    echo "subject does not match {type}({scope}): {emoji} {description}, {type} one of ${prefixes//|/, } (subject: $subject)"
+    echo "subject '$subject' does not match {type}({scope}): {emoji} {description}, {type} one of ${prefixes//|/, }"
 }
 
 timing=0
