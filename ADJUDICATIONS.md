@@ -472,9 +472,13 @@ reason — evidence.
 - **`cmp` skips the push on `-h`/`--help`** — required. `cm --help` exits 0 as
   GNU tools do, so `cmp --help` would push — and `_gnu_generic` runs exactly
   that on Tab
-- **Completion via `_gnu_generic` for `cm` and `cmp`** — chosen by the user,
-  no extra completion file. It completes the options from `--help`, not the
-  types — those are positional operands
+- **Completion `_cm` in `runcoms/zshrc` for `cm` and `cmp`** — chosen by the
+  user, replacing `_gnu_generic`, which completed only the options from
+  `--help`. `_cm` offers `-t`, `-h`, and the `cm.type` names with their
+  meanings via `_describe`. `1::` keeps the type optional, and a listed name
+  is a suggestion only — `cm abc` stays possible. It lists `cm.type` in every
+  repo, also where `cm` does not apply the types. It never runs
+  `cmp --help`; the push guard in `cmp` stays for a typed `cmp -h`
 - **`fold` hard-breaks words over 72 characters** — kept. A URL or long path
   in a body gets split. Since 2026-01-01 only 5 of 493 commit bodies held a
   URL, all hand-written or from upstream, none from `cm` — the model copies a
