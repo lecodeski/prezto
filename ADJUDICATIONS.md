@@ -472,9 +472,13 @@ reason — evidence.
 - **`cmp` skips the push on `-h`/`--help`** — required. `cm --help` exits 0 as
   GNU tools do, so `cmp --help` would push — and `_gnu_generic` runs exactly
   that on Tab
-- **Completion `_cm` in `runcoms/zshrc` for `cm` and `cmp`** — chosen by the
-  user, replacing `_gnu_generic`, which completed only the options from
-  `--help`. `_cm` offers `-t`, `-h`, and the `cm.type` names with their
+- **Completion `modules/utility/functions/_cm` for `cm` and `cmp`** — chosen
+  by the user, replacing `_gnu_generic`, which completed only the options from
+  `--help`. A file next to the module's other completions, picked up by
+  `compinit` via `#compdef cm cmp` — zsh's own `_cmp` for `cmp(1)` loses,
+  since prezto puts module functions first in `fpath` (tested with a fresh
+  dump). Not inside `cm`: `cm` is bash, the completion must be a zsh function,
+  and a `cm --completion zsh` generator costs a call per shell. `_cm` offers `-t`, `-h`, and the `cm.type` names with their
   meanings via `_describe`. `1::` keeps the type optional, and a listed name
   is a suggestion only — `cm abc` stays possible. It lists `cm.type` in every
   repo, also where `cm` does not apply the types. It never runs

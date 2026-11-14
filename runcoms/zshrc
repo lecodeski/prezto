@@ -47,15 +47,6 @@ unfunction _gen_completion
 
 (( $+commands[prettyping] )) && compdef prettyping=ping
 
-_cm() {
-  local -a types=(${${(f)"$(git config --get-all cm.type 2>/dev/null)"}/ = /:})
-  _arguments \
-    '(-t --time)'{-t,--time}'[print the time of each step to stderr]' \
-    '(- *)'{-h,--help}'[display help and exit]' \
-    '1::type:{_describe type types}'
-}
-compdef _cm cm cmp
-
 # Test & Prefer the richer zsh-bundled _git over the one shipped by Homebrew's git formula
 # without touching fpath (which would let _sccs shadow git-delta's _delta).
 # see https://github.com/orgs/Homebrew/discussions/2797.
