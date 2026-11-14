@@ -44,7 +44,7 @@ is_own_repo() {
 #   \([^\)]+\)          non-empty scope in parentheses (cm)
 #   !?:                 optional breaking-change mark, then the colon
 #   \ .*[[:alnum:]]     a space, then a description with at least one letter or digit
-# "feat(x):", "mod:" without scope, "Fix(fzf):", "fix(cm)" without colon,
+# "chore(ci): x" outside cm.type, "mod:" without scope, "Fix(fzf):", "fix(cm)" without colon,
 # "fix(cm): 🐛" without description all break it
 rejection() {
   local subject=${1%%$'\n'*}
