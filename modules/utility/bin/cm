@@ -29,6 +29,30 @@ warn() { echo "💥 $me: $*" >&2; }
 die() { warn "$* — aborting"; exit 1; }
 usage_error() { printf "%s: %s\nTry '%s --help' for more information.\n" "$me" "$1" "$me" >&2; exit 1; }
 
+is_own_repo() {
+  local remotes
+  remotes=$(git remote -v)
+  # owner name between : (scp-style SSH) or / (HTTPS, ssh://) and the repo path
+  [[ -z $remotes ]] || grep -qE -f <(git config --get-all cm.remoteOwner | sed 's|.*|[:/]&/|') <<<"$remotes"
+}
+
+# prints why the subject is unusable — empty, or breaking cm.type — and succeeds;
+# fails silently when it is fine: no cm.type set, or it opens with "type(scope):"
+# ${var%%pat}: cut the longest suffix that matches pat — %% from the first match on
+#   ${1%%$'\n'*}        subject = first line of the message
+#   ^($prefixes)        one configured type            e.g. add|mod|del|...
+#   \([^\)]+\)          non-empty scope in parentheses (cm)
+#   !?:                 optional breaking-change mark, then the colon
+#   \ .*[[:alnum:]]     a space, then a description with at least one letter or digit
+# "feat(x):", "mod:" without scope, "Fix(fzf):", "fix(cm)" without colon,
+# "fix(cm): 🐛" without description all break it
+rejection() {
+  local subject=${1%%$'\n'*}
+  [[ -n $subject ]] || { echo 'empty subject from model'; return; }
+  [[ -n $prefixes && ! $subject =~ ^($prefixes)\([^\)]+\)!?:\ .*[[:alnum:]] ]] &&
+    echo "prefix outside allowed: ${prefixes//|/, } (subject: $subject)"
+}
+
 timing=0
 type_arg=''
 for arg; do
@@ -47,10 +71,10 @@ Options:
   -h, --help   display this help and exit
 
 Git config:
-  cm.type       "name = meaning", once per commit type
+  cm.type         "name = meaning", once per commit type
   cm.remoteOwner  user or organization name, e.g. lecodeski — repos with a
                   remote of that owner, and repos without a remote, use cm.type
-  cm.prefix     true: always use cm.type, false: no type prefix
+  cm.prefix       true: always use cm.type, false: no type prefix
 EOF
       exit 0 ;;
     -*) usage_error "unrecognized option '$arg'" ;;
@@ -73,23 +97,20 @@ diff=${diff:0:12000}
 
 stat=$(git diff --cached --stat | tail -20)
 style=$(git log -15 --format='%s' 2>/dev/null)
-is_own_repo() {
-  local remotes
-  remotes=$(git remote -v)
-  # owner name between : (scp-style SSH) or / (HTTPS, ssh://) and the repo path
-  [[ -z $remotes ]] || grep -qE -f <(git config --get-all cm.remoteOwner | sed 's|.*|[:/]&/|') <<<"$remotes"
-}
+
 types=''
 prefix=$(git config --type=bool cm.prefix 2>/dev/null) || (( $? == 1 )) || die 'cm.prefix is not a boolean'
 if [[ -z $prefix ]] && is_own_repo || [[ $prefix == true ]]; then
   types=$(git config --get-all cm.type)
 fi
 prefixes=$(sed 's/ *=.*//' <<<"$types" | paste -sd'|' -)
+
 choice_rule='Pick it from what the whole diff does, never from how often it appears above'
 prefixed_format='- Format: {type}({scope}): {emoji} {description}
   A breaking change adds ! before the colon: {type}({scope})!: {emoji} {description}
 - {scope}: the module, directory, or file the diff touches, one short lowercase word.'
 plain_format='- Format: {description} {emoji}'
+
 if [[ -n $type_arg ]]; then
   prefixes=$type_arg
   prefix_rule="$prefixed_format
@@ -113,22 +134,6 @@ elif grep -qE '^[a-z]+(\([^)]*\))?!?:' <<<"$style"; then
 else
   prefix_rule=$plain_format
 fi
-# prints why the subject is unusable — empty, or breaking cm.type — and succeeds;
-# fails silently when it is fine: no cm.type set, or it opens with "type(scope):"
-# ${var%%pat}: cut the longest suffix that matches pat — %% from the first match on
-#   ${1%%$'\n'*}        subject = first line of the message
-#   ^($prefixes)        one configured type            e.g. add|mod|del|...
-#   \([^\)]+\)          non-empty scope in parentheses (cm)
-#   !?:                 optional breaking-change mark, then the colon
-#   \ .*[[:alnum:]]     a space, then a description with at least one letter or digit
-# "feat(x):", "mod:" without scope, "Fix(fzf):", "fix(cm)" without colon,
-# "fix(cm): 🐛" without description all break it
-rejection() {
-  local subject=${1%%$'\n'*}
-  [[ -n $subject ]] || { echo 'empty subject from model'; return; }
-  [[ -n $prefixes && ! $subject =~ ^($prefixes)\([^\)]+\)!?:\ .*[[:alnum:]] ]] &&
-    echo "prefix outside allowed: ${prefixes//|/, } (subject: $subject)"
-}
 
 # Prompt tuned for Haiku and Sonnet: data first (query-at-end), rules grouped in XML tags,
 # no literal backticks (double-quoted string -> would run command substitution).
