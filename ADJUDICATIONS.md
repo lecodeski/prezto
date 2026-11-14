@@ -191,10 +191,23 @@ reason — evidence.
   Config holds the data, `cm` decides — Haiku only picks within the list
 - **`cm` decides where the types apply, config holds data only** — chosen.
   `cm.prefix=false` → no prefix, `cm.prefix=true` → types, unset → types in an
-  own repo: no remote, or a remote URL that contains a `cm.own` value
-  (`lecodeski/`). Any other repo follows its history. Tested 2026-11-12: no
-  remote, `lecodeski` over SSH, HTTPS, and `ssh://` → types; `mayflower` → none;
-  `cm.prefix` overrides both ways
+  own repo: no remote, or a remote of a `cm.remoteOwner` (`lecodeski`). Any
+  other repo follows its history. Tested 2026-11-14: no remote, `lecodeski`
+  over SSH, HTTPS, and `ssh://` → types; `biglecodeski` and `mayflower` →
+  none; `cm.prefix` overrides both ways; an invalid `cm.prefix` aborts
+- **`cm.remoteOwner` holds only the owner name, `cm` adds the URL forms** —
+  chosen by the user. `cm` matches `[:/]name/` — `:` for scp-style SSH, `/`
+  for HTTPS and `ssh://` — so one value covers all forms. The first value
+  `lecodeski/` as a plain substring matched `biglecodeski/`; host-qualified
+  values (`github.com:lecodeski/`, `github.com/lecodeski/`) needed one entry
+  per form. Accepted: any host counts, and a `/lecodeski/` path segment in a
+  foreign URL would too. Key name: `own` said too little, `ownRemote` fit a URL
+  part, not a name. Git allows only letters, digits, and `-` in key names, and
+  its own keys use camelCase (`init.defaultBranch`) — `remote_owner_infix` is
+  not a valid key
+- **Invalid `cm.prefix` aborts** — required. `git config --type=bool` exits
+  128 on a value like `flase`. Treated as unset, it silently fell back to the
+  own-repo decision
 - **Repos without a remote get the types** — required by the user. A fresh
   `git init` has no other local convention, so it needs the prefixes most
 - **`includeIf` layers as the switch** — rejected. Several `includeIf` blocks
@@ -267,9 +280,13 @@ reason — evidence.
   or one part of it", `fix` "never a new capability" — gave Haiku 2/9 at `low`,
   no better
 - **Optional type argument, `cm feat`** — chosen by the user. It fixes the
-  type in the prompt and in `rejection()`. Where `cm.type` applies, the type
-  must be in it, else `cm` aborts with the list — elsewhere any type passes.
-  The model still picks the scope and writes the message
+  type in the prompt and in `rejection()`. The model still picks the scope and
+  writes the message
+- **Any lowercase word as type argument, also outside `cm.type`** — required
+  by the user. An override exists for flexibility — `cm abc` must work when
+  exactly that prefix is needed. Before, an own repo aborted with "unknown
+  type". The lowercase check stays — it stops `cmp a.txt b.txt` from
+  committing and pushing
 - **4 of 18 Haiku `high` runs hung about 300 s** — measurement artefact. The
   same runs showed blocked connections to `downloads.claude.ai` in the
   sandbox. With `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` no later run hung
@@ -280,12 +297,12 @@ reason — evidence.
   limit. The diff only adds `LC_ALL=C` — the bug is not visible in it. With
   the `feat:` history the same diff got `fix` 4/4
 - **`/commit` (`~/.claude/commands/commit.md`) reads `cm.type`, `cm.prefix`,
-  `cm.own`, and the remotes with `!` lines, no gating logic** — decided by the
+  `cm.remoteOwner`, and the remotes with `!` lines, no gating logic** — decided by the
   user. The lines are data — the session agent applies the same three rules
   as `cm` itself. Without types, repo docs define the meanings. A bash gate
   like the one in `cm` stays out — overkill for an in-session agent
 - **House types also apply in a `lecodeski` fork of a foreign project** —
-  kept, decided by the user. `cm.own` matches the remote owner, not the repo's
+  kept, decided by the user. `cm.remoteOwner` matches the remote owner, not the repo's
   convention — `git config cm.prefix false` or a local `cm.type` turns it off
   per repo
 - **`rejection()` checks the first line only** — required. Before, `${1%%:*}`
@@ -446,6 +463,30 @@ reason — evidence.
   Rare, still readable, cut at 200 characters
 - **`auth_mode` tested in bash and again in Python** — rejected as a finding.
   Linear script, one value read at its point of use
+- **GNU-style `--help` and strict arguments** — required. Only `$1` was
+  parsed: `cm feat -t` dropped `-t`, and outside `cm.type` any word passed as
+  a type — `cmp a.txt b.txt` typed out of `cmp(1)` habit committed
+  `a.txt(x): …` and pushed it. Now a loop takes `-t`/`--time` and
+  `-h`/`--help` in any order, rejects unknown options and a second operand,
+  and accepts a type only as lowercase letters, with the error style of `u`
+- **`cmp` skips the push on `-h`/`--help`** — required. `cm --help` exits 0 as
+  GNU tools do, so `cmp --help` would push — and `_gnu_generic` runs exactly
+  that on Tab
+- **Completion via `_gnu_generic` for `cm` and `cmp`** — chosen by the user,
+  no extra completion file. It completes the options from `--help`, not the
+  types — those are positional operands
+- **`fold` hard-breaks words over 72 characters** — kept. A URL or long path
+  in a body gets split. Since 2026-01-01 only 5 of 493 commit bodies held a
+  URL, all hand-written or from upstream, none from `cm` — the model copies a
+  URL only from the diff. A word-aware `awk` wrap costs about 6 lines
+- **Empty description after the prefix is rejected** — required.
+  `fix(cm):` or `fix(cm): 🐛` passed the anchored check — the regex now wants
+  at least one letter or digit after the colon and space
+- **Whitespace stripped from `ANTHROPIC_API_KEY` before the emptiness check**
+  — required. `ANTHROPIC_API_KEY=' '` counted as set, skipped Keychain and key
+  file, and then turned empty
+- **Retry hint quotes the `COMMIT_EDITMSG` path with `printf %q`** — required.
+  A repo path with a space split the printed command
 
 ### Measurement method
 

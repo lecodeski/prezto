@@ -90,7 +90,7 @@
 	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [cm]
-	own = lecodeski/
+	remoteOwner = lecodeski
 	type = "add = new file, alias, or entry — a small addition"
 	type = "mod = changed behavior, or a setting changed, enabled, or disabled — a small change"
 	type = "feat = a new capability, even when only part of it is done — too big for add or mod"

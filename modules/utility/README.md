@@ -210,15 +210,16 @@ standalone commands available:
 
 - `cm` generates a commit message for the staged diff via Claude and commits
   it (stages all changes if nothing is staged).
+  - `cm --help` lists the options and the git config keys.
   - `cm -t` prints the time of each step.
-  - `cm <type>` (e.g. `cm feat`) fixes the commit type — it must be one of
-    `cm.type` where those apply.
+  - `cm <type>` (e.g. `cm feat`) fixes the commit type — any lowercase word,
+    in `cm.type` or not. It wins over `cm.type` and `cm.prefix false`.
   - `git config --add cm.type "<name> = <meaning>"`, once per type, sets the
     commit types — the subject then must start with `<name>(<scope>):` from that list,
     or `<name>(<scope>)!:` for a breaking change.
   - the types apply in an own repo — no remote, or a remote URL that contains a
-    `cm.own` value (`git config --add cm.own lecodeski/`). Other repos follow
-    their history.
+    `cm.remoteOwner` name (`git config --add cm.remoteOwner lecodeski`) — over
+    SSH, HTTPS, and `ssh://`. Other repos follow their history.
   - `git config cm.prefix true` forces the types, `false` turns prefixes off —
     per repo.
   - review verdicts: [ADJUDICATIONS.md](../../ADJUDICATIONS.md#cm-modulesutilitybincm)

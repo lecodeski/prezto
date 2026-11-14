@@ -9,12 +9,9 @@
 # ~/.claude/.credentials.json on Linux/Windows).
 # Fallback: `claude -p` in safe mode without tools (uses Claude Code auth).
 # Commit types: multi-valued `git config cm.type` ("name = meaning") — used in an
-# own repo (no remote, or a remote URL holding a `cm.own` value) or with
+# own repo (no remote, or a remote of a `cm.remoteOwner`) or with
 # `cm.prefix=true`; the prompt lists them and a subject without "type(scope):"
 # from that list is rejected. `cm.prefix=false`: no prefix at all.
-# Usage: cm [-t|--time] [type] — -t prints per-step timings (api call, fallback)
-# to stderr; a type (e.g. `cm feat`) fixes the commit type and must be in
-# cm.type when that applies.
 #
 
 set -u -o pipefail
@@ -23,13 +20,6 @@ model=claude-sonnet-5-5
 effort=medium
 me=${0##*/}
 
-timing=0
-if [[ ${1:-} == -t || ${1:-} == --time ]]; then
-  timing=1
-  shift
-fi
-type_arg=${1:-}
-
 # EPOCHREALTIME needs bash >= 5; fall back to whole seconds elsewhere
 now() {
   if [[ -n ${EPOCHREALTIME:-} ]]; then printf '%s' "$EPOCHREALTIME"; else date +%s; fi
@@ -37,6 +27,38 @@ now() {
 elapsed() { awk -v a="$1" -v b="$2" 'BEGIN { printf "%.2f", b - a }'; }
 warn() { echo "💥 $me: $*" >&2; }
 die() { warn "$* — aborting"; exit 1; }
+usage_error() { printf "%s: %s\nTry '%s --help' for more information.\n" "$me" "$1" "$me" >&2; exit 1; }
+
+timing=0
+type_arg=''
+for arg; do
+  case $arg in
+    -t|--time) timing=1 ;;
+    -h|--help) cat <<EOF
+Usage: $me [OPTION]... [TYPE]
+Generate a commit message for the staged changes with Claude and commit them.
+Stage all changes first when nothing is staged.
+
+TYPE fixes the commit type, e.g. '$me feat' — any lowercase word, cm.type
+names or not. It wins over cm.type and cm.prefix=false.
+
+Options:
+  -t, --time   print the time of each step to stderr
+  -h, --help   display this help and exit
+
+Git config:
+  cm.type       "name = meaning", once per commit type
+  cm.remoteOwner  user or organization name, e.g. lecodeski — repos with a
+                  remote of that owner, and repos without a remote, use cm.type
+  cm.prefix     true: always use cm.type, false: no type prefix
+EOF
+      exit 0 ;;
+    -*) usage_error "unrecognized option '$arg'" ;;
+    *) [[ -z $type_arg ]] || usage_error "extra operand '$arg'"
+       [[ $arg =~ ^[a-z]+$ ]] || usage_error "invalid type '$arg' — lowercase letters only"
+       type_arg=$arg ;;
+  esac
+done
 
 git rev-parse --git-dir >/dev/null 2>&1 || die "not a repository work tree: $PWD"
 
@@ -54,10 +76,11 @@ style=$(git log -15 --format='%s' 2>/dev/null)
 is_own_repo() {
   local remotes
   remotes=$(git remote -v)
-  [[ -z $remotes ]] || grep -qF -f <(git config --get-all cm.own) <<<"$remotes"
+  # owner name between : (scp-style SSH) or / (HTTPS, ssh://) and the repo path
+  [[ -z $remotes ]] || grep -qE -f <(git config --get-all cm.remoteOwner | sed 's|.*|[:/]&/|') <<<"$remotes"
 }
 types=''
-prefix=$(git config --type=bool cm.prefix)
+prefix=$(git config --type=bool cm.prefix 2>/dev/null) || (( $? == 1 )) || die 'cm.prefix is not a boolean'
 if [[ -z $prefix ]] && is_own_repo || [[ $prefix == true ]]; then
   types=$(git config --get-all cm.type)
 fi
@@ -68,7 +91,6 @@ prefixed_format='- Format: {type}({scope}): {emoji} {description}
 - {scope}: the module, directory, or file the diff touches, one short lowercase word.'
 plain_format='- Format: {description} {emoji}'
 if [[ -n $type_arg ]]; then
-  [[ -z $types || $type_arg =~ ^($prefixes)$ ]] || die "unknown type $type_arg (cm.type: $prefixes)"
   prefixes=$type_arg
   prefix_rule="$prefixed_format
 - {type}: $type_arg — set by the user, no other."
@@ -98,12 +120,14 @@ fi
 #   ^($prefixes)        one configured type            e.g. add|mod|del|...
 #   \([^\)]+\)          non-empty scope in parentheses (cm)
 #   !?:                 optional breaking-change mark, then the colon
-# "feat(x):", "mod:" without scope, "Fix(fzf):", "fix(cm)" without colon all break it
+#   \ .*[[:alnum:]]     a space, then a description with at least one letter or digit
+# "feat(x):", "mod:" without scope, "Fix(fzf):", "fix(cm)" without colon,
+# "fix(cm): 🐛" without description all break it
 rejection() {
   local subject=${1%%$'\n'*}
   [[ -n $subject ]] || { echo 'empty subject from model'; return; }
-  [[ -n $prefixes && ! $subject =~ ^($prefixes)\([^\)]+\)!?: ]] &&
-    echo "prefix outside cm.type (allowed: $prefixes): $subject"
+  [[ -n $prefixes && ! $subject =~ ^($prefixes)\([^\)]+\)!?:\ .*[[:alnum:]] ]] &&
+    echo "prefix outside allowed: ${prefixes//|/, } (subject: $subject)"
 }
 
 # Prompt tuned for Haiku and Sonnet: data first (query-at-end), rules grouped in XML tags,
@@ -183,6 +207,7 @@ command -v security >/dev/null && has_security=1
 # API key: env, then Keychain item "anthropic-api-key", then key file — sets secret and kc_err
 find_key() {
   secret=${ANTHROPIC_API_KEY:-}
+  secret=${secret//[[:space:]]}
   if [[ -z $secret && -n $has_security ]]; then
     secret=$(security find-generic-password -s anthropic-api-key -w 2>/dev/null)
     local rc=$?
@@ -334,6 +359,6 @@ why=$(rejection "$msg") && die "$why"
 if ! git commit -qm "$msg"; then
   editmsg=$(git rev-parse --git-path COMMIT_EDITMSG)
   printf '%s\n' "$msg" > "$editmsg"
-  die "git commit failed (message kept, retry: git commit -F $editmsg)"
+  die "git commit failed (message kept, retry: git commit -F $(printf '%q' "$editmsg"))"
 fi
 git -P log -1 --stat --summary --pretty=format:'%D [%h] %an%n%n%C(bold)%s%C(reset)%n%+b'
