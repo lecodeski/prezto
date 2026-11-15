@@ -60,10 +60,10 @@ brew "direnv"
 brew "dive"
 # Bash, Zsh and Fish completion for Docker
 brew "docker-completion"
-# View disk space usage and delete unwanted data, fast
-brew "dua-cli"
 # Disk Usage/Free Utility - a better 'df' alternative
 brew "duf"
+# More intuitive version of du in rust
+brew "dust"
 # Convert text to Postscript, HTML, or RTF, with syntax highlighting
 brew "enscript"
 # Perl lib for reading and writing EXIF metadata

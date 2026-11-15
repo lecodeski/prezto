@@ -2,7 +2,7 @@ tap "buo/cask-upgrade", trusted: true
 brew "bat"
 brew "bat-extras"
 brew "coreutils"
-brew "dua-cli"
+brew "dust"
 brew "eza"
 brew "fd"
 brew "fzf"

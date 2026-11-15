@@ -174,7 +174,7 @@ alias cwd='print -rn ${(q-)PWD} | cpy'
 [ $commands[docker-compose] ] && alias dc=docker-compose
 [ $commands[docker-machine] ] && alias dm=docker-machine
 [ $commands[doggo] ] && alias dog=doggo
-alias du=dua
+(( $+commands[dust] )) && alias du=dust
 
 alias f='command fd --hidden --no-ignore'
 alias fd="${aliases[f]} --type d"
