@@ -66,6 +66,8 @@ brew "duf"
 brew "dust"
 # Convert text to Postscript, HTML, or RTF, with syntax highlighting
 brew "enscript"
+# Multi-threaded file-tree visualizer and disk usage analyzer
+brew "erdtree"
 # Perl lib for reading and writing EXIF metadata
 brew "exiftool"
 # Modern, maintained replacement for ls
@@ -260,8 +262,6 @@ brew "timg"
 brew "tlrc"
 # Command-line translator using Google Translate and more
 brew "translate-shell"
-# Display directories as trees (with optional color/HTML output)
-brew "tree"
 # Language for application scale JavaScript development
 brew "typescript"
 # Markup-based typesetting system

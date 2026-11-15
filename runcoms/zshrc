@@ -176,6 +176,8 @@ alias cwd='print -rn ${(q-)PWD} | cpy'
 [ $commands[doggo] ] && alias dog=doggo
 (( $+commands[dust] )) && alias du=dust
 
+(( $+commands[erd] )) && alias erd='erd --human --layout inverted --sort=name --hidden --no-ignore'
+
 alias f='command fd --hidden --no-ignore'
 alias fd="${aliases[f]} --type d"
 alias ff="${aliases[f]} --type f"
