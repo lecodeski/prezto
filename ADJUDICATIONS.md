@@ -506,11 +506,18 @@ reason — evidence.
 - **`fold` hard-breaks words over 72 characters** — kept. A URL or long path
   in a body gets split. Since 2026-01-01 only 5 of 493 commit bodies held a
   URL, all hand-written or from upstream, none from `cm` — the model copies a
-  URL only from the diff. GNU `fold` counts bytes, so such a cut can also
-  split a UTF-8 character — unlikely, since an emoji opens its line or follows
-  the prefix. A word-aware `awk` wrap was built and dropped by the user
-  (2026-11-16): too much code for this case — `fold -s` already keeps every
-  shorter word whole
+  URL only from the diff. A word-aware `awk` wrap was built and dropped by the
+  user (2026-11-16): too much code for this case — `fold -s` already keeps
+  every shorter word whole
+- **`fold` width with multibyte characters** — accepted, no change (review
+  2026-11-15, measured 2026-11-16 with `🐛 éé —— aaaa bbbb cccc` at width 12).
+  Under UTF-8, GNU `fold` 9.12 and BSD `fold` count characters alike. Older
+  GNU versions and GNU under `LC_ALL=C` count bytes — lines wrap a few
+  characters early, never late, and a hard break can split a UTF-8 character,
+  which is unlikely since an emoji opens its line or follows the prefix. BSD
+  `fold` under `LC_ALL=C` does not count those bytes — a 21-byte line stayed
+  unwrapped, so a body line can pass 72. `cm` runs under `C` only in a hook,
+  cron, or a minimal SSH session
 - **Empty description after the prefix is rejected** — required.
   `fix(cm):` or `fix(cm): 🐛` passed the anchored check — the regex now wants
   at least one letter or digit after the colon and space
