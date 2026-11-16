@@ -196,8 +196,11 @@ reason — evidence.
   over SSH, HTTPS, and `ssh://` → types; `biglecodeski` and `mayflower` →
   none; `cm.prefix` overrides both ways; an invalid `cm.prefix` aborts
 - **`cm.remoteOwner` holds only the owner name, `cm` adds the URL forms** —
-  chosen by the user. `cm` matches `[:/]name/` — `:` for scp-style SSH, `/`
-  for HTTPS and `ssh://` — so one value covers all forms. The first value
+  chosen by the user. `cm` matches `:name/` and `/name/` — `:` for scp-style
+  SSH, `/` for HTTPS and `ssh://` — so one value covers all forms. Fixed
+  strings, any case (`grep -iF`): forges ignore the owner's case, and a `.` in
+  a GitLab name like `john.doe` matched any character as a regex (review
+  2026-11-15). The first value
   `lecodeski/` as a plain substring matched `biglecodeski/`; host-qualified
   values (`github.com:lecodeski/`, `github.com/lecodeski/`) needed one entry
   per form. Accepted: any host counts, and a `/lecodeski/` path segment in a
@@ -233,6 +236,13 @@ reason — evidence.
   `.git/config` is not versioned — a fresh clone loses it. It stays available
   for a single foreign repo with its own types, and `cm.prefix` is the light
   per-repo switch
+- **A local `cm.type` replaces the global types** — required. `git config
+  --get-all` merges all levels — a local `feat = x` gave 8 types with two
+  `feat` meanings, and in a foreign repo with `cm.prefix` unset the local types
+  were never read (review 2026-11-15). `cm` and `_cm` now read `--local`
+  first. Local types apply in any repo — setting them is the opt-in — and
+  `cm.prefix false` still wins. The decision is one fallback chain inside
+  `types=$(…)`, with no empty `false` branch
 - **Subject validated as `type(scope):` against `cm.type`** — chosen. A prefix
   outside the list or a missing scope fails like an empty reply — the api path
   falls back to `claude -p`, and a second miss stops `cm` before `git commit`.
@@ -285,8 +295,7 @@ reason — evidence.
 - **Any lowercase word as type argument, also outside `cm.type`** — required
   by the user. An override exists for flexibility — `cm abc` must work when
   exactly that prefix is needed. Before, an own repo aborted with "unknown
-  type". The lowercase check stays — it stops `cmp a.txt b.txt` from
-  committing and pushing
+  type". The lowercase check stays — a file name like `a.txt` is no type
 - **4 of 18 Haiku `high` runs hung about 300 s** — measurement artefact. The
   same runs showed blocked connections to `downloads.claude.ai` in the
   sandbox. With `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` no later run hung
@@ -303,8 +312,8 @@ reason — evidence.
   like the one in `cm` stays out — overkill for an in-session agent
 - **House types also apply in a `lecodeski` fork of a foreign project** —
   kept, decided by the user. `cm.remoteOwner` matches the remote owner, not the repo's
-  convention — `git config cm.prefix false` or a local `cm.type` turns it off
-  per repo
+  convention — `git config cm.prefix false` turns it off per repo, a local
+  `cm.type` replaces the types
 - **`rejection()` checks the first line only** — required. Before, `${1%%:*}`
   could span the subject and the body — `add(cm` passed when the body held
   `):`
@@ -469,24 +478,39 @@ reason — evidence.
   `a.txt(x): …` and pushed it. Now a loop takes `-t`/`--time` and
   `-h`/`--help` in any order, rejects unknown options and a second operand,
   and accepts a type only as lowercase letters, with the error style of `u`
-- **`cmp` skips the push on `-h`/`--help`** — required. `cm --help` exits 0 as
-  GNU tools do, so `cmp --help` would push — and `_gnu_generic` runs exactly
-  that on Tab
-- **Completion `modules/utility/functions/_cm` for `cm` and `cmp`** — chosen
+- **`cmpu` pushes only when `HEAD` moved** — required. `cm --help` exits 0 as
+  GNU tools do, so `cmpu --help` would push — and `_gnu_generic` runs exactly
+  that on Tab. The first guard re-parsed `-h`/`--help` in zsh, a copy of
+  `cm`'s argument parsing that any later exit-0 path without a commit would
+  slip past (review 2026-11-15). Comparing `HEAD` before and after costs two
+  `git rev-parse` calls and replaced the 5-line syntax comment the old
+  subscript needed. Tested: `--help` and a failed `cm` skip the push, the
+  first commit of an empty repo pushes
+- **Commit-and-push function `cmpu`, not `cmp`** — chosen by the user
+  (2026-11-16). `cmp` shadowed `cmp(1)` and needed workarounds: `command cmp`
+  in `update-vendored-completions` and in every script, the `compare` alias,
+  a dispatch in `_cm` back to zsh's `_cmp`, and a pitfall note in `CLAUDE.md`
+  — and `/usr/bin/cmp` still got the completion of `_cm`. `cmpu` collides
+  with no command, so all of that is gone
+- **Completion `modules/utility/functions/_cm` for `cm` and `cmpu`** — chosen
   by the user, replacing `_gnu_generic`, which completed only the options from
   `--help`. A file next to the module's other completions, picked up by
-  `compinit` via `#compdef cm cmp` — zsh's own `_cmp` for `cmp(1)` loses,
-  since prezto puts module functions first in `fpath` (tested with a fresh
-  dump). Not inside `cm`: `cm` is bash, the completion must be a zsh function,
-  and a `cm --completion zsh` generator costs a call per shell. `_cm` offers `-t`, `-h`, and the `cm.type` names with their
-  meanings via `_describe`. `1::` keeps the type optional, and a listed name
-  is a suggestion only — `cm abc` stays possible. It lists `cm.type` in every
-  repo, also where `cm` does not apply the types. It never runs
-  `cmp --help`; the push guard in `cmp` stays for a typed `cmp -h`
+  `compinit` via `#compdef cm cmpu`. Not inside `cm`: `cm` is bash, the
+  completion must be a zsh function, and a `cm --completion zsh` generator
+  costs a call per shell. `_cm` offers `-t`, `-h`, and the `cm.type` names
+  with their meanings via `_describe` — the local types first, as in `cm`.
+  `1::` keeps the type optional, and a listed name is a suggestion only —
+  `cm abc` stays possible. It lists `cm.type` in every repo, also where `cm`
+  does not apply the types. It never runs `cmpu --help`; the push guard in
+  `cmpu` stays for a typed `cmpu -h`
 - **`fold` hard-breaks words over 72 characters** — kept. A URL or long path
   in a body gets split. Since 2026-01-01 only 5 of 493 commit bodies held a
   URL, all hand-written or from upstream, none from `cm` — the model copies a
-  URL only from the diff. A word-aware `awk` wrap costs about 6 lines
+  URL only from the diff. GNU `fold` counts bytes, so such a cut can also
+  split a UTF-8 character — unlikely, since an emoji opens its line or follows
+  the prefix. A word-aware `awk` wrap was built and dropped by the user
+  (2026-11-16): too much code for this case — `fold -s` already keeps every
+  shorter word whole
 - **Empty description after the prefix is rejected** — required.
   `fix(cm):` or `fix(cm): 🐛` passed the anchored check — the regex now wants
   at least one letter or digit after the colon and space

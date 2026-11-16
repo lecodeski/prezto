@@ -111,6 +111,5 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
   prompt, and exits 0 with the file intact. On a tty the alias prompts and
   deletes as usual. For a delete that must not prompt, use `\rm` — it drops the
   alias and with it the `-i` guard
-- `cmp` is a function in `zshrc`, `cm "$@" && git push`, so `cmp feat` passes the type to `cm` — `command cmp` is the sole route to the real binary, `\cmp` skips only aliases and still hits the function
 - in `runcoms/gitconfig`, the `env -u GIT_DIR` wrapper and absolute difftool paths are load-bearing (IntelliJ Settings Sync can otherwise wipe repos on cold start) — don't "simplify" them away
 - style per `.editorconfig`: 2-space indent, LF, final newline, no trailing whitespace

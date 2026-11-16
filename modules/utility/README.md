@@ -218,8 +218,10 @@ standalone commands available:
     commit types — the subject then must start with `<name>(<scope>):` from that list,
     or `<name>(<scope>)!:` for a breaking change.
   - the types apply in an own repo — no remote, or a remote URL that contains a
-    `cm.remoteOwner` name (`git config --add cm.remoteOwner lecodeski`) — over
-    SSH, HTTPS, and `ssh://`. Other repos follow their history.
+    `cm.remoteOwner` name (`git config --add cm.remoteOwner lecodeski`, any
+    case) — over SSH, HTTPS, and `ssh://`. Other repos follow their history.
+  - `git config --local --add cm.type …` gives one repo its own types — they
+    replace the global types, also in a foreign repo.
   - `git config cm.prefix true` forces the types, `false` turns prefixes off —
     per repo.
   - review verdicts: [ADJUDICATIONS.md](../../ADJUDICATIONS.md#cm-modulesutilitybincm)
