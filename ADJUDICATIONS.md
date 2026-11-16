@@ -72,7 +72,7 @@ reason — evidence.
 - **A key mistyped at the prompt replaces a valid OAuth token for that one run
   only** — accepted. The API answers `401`, the `💥` line names it, and the run
   goes through `claude -p` (about 3 s with `--safe-mode --tools ""`). The key is
-  never stored — exit 1 means unproven — so the next run finds no key, takes
+  never stored — a `401` proves nothing — so the next run finds no key, takes
   the OAuth token again, and asks again. Nothing hides OAuth for good. A retry
   with the OAuth token after the `401` is the second api-call chain above
 - **Keychain access dialog blocks `cm`** — non-problem. An item created with
@@ -97,17 +97,18 @@ reason — evidence.
   login often lacks
 - **Pasted key is stored once the API accepts it** — required.
   Stored at once, a mistyped key suppressed the prompt for good and sent every
-  run to the slow fallback. Python exits 3 when the API accepted the key but
-  the reply is unusable — `cm` stores on every exit code but 1, so a bad
-  prefix or a stopped reply does not lose a good key
+  run to the slow fallback. `cm` stores once an Anthropic reply arrives — HTTP
+  200 with a `stop_reason` — usable or not, so a bad prefix or a stopped reply
+  does not lose a good key. Before, Python exit codes carried it: stored on
+  every code but 1, so a signal (137, 143) stored an unproven key (review
+  2026-11-15)
 - **A failed store prints a `💥` line** — required. `security -i` exits
   non-zero when its add fails (161 in the sandbox), and the key-file branch
   fails on `mkdir` or the write — without the line the key vanished silently
   and the prompt came back
 - **Key not stored after a network error, timeout, 400, 429, or 5xx** — kept.
-  Exit 1 means the key is unproven — storing it there brings back the mistyped
-  key that stays for good. The next run asks again. Passing the HTTP status
-  from Python to bash as a second signal costs more than this rare case
+  None of them proves the key — storing it there brings back the mistyped key
+  that stays for good. The next run asks again
 - **Locked or denied keychain is named, not hidden behind "no API key"** —
   required. Over SSH to the Mac the login keychain is often locked — then
   `security` exits 128 (seen by the user) or 36 (`errSecInteractionNotAllowed`,
@@ -123,11 +124,11 @@ reason — evidence.
   redirected, `read -p` wrote its prompt nowhere and `cm` waited blind
 - **Every fallback prints a `💥` line with its cause** — chosen by the user,
   the style of `u` in `runcoms/zshrc`. Covered: no API key → OAuth on Haiku
-  4.5, no key and no OAuth token or no python 3 → `claude -p`, API call failed
+  4.5, no key and no OAuth token or no `jq` → `claude -p`, API call failed
   or stopped, reply without text, prefix outside `cm.type`
-- **`💥` format exists in bash (`warn`) and in Python (`fall`)** — kept. Python
-  writes straight to stderr — one shared helper needs a second channel from
-  Python to bash, more code than the two definitions
+- **One `fall` helper for every fallback `💥` line** — required. `warn` plus
+  `falling back to claude -p` — six API outcomes and two auth checks share it.
+  Python had its own `fall()`, gone with Python
 - **One `command -v security` check sets `has_security`** — required. It picks
   the store for a pasted key (Keychain or key file) and gates the API-key
   lookup with its locked-keychain check. The OAuth lookup runs unguarded — off macOS,
@@ -144,19 +145,18 @@ reason — evidence.
 - **`stop_reason` other than `end_turn` → fallback** — chosen. A truncated text
   block never gets committed
 - **HTTP error shows `error.message` from the body** — required.
-  `str(HTTPError)` alone read `HTTP Error 400: Bad Request` and hid the cause —
-  a wrong model ID or parameter sent every run to the slow fallback unexplained.
-  Reading and parsing the body share one `try`, and the cause is cut at 200
-  characters — a failing read gave a traceback, an HTML error page several KB
+  The status alone read `HTTP Error 400: Bad Request` and hid the cause — a
+  wrong model ID or parameter sent every run to the slow fallback unexplained.
+  A body without `error.message` shows raw, cut at 200 characters — an HTML
+  error page has several KB
 - **Reply without text → fallback with cause** — required. Haiku 5.5 can end
   a turn with its whole answer in thinking — Anthropic documents it at
   `xhigh`. Before, no text block gave `API call failed ()`, and a blank text
-  block fell back without a `💥` line. The `try` now covers only the request,
-  so no `sys.exit` runs inside it
+  block fell back without a `💥` line
 - **HTTP 200 body without `stop_reason` or `content` → fallback with cause,
-  exit 1** — required. A proxy page or a changed schema raised a bare
-  traceback. Exit 1, not 3 — a captive portal answers 200 to any key, so only
-  an Anthropic-shaped reply proves the key
+  key not stored** — required. A proxy page or a changed schema raised a bare
+  traceback. A captive portal answers 200 to any key, so only an
+  Anthropic-shaped reply proves the key
 - **`cm -t` reports `ok`, `failed`, or `rejected`** — required. A reply that
   only failed the `cm.type` check showed as `failed`, like a network error
 - **Aborts and fallbacks share `warn` and the `💥` prefix** — chosen. `u` uses
@@ -164,12 +164,13 @@ reason — evidence.
   `git commit`, goes through `die`, which appends `aborting`. The rejection
   text comes from `rejection()`, with the suffix `falling back to claude -p` or
   `aborting`
-- **`PYTHONIOENCODING=utf-8` for the API call** — required. On Windows/Git
-  Bash a piped stdout uses the ANSI code page — `print` of a subject with an
-  emoji raised `UnicodeEncodeError` and sent every run to the fallback
+- **`jq -b` on every read of a reply** — required for Windows/Git Bash. A
+  native `jq.exe` writes LF as CRLF otherwise (jq manual) — `end_turn\r` would
+  send every run to the fallback. Not tested on Windows. Python needed
+  `PYTHONIOENCODING=utf-8` there instead — an emoji raised `UnicodeEncodeError`
 - **Abort after `cm`'s own `git add -A` leaves the index staged** — kept,
   decided by the user
-- **30 s urllib timeout with Haiku 5.5 thinking** — open. Measure with `cm -t`
+- **30 s `curl --max-time` with Haiku 5.5 thinking** — open. Measure with `cm -t`
   once the API key exists — raise it only on a real timeout
 - **`refusal` via `claude -p` could commit refusal text** — open, not verified.
   Not new — before this change, a refusal without a text block also went to
@@ -200,7 +201,8 @@ reason — evidence.
   SSH, `/` for HTTPS and `ssh://` — so one value covers all forms. Fixed
   strings, any case (`grep -iF`): forges ignore the owner's case, and a `.` in
   a GitLab name like `john.doe` matched any character as a regex (review
-  2026-11-15). The first value
+  2026-11-15). An empty value is skipped — it gave `:/` and `//`, which
+  match every HTTPS URL (review 2026-11-15). The first value
   `lecodeski/` as a plain substring matched `biglecodeski/`; host-qualified
   values (`github.com:lecodeski/`, `github.com/lecodeski/`) needed one entry
   per form. Accepted: any host counts, and a `/lecodeski/` path segment in a
@@ -325,8 +327,9 @@ reason — evidence.
   otherwise. Before, `valid()` and `rejected` each cut the first line, and
   `rejected` read the global `msg`, which worked only before `msg=''`. It also
   rejects an empty subject, so the final check is one line. On the api path an
-  `if`/`elif` tests `msg` once and sets `state` — an empty reply there is
-  `failed`, since Python already printed its cause
+  `if`/`elif` chain prints each cause once and sets `state`. The final check
+  runs only after `claude -p` — an api reply has passed it already (review
+  2026-11-15)
 - **Type names not regex-escaped in `rejection()`** — YAGNI. The types are plain
   words — a name like `c++` does not exist
 - **Malformed `cm.type` value without `=`** — no guard. The abort message
@@ -396,8 +399,8 @@ reason — evidence.
 - **Key lookup and store live in `find_key` and `store_key`** — chosen. The
   auth block only decides the order — a new store or source changes one
   function
-- **Each fallback warning sits where its cause is known** — chosen. "no python
-  3" after the python probe, "no API key and no valid OAuth token" at the end of
+- **Each fallback warning sits where its cause is known** — chosen. "no jq"
+  after the `jq` check, "no API key and no valid OAuth token" at the end of
   the auth block, the OAuth line in the model override. Before, a two-arm `case`
   on `auth_mode` re-derived the causes later
 - **Keychain warning only when no key was found** — required. A key file or
@@ -405,11 +408,13 @@ reason — evidence.
   "keychain locked" `💥` line
 - **All whitespace stripped from an API key at its source** — required. A CR or
   LF in the key — a CRLF key file, an env key with a trailing newline — made
-  urllib reject the header, and its error text put the whole key into the `💥`
-  line. Stripping only CR left the LF case open. The strip sits at the end of
+  Python's urllib reject the header, and its error text put the whole key
+  into the `💥` line. Stripping only CR left the LF case open. The strip sits at the end of
   `find_key` and right after the prompt's `read`, before the emptiness checks —
   one strip after the auth decision let a whitespace-only key choose the
-  API-key path with `x-api-key: ''`. The OAuth `tr -d '\r'` pipe stage is gone
+  API-key path with `x-api-key: ''`. The OAuth token comes from `jq -bj`,
+  which writes no line end — Python's `print` left a CR on Windows (review
+  2026-11-15)
 - **`claude -p` fallback runs `--safe-mode --tools ""`** — required. With the
   default tools, text in the staged diff could make Haiku read files or run an
   allowlisted command — a prompt injection from the commit itself. `--safe-mode`
@@ -447,9 +452,18 @@ reason — evidence.
 - **Orphan `anthropic-api-key.XXXXXX` after a failed write or `mv`** — kept.
   Only on a full disk or a write error — removing it costs more syntax than the
   case is worth, and the file is mode 600
-- **Python starts three times on the OAuth path** — kept. About 20–40 ms on a
-  0.6–2.7 s path — parsing the credentials inside the API script would pull
-  auth selection and its warnings out of bash
+- **`curl` + `jq` for the API call, not Python** — chosen by the user
+  (2026-11-17). Startup over 20 runs: Python 32 ms with the API imports, 15 ms
+  for the OAuth token — up to three starts per run — `jq` 3 ms, `curl` 5 ms.
+  Live, 3 calls each with Haiku 4.5: 0.36–0.42 s against 0.39–0.43 s, no
+  difference. About 30 lines less, and four workarounds gone: the Python 3
+  probe loop, `PYTHONIOENCODING`, a second `fall()`, the CR in the OAuth
+  token. Headers reach `curl` through a file descriptor (`-H @<(…)`), so the
+  secret is in neither argv nor the environment — `ps` found it 0 times during
+  a hanging call. macOS ships `jq` and `curl` in `/usr/bin`, while
+  `/usr/bin/python3` needs the Command Line Tools, and `setup_Brewfile`
+  installs `jq`. Without `jq`, `cm` falls back to `claude -p`. The exit codes
+  0/1/3 gave way to one rule: an Anthropic reply proves the key
 - **Names `choice_rule`, `scope_rule`, `has_security`** — required. `pick` and
   `scope` held prompt sentences, `kc` meant "`security` exists"
 - **`2>&1` dropped on `command -v`** — required. `command -v` prints nothing to
@@ -460,7 +474,7 @@ reason — evidence.
   and the user's global `CLAUDE.md` names the rule
 - **`api_model`/`api_effort` and `auth_mode`/`secret` as a data clump** —
   rejected. bash has no records — an `env` array adds a level of indirection
-  and saves no line, and choosing the model in Python moves the `429`
+  and saves no line, and choosing the model inside the API call moves the `429`
   workaround away from where `cm -t` reports the model
 - **Commit-type source named twice in `CLAUDE.md`** — rejected as a finding.
   DRY targets code — a doc may repeat a fact where a reader needs it
@@ -470,8 +484,6 @@ reason — evidence.
   a finding. Meta-doc for reviewers, harmless
 - **Non-JSON HTTP error body keeps its newlines in the `💥` line** — rejected.
   Rare, still readable, cut at 200 characters
-- **`auth_mode` tested in bash and again in Python** — rejected as a finding.
-  Linear script, one value read at its point of use
 - **GNU-style `--help` and strict arguments** — required. Only `$1` was
   parsed: `cm feat -t` dropped `-t`, and outside `cm.type` any word passed as
   a type — `cmp a.txt b.txt` typed out of `cmp(1)` habit committed
@@ -485,7 +497,8 @@ reason — evidence.
   slip past (review 2026-11-15). Comparing `HEAD` before and after costs two
   `git rev-parse` calls and replaced the 5-line syntax comment the old
   subscript needed. Tested: `--help` and a failed `cm` skip the push, the
-  first commit of an empty repo pushes
+  first commit of an empty repo pushes. It returns 0 when there is nothing to
+  push — `cmpu --help` returned 1 (review 2026-11-15)
 - **Commit-and-push function `cmpu`, not `cmp`** — chosen by the user
   (2026-11-16). `cmp` shadowed `cmp(1)` and needed workarounds: `command cmp`
   in `update-vendored-completions` and in every script, the `compare` alias,

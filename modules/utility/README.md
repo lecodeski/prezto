@@ -209,7 +209,8 @@ The module's _`bin`_ directory is appended to `PATH`, making the following
 standalone commands available:
 
 - `cm` generates a commit message for the staged diff via Claude and commits
-  it (stages all changes if nothing is staged).
+  it (stages all changes if nothing is staged). The direct API call needs
+  `curl` and `jq` (`setup_Brewfile`) — without them `cm` uses `claude -p`.
   - `cm --help` lists the options and the git config keys.
   - `cm -t` prints the time of each step.
   - `cm <type>` (e.g. `cm feat`) fixes the commit type — any lowercase word,

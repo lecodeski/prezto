@@ -387,7 +387,8 @@ if (( $+commands[claude] )); then
   # push only a commit cm made — `cm --help` exits 0 too
   cmpu() {
     local head=$(git rev-parse -q --verify HEAD 2>/dev/null)
-    cm "$@" && [[ $(git rev-parse -q --verify HEAD) != $head ]] && git push
+    cm "$@" || return
+    if [[ $(git rev-parse -q --verify HEAD) != $head ]]; then git push; fi
   }
 
   if (( $+commands[glow] )); then

@@ -2,7 +2,7 @@
 #
 # ai-commit — generate a commit message for the staged diff and commit it.
 # Portable bash (macOS, Linux, Windows/Git Bash).
-# Fast path: one direct API call, authenticated via ANTHROPIC_API_KEY,
+# Fast path: one direct API call (curl + jq), authenticated via ANTHROPIC_API_KEY,
 # the macOS Keychain item "anthropic-api-key", the file
 # ${XDG_CONFIG_HOME:-~/.config}/cm/anthropic-api-key (mode 600), or the
 # unexpired Claude Code OAuth token (macOS Keychain, or
@@ -27,13 +27,14 @@ now() {
 elapsed() { awk -v a="$1" -v b="$2" 'BEGIN { printf "%.2f", b - a }'; }
 warn() { echo "💥 $me: $*" >&2; }
 die() { warn "$* — aborting"; exit 1; }
+fall() { warn "$* — falling back to claude -p"; }
 usage_error() { printf "%s: %s\nTry '%s --help' for more information.\n" "$me" "$1" "$me" >&2; exit 1; }
 
 is_own_repo() {
   local remotes
   remotes=$(git remote -v)
   # owner name between : (scp-style SSH) or / (HTTPS, ssh://) and the repo path — forges ignore its case
-  [[ -z $remotes ]] || grep -qiF -f <(git config --get-all cm.remoteOwner | sed 's|.*|:&/|p; s|^:|/|') <<<"$remotes"
+  [[ -z $remotes ]] || grep -qiF -f <(git config --get-all cm.remoteOwner | sed -n '/./{s|.*|:&/|p; s|^:|/|p;}') <<<"$remotes"
 }
 
 # prints why the subject is unusable — empty, or breaking cm.type — and succeeds;
@@ -195,17 +196,8 @@ Decide whether to write a body from the size and complexity of the staged diff:
   trailers. Describing AI functionality that the diff itself implements is fine.
 </content>"
 
-# python 3 for the direct API call; the version probe also weeds out
-# broken installs and the Windows Store python stub
-py=''
-for cand in python3 python; do
-  if command -v "$cand" >/dev/null \
-      && "$cand" -c 'import sys; sys.exit(sys.version_info[0] < 3)' >/dev/null 2>&1; then
-    py=$cand
-    break
-  fi
-done
-[[ -n $py ]] || warn 'no python 3 — falling back to claude -p'
+has_jq=''
+command -v jq >/dev/null && has_jq=1 || fall 'no jq'
 
 key_file=${XDG_CONFIG_HOME:-$HOME/.config}/cm/anthropic-api-key
 has_security=''
@@ -244,7 +236,7 @@ store_key() {
 # OAuth token lives in the Keychain on macOS, in ~/.claude/.credentials.json
 # on Linux and Windows.
 auth_mode='' secret='' new_key='' kc_err=''
-if [[ -n $py ]]; then
+if [[ -n $has_jq ]]; then
   find_key
   if [[ -n $secret ]]; then
     auth_mode=apikey
@@ -254,12 +246,8 @@ if [[ -n $py ]]; then
     creds_file=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.credentials.json
     [[ -z $creds && -r $creds_file ]] && creds=$(<"$creds_file")
     if [[ -n $creds ]]; then
-      secret=$(printf '%s' "$creds" | "$py" -c 'import json, sys, time
-c = json.load(sys.stdin)["claudeAiOauth"]
-e = c.get("expiresAt")
-if e and e / 1000 <= time.time():
-    sys.exit(1)
-print(c["accessToken"])' 2>/dev/null)
+      secret=$(jq -bj '.claudeAiOauth | select(.expiresAt == null or .expiresAt / 1000 > now) | .accessToken // empty' \
+        <<<"$creds" 2>/dev/null)
       [[ -n $secret ]] && auth_mode=oauth
     fi
     if [[ -t 0 && -t 2 && -z $kc_err ]]; then
@@ -269,7 +257,7 @@ print(c["accessToken"])' 2>/dev/null)
       [[ -n $new_key ]] && auth_mode=apikey secret=$new_key
     fi
   fi
-  [[ -n $auth_mode ]] || warn 'no API key and no valid OAuth token — falling back to claude -p'
+  [[ -n $auth_mode ]] || fall 'no API key and no valid OAuth token'
 fi
 
 # OAuth token: raw API answers 429 for 5.x models; 4.5 rejects effort
@@ -282,68 +270,41 @@ fi
 msg='' t0=''
 if [[ -n $auth_mode ]]; then
   (( timing )) && t0=$(now)
-  msg=$(AIC_AUTH_MODE=$auth_mode AIC_SECRET=$secret AIC_MODEL=$api_model AIC_EFFORT=$api_effort \
-    PYTHONIOENCODING=utf-8 \
-    "$py" - "$request" "$me" <<'PY' | tr -d '\r'
-import json, os, sys, urllib.request
-
-headers = {"anthropic-version": "2023-06-01", "content-type": "application/json"}
-if os.environ["AIC_AUTH_MODE"] == "oauth":
-    headers["Authorization"] = "Bearer " + os.environ["AIC_SECRET"]
-    headers["anthropic-beta"] = "oauth-2025-04-20"
-else:
-    headers["x-api-key"] = os.environ["AIC_SECRET"]
-
-body = {
-    "model": os.environ["AIC_MODEL"],
-    "max_tokens": 16000,
-    "messages": [{"role": "user", "content": sys.argv[1]}],
-}
-if os.environ["AIC_EFFORT"]:
-    body["output_config"] = {"effort": os.environ["AIC_EFFORT"]}
-req = urllib.request.Request(
-    "https://api.anthropic.com/v1/messages",
-    data=json.dumps(body).encode(),
-    headers=headers,
-)
-def fall(cause, code):
-    print(f"💥 {sys.argv[2]}: {cause} — falling back to claude -p", file=sys.stderr)
-    sys.exit(code)
-
-try:
-    resp = json.load(urllib.request.urlopen(req, timeout=30))
-except urllib.error.HTTPError as e:
-    cause = ""
-    try:
-        cause = e.read().decode(errors="replace")
-        cause = str(json.loads(cause)["error"]["message"])
-    except Exception:
-        pass
-    fall(f"API call failed ({e}: {cause[:200]})", 1)
-except Exception as e:
-    fall(f"API call failed ({e})", 1)
-try:
-    stop = resp["stop_reason"]
-    text = "".join(b["text"] for b in resp["content"] if b["type"] == "text").strip()
-except Exception as e:
-    fall(f"API reply malformed ({e!r})", 1)
-# exit 3: an Anthropic reply proves the key, but it is unusable
-if stop != "end_turn":
-    fall(f"API call stopped ({stop})", 3)
-if not text:
-    fall("API reply had no text", 3)
-print(text)
-PY
-)
-  api_rc=$? state=ok
-  if [[ -z $msg ]]; then
-    state=failed
-  elif why=$(rejection "$msg"); then
-    warn "$why — falling back to claude -p"
-    msg='' state=rejected
-    request+=$'\n\n'"A previous draft was rejected: $why. Fix that."
+  auth="x-api-key: $secret"
+  [[ $auth_mode == oauth ]] && auth="Authorization: Bearer $secret"$'\n''anthropic-beta: oauth-2025-04-20'
+  # headers via a file descriptor: the secret stays out of argv and ps
+  reply=$(printf '%s' "$request" |
+    jq -Rc --arg model "$api_model" --arg effort "$api_effort" -s \
+      '{$model, max_tokens: 16000, messages: [{role: "user", content: .}]}
+      + if $effort == "" then {} else {output_config: {$effort}} end' |
+    curl -sS --max-time 30 -w '\n%{http_code}' --data-binary @- \
+      -H @<(printf '%s\n' 'anthropic-version: 2023-06-01' 'content-type: application/json' "$auth") \
+      https://api.anthropic.com/v1/messages 2>&1)
+  code=$? http=${reply##*$'\n'} reply=${reply%$'\n'*} state=failed
+  # jq -b: a native Windows jq writes LF as CRLF otherwise
+  if (( code )); then
+    fall "API call failed (${reply%%$'\n'*})"
+  elif [[ $http != 200 ]]; then
+    fall "API call failed (HTTP $http: $(jq -bej '.error.message // empty' <<<"$reply" 2>/dev/null || printf '%s' "${reply:0:200}"))"
+  elif ! stop=$(jq -bej '.stop_reason' <<<"$reply" 2>/dev/null); then
+    fall 'API reply malformed'
+  else
+    # an Anthropic reply proves the key, usable or not
+    [[ -n $new_key ]] && store_key "$secret"
+    msg=$(jq -bj '[.content[]? | select(.type == "text").text] | add // "" | gsub("^\\s+|\\s+$"; "")' <<<"$reply")
+    if [[ $stop != end_turn ]]; then
+      fall "API call stopped ($stop)"
+      msg=''
+    elif [[ -z $msg ]]; then
+      fall 'API reply had no text'
+    elif why=$(rejection "$msg"); then
+      fall "$why"
+      msg='' state=rejected
+      request+=$'\n\n'"A previous draft was rejected: $why. Fix that."
+    else
+      state=ok
+    fi
   fi
-  [[ -n $new_key ]] && (( api_rc != 1 )) && store_key "$secret"
   (( timing )) && printf '%s: api call (%s, %s) %s: %ss\n' \
     "$me" "$api_model" "$auth_mode" "$state" "$(elapsed "$t0" "$(now)")" >&2
 fi
@@ -358,9 +319,9 @@ if [[ -z $msg ]]; then
   msg=${msg#"${msg%%[![:space:]]*}"}
   (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
     "$me" "$model" "$(elapsed "$t0" "$(now)")" >&2
+  why=$(rejection "$msg") && die "$why"
 fi
 
-why=$(rejection "$msg") && die "$why"
 [[ $msg == *$'\n'* ]] && msg=${msg%%$'\n'*}$'\n'$(fold -s -w 72 <<<"${msg#*$'\n'}")
 
 if ! git commit -qm "$msg"; then
