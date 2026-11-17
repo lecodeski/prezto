@@ -106,6 +106,7 @@ types=$(
     git config --local --get-all cm.type ||
     { [[ $prefix == true ]] || is_own_repo && git config --get-all cm.type; }
 )
+# type names joined by | — IFS cuts "name = meaning" at the first space or =, ${prefixes:+|} skips the first |
 prefixes=''
 while IFS=' =' read -r name _; do prefixes+=${prefixes:+|}$name; done <<<"$types"
 

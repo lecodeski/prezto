@@ -358,7 +358,9 @@ reason — evidence.
 - **Multi-line comments on the prefix regex, on `rejection()`, on the
   whitespace trim, and on the subject/body split** — asked for by the user.
   They explain each regex part, `<<<`, `%%`, and `#` — an exception to the
-  one-line comment rule
+  one-line comment rule. The comment on the type-name `read` loop (`IFS`,
+  `${prefixes:+|}`) belongs to the same exception — kept by the user after a
+  review flagged it (2026-11-17)
 - **Parameter expansion and `read` instead of `sed` for the type list** —
   required (shellcheck SC2001). `${types//$'\n'/$'\n'  }` indents the list, a
   `while IFS=' =' read` loop joins the names — no `sed`, `paste`, or subshell.
