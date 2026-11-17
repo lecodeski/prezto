@@ -355,9 +355,15 @@ reason — evidence.
   input tokens more per commit
 - **Header comment on `cm.type` and the "Auth resolution" comment in `cm`** —
   kept, decided by the user
-- **Multi-line comments on the prefix regex and on `rejection()`** — asked for by
-  the user. They explain each regex part, `<<<`, and `%%` — an exception to the
+- **Multi-line comments on the prefix regex, on `rejection()`, on the
+  whitespace trim, and on the subject/body split** — asked for by the user.
+  They explain each regex part, `<<<`, `%%`, and `#` — an exception to the
   one-line comment rule
+- **Parameter expansion and `read` instead of `sed` for the type list** —
+  required (shellcheck SC2001). `${types//$'\n'/$'\n'  }` indents the list, a
+  `while IFS=' =' read` loop joins the names — no `sed`, `paste`, or subshell.
+  Same output as before for the house types, `feat=x`, and an empty list,
+  also in bash 3.2
 - **Scope with a colon (`mod(zsh:opts):`) fails `rejection()`** — YAGNI. The
   prompt asks for one short word — a colon or a path is no scope
 - **`cm` prompt names `type(scope)!:` and "no other" prefix** — synced with

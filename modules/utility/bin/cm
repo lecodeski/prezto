@@ -106,7 +106,9 @@ types=$(
     git config --local --get-all cm.type ||
     { [[ $prefix == true ]] || is_own_repo && git config --get-all cm.type; }
 )
-prefixes=$(sed 's/ *=.*//' <<<"$types" | paste -sd'|' -)
+# type names joined by | — IFS cuts "name = meaning" at the first space or =, ${prefixes:+|} skips the first |
+prefixes=''
+while IFS=' =' read -r name _; do prefixes+=${prefixes:+|}$name; done <<<"$types"
 
 choice_rule='Pick it from what the whole diff does, never from how often it appears above'
 prefixed_format='- Format: {type}({scope}): {emoji} {description}
@@ -123,7 +125,7 @@ elif [[ $prefix == false ]]; then
 elif [[ -n $types ]]; then
   prefix_rule="$prefixed_format
 - {type} MUST be exactly one of these prefixes — no other. $choice_rule:
-$(sed 's/^/  /' <<<"$types")"
+  ${types//$'\n'/$'\n'  }"
 # no cm.type: does any of the last 15 subjects carry a commit-type prefix?
 #   ^[a-z]+         lowercase type at line start      feat, fix, chore, refac
 #   (\([^)]*\))?    optional scope in parentheses     (api), (fzf)
@@ -325,6 +327,9 @@ if [[ -z $msg ]]; then
     --safe-mode --setting-sources user --tools "" | tr -d '\r') \
     || die 'claude -p failed'
 
+  # trim leading whitespace
+  #   ${msg%%[![:space:]]*}   the whitespace run: cut from the first non-space char to the end
+  #   ${msg#"…"}              cut that run off the front — quoted, so it matches literally
   msg=${msg#"${msg%%[![:space:]]*}"}
 
   (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
@@ -333,6 +338,10 @@ if [[ -z $msg ]]; then
   why=$(rejection "$msg") && die "$why"
 fi
 
+# wrap the body only — a folded subject would spill into the body
+#   *$'\n'*         the message has a body
+#   ${msg%%$'\n'*}  subject: all before the first newline
+#   ${msg#*$'\n'}   body: all after the first newline
 [[ $msg == *$'\n'* ]] && msg=${msg%%$'\n'*}$'\n'$(fold -s -w 72 <<<"${msg#*$'\n'}")
 
 if ! git commit -qm "$msg"; then
