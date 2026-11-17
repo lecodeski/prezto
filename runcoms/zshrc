@@ -377,28 +377,15 @@ if (( $+commands[mococli] )); then
   zbvn()  { _zb 948847647 37266621 "$@" }
 fi
 
+c() { cd "$@" && x } && compdef c=cd
+
 captioned-delimiter() {
   local termwidth="$(tput cols)"
   local padding="$(printf '%0.1s' $2{1..500})"
   printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
 }
 
-# push only a commit cm made — `cm --help` exits 0 too
-cmpu() {
-  local head=$(git rev-parse -q --verify HEAD 2>/dev/null)
-  cm "$@" || return
-  if [[ $(git rev-parse -q --verify HEAD) != $head ]]; then git push; fi
-}
-
 if (( $+commands[claude] )); then
-  if (( $+commands[glow] )); then
-    ci() { CLAUDE_CODE_ENTRYPOINT=ci claude --print "$@" | glow --width 120 }
-  else
-    ci() { CLAUDE_CODE_ENTRYPOINT=ci claude --print "$@" }
-  fi
-  cih() { ci --model=Haiku "$@" }
-  cis() { ci --model=Sonnet "$@" }
-
   ca() {
     if [[ $1 == -- ]]; then
       claude attach "${@:2}"
@@ -408,6 +395,14 @@ if (( $+commands[claude] )); then
       claude agents "$@"
     fi
   }
+
+  if (( $+commands[glow] )); then
+    ci() { CLAUDE_CODE_ENTRYPOINT=ci claude --print "$@" | glow --width 120 }
+  else
+    ci() { CLAUDE_CODE_ENTRYPOINT=ci claude --print "$@" }
+  fi
+  cih() { ci --model=Haiku "$@" }
+  cis() { ci --model=Sonnet "$@" }
 
   # Runs `_claude` once per injected subcommand word, chosen per cursor slot;
   # only the still-open first arg needs both, whose matches then accumulate
@@ -434,7 +429,12 @@ if (( $+commands[claude] )); then
   } && compdef _ca ca
 fi
 
-c() { cd "$@" && x } && compdef c=cd
+# push only a commit cm made — `cm --help` exits 0 too
+cmpu() {
+  local head=$(git rev-parse -q --verify HEAD 2>/dev/null)
+  cm "$@" || return
+  if [[ $(git rev-parse -q --verify HEAD) != $head ]]; then git push; fi
+}
 
 datestamp() {
   # Args (day month year); omitted fields default to today. Pads to ISO YYYY-MM-DD
