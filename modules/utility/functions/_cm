@@ -1,6 +1,6 @@
 #compdef cm cmpu
 
-local -a types=(${${(f)"$(git config --local --get-all cm.type 2>/dev/null || git config --get-all cm.type)"}/ = /:})
+local -a types=(${${(f)"$(git config --local --get-all cm.type 2>/dev/null || git config --get-all cm.type)"}/ #= #/:})
 _arguments \
   '(-t --time)'{-t,--time}'[print the time of each step to stderr]' \
   '(- *)'{-h,--help}'[display help and exit]' \

@@ -383,14 +383,14 @@ captioned-delimiter() {
   printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
 }
 
-if (( $+commands[claude] )); then
-  # push only a commit cm made — `cm --help` exits 0 too
-  cmpu() {
-    local head=$(git rev-parse -q --verify HEAD 2>/dev/null)
-    cm "$@" || return
-    if [[ $(git rev-parse -q --verify HEAD) != $head ]]; then git push; fi
-  }
+# push only a commit cm made — `cm --help` exits 0 too
+cmpu() {
+  local head=$(git rev-parse -q --verify HEAD 2>/dev/null)
+  cm "$@" || return
+  if [[ $(git rev-parse -q --verify HEAD) != $head ]]; then git push; fi
+}
 
+if (( $+commands[claude] )); then
   if (( $+commands[glow] )); then
     ci() { CLAUDE_CODE_ENTRYPOINT=ci claude --print "$@" | glow --width 120 }
   else

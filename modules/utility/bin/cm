@@ -106,7 +106,6 @@ types=$(
     git config --local --get-all cm.type ||
     { [[ $prefix == true ]] || is_own_repo && git config --get-all cm.type; }
 )
-# type names joined by | — IFS cuts "name = meaning" at the first space or =, ${prefixes:+|} skips the first |
 prefixes=''
 while IFS=' =' read -r name _; do prefixes+=${prefixes:+|}$name; done <<<"$types"
 
@@ -198,8 +197,8 @@ Decide whether to write a body from the size and complexity of the staged diff:
   trailers. Describing AI functionality that the diff itself implements is fine.
 </content>"
 
-has_jq=''
-command -v jq >/dev/null && has_jq=1 || fall 'no jq'
+has_api=''
+command -v jq >/dev/null && command -v curl >/dev/null && has_api=1 || fall 'no jq or curl'
 
 key_file=${XDG_CONFIG_HOME:-$HOME/.config}/cm/anthropic-api-key
 has_security=''
@@ -238,7 +237,7 @@ store_key() {
 # OAuth token lives in the Keychain on macOS, in ~/.claude/.credentials.json
 # on Linux and Windows.
 auth_mode='' secret='' new_key='' kc_err=''
-if [[ -n $has_jq ]]; then
+if [[ -n $has_api ]]; then
   find_key
   if [[ -n $secret ]]; then
     auth_mode=apikey

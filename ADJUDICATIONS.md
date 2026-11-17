@@ -124,7 +124,7 @@ reason — evidence.
   redirected, `read -p` wrote its prompt nowhere and `cm` waited blind
 - **Every fallback prints a `💥` line with its cause** — chosen by the user,
   the style of `u` in `runcoms/zshrc`. Covered: no API key → OAuth on Haiku
-  4.5, no key and no OAuth token or no `jq` → `claude -p`, API call failed
+  4.5, no key and no OAuth token or no `jq` or `curl` → `claude -p`, API call failed
   or stopped, reply without text, prefix outside `cm.type`
 - **One `fall` helper for every fallback `💥` line** — required. `warn` plus
   `falling back to claude -p` — six API outcomes and two auth checks share it.
@@ -405,8 +405,8 @@ reason — evidence.
 - **Key lookup and store live in `find_key` and `store_key`** — chosen. The
   auth block only decides the order — a new store or source changes one
   function
-- **Each fallback warning sits where its cause is known** — chosen. "no jq"
-  after the `jq` check, "no API key and no valid OAuth token" at the end of
+- **Each fallback warning sits where its cause is known** — chosen. "no jq or
+  curl" after the tool check, "no API key and no valid OAuth token" at the end of
   the auth block, the OAuth line in the model override. Before, a two-arm `case`
   on `auth_mode` re-derived the causes later
 - **Keychain warning only when no key was found** — required. A key file or
@@ -545,6 +545,27 @@ reason — evidence.
   file, and then turned empty
 - **Retry hint quotes the `COMMIT_EDITMSG` path with `printf %q`** — required.
   A repo path with a space split the printed command
+- **`curl` checked next to `jq`** — required (review 2026-11-17).
+  `command -v jq curl` returns 0 when only one exists, so two calls. Without
+  `curl`, `cm` asked for a key, failed with code 127, and dropped the key
+- **`_cm` splits `cm.type` at ` #= #`** — required (review 2026-11-17). It cut
+  at ` = ` only, while `cm` cuts at the first space or `=` — `feat=x` became
+  one name. The completion system sets `extendedglob`, so ` #` matches any
+  run of spaces
+- **`cmpu` outside the `claude` block in `runcoms/zshrc`** — required (review
+  2026-11-17). `cm` needs `claude` only for its fallback
+- **`-H @<(…)` on Git Bash** — accepted, not tested. A native `curl.exe` likely
+  cannot open the `/dev/fd/63` path of a process substitution, so Windows
+  would always fall back to `claude -p`. `curl --variable %VAR
+  --expand-header` works (verified live on macOS) but needs `curl` 8.3 —
+  Debian 12 and Ubuntu 22.04 ship 7.x. A temp file holds the secret on disk.
+  Decided by the user (2026-11-17): no change
+- **Message lost when the `claude -p` reply also fails `rejection()`** —
+  accepted, decided by the user. Rare — both drafts must break `cm.type`. An
+  env var instead of `COMMIT_EDITMSG` cannot work: `cm` is a child process and
+  cannot set the calling shell's environment
+- **`cm -- feat` rejected as an unknown option** — YAGNI, decided by the user.
+  No caller puts `--` before a commit type
 
 ### Measurement method
 
