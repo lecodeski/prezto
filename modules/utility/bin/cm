@@ -242,9 +242,11 @@ if [[ -n $has_jq ]]; then
     auth_mode=apikey
   else
     [[ -n $kc_err ]] && warn "$kc_err"
+
     creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
     creds_file=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.credentials.json
     [[ -z $creds && -r $creds_file ]] && creds=$(<"$creds_file")
+
     if [[ -n $creds ]]; then
       secret=$(jq -bj '.claudeAiOauth | select(.expiresAt == null or .expiresAt / 1000 > now) | .accessToken // empty' \
         <<<"$creds" 2>/dev/null)
@@ -272,15 +274,20 @@ if [[ -n $auth_mode ]]; then
   (( timing )) && t0=$(now)
   auth="x-api-key: $secret"
   [[ $auth_mode == oauth ]] && auth="Authorization: Bearer $secret"$'\n''anthropic-beta: oauth-2025-04-20'
+
   # headers via a file descriptor: the secret stays out of argv and ps
   reply=$(printf '%s' "$request" |
+
     jq -Rc --arg model "$api_model" --arg effort "$api_effort" -s \
       '{$model, max_tokens: 16000, messages: [{role: "user", content: .}]}
       + if $effort == "" then {} else {output_config: {$effort}} end' |
+
     curl -sS --max-time 30 -w '\n%{http_code}' --data-binary @- \
       -H @<(printf '%s\n' 'anthropic-version: 2023-06-01' 'content-type: application/json' "$auth") \
       https://api.anthropic.com/v1/messages 2>&1)
+
   code=$? http=${reply##*$'\n'} reply=${reply%$'\n'*} state=failed
+
   # jq -b: a native Windows jq writes LF as CRLF otherwise
   if (( code )); then
     fall "API call failed (${reply%%$'\n'*})"
@@ -305,6 +312,7 @@ if [[ -n $auth_mode ]]; then
       state=ok
     fi
   fi
+
   (( timing )) && printf '%s: api call (%s, %s) %s: %ss\n' \
     "$me" "$api_model" "$auth_mode" "$state" "$(elapsed "$t0" "$(now)")" >&2
 fi
@@ -316,9 +324,12 @@ if [[ -z $msg ]]; then
   msg=$(printf '%s\n' "$request" | claude -p --model "$model" --effort "$effort" --no-session-persistence \
     --safe-mode --setting-sources user --tools "" | tr -d '\r') \
     || die 'claude -p failed'
+
   msg=${msg#"${msg%%[![:space:]]*}"}
+
   (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
     "$me" "$model" "$(elapsed "$t0" "$(now)")" >&2
+
   why=$(rejection "$msg") && die "$why"
 fi
 
