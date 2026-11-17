@@ -159,11 +159,6 @@ $diff
 
 Follow every rule below exactly.
 
-<output>
-Output only the raw commit message: no preamble, no explanation, no code
-fences, and no 'subject:' or 'body:' labels.
-</output>
-
 <subject>
 $prefix_rule
 - {emoji}: exactly one emoji, only there.
@@ -196,7 +191,14 @@ Decide whether to write a body from the size and complexity of the staged diff:
 - Wrap any code, command, filename, or identifier in backticks.
 - Never present the commit as AI-authored: no AI or assistant attribution and no
   trailers. Describing AI functionality that the diff itself implements is fine.
-</content>"
+</content>
+
+<output>
+Your reply becomes the commit message verbatim. Output only that message:
+no preamble, no explanation, no code fences, no 'subject:' or 'body:'
+labels, and no notes about the rules above — not whether a body was
+written, not the subject length.
+</output>"
 
 has_api=''
 command -v jq >/dev/null && command -v curl >/dev/null && has_api=1 || fall 'no jq or curl'

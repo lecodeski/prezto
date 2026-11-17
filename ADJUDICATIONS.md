@@ -373,6 +373,18 @@ reason — evidence.
   6 diffs × 4 runs (2026-11-02): no `!` in 70 replies without a breaking
   change, `cm.type` repo 24/24 valid, and `fsmonitor` off went from `del` 4/4
   to `mod` 3/4
+- **`<output>` rule last in the prompt, and it names the notes it forbids** —
+  required. Commit `358ce4c6` got a body of meta-text: "The diff is small …,
+  so the body is omitted. Subject length check: …". `rejection()` checks only
+  the subject. Sonnet 5.5 `medium` over the API, prompt for that diff (a
+  comment line plus a doc note), 10 runs each (2026-11-17): `<output>` first
+  with "no preamble, no explanation" — 5/10 bodies justified the missing body.
+  `<output>` last, "Your reply becomes the commit message verbatim", and "no
+  notes about the rules above — not whether a body was written, not the
+  subject length" — 0/10. Two other small diffs: 0/10 with both. Two large
+  diffs: a body in 5/5 with both. A check that rejects body lines without a
+  leading emoji was not built — a rejection costs the `claude -p` fallback
+  and can abort the commit
 - **Subject as format lines with `{placeholders}`** — chosen by the user, in
   `cm` and `/commit`: `{type}({scope}): {emoji} {description}`, without a
   prefix `{description} {emoji}`, each placeholder explained in one line.
