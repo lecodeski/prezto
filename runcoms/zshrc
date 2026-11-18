@@ -296,6 +296,8 @@ alias vs="ifconfig | grep '\-->' || ip a show utun8 2> /dev/null || scutil --nc 
 
 (( $+commands[links] )) && alias www=links
 
+(( $+commands[zed] )) && alias ziff='zed --diff'
+
 alias ä="cd ${ZDOTDIR:-$HOME} &&
   vim + .zsh_history &&
   chmod 600 .zsh_history &&
