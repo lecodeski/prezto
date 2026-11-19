@@ -3,6 +3,7 @@ tap "artginzburg/tap", "https://github.com/artginzburg/homebrew-tap.git"
 tap "bellicose100xp/tap"
 tap "bradyjoslin/sharewifi"
 tap "buo/cask-upgrade", trusted: true
+tap "cmzy/tap"
 tap "datahub-project/tap"
 tap "lecodeski/maple-font"
 tap "sikarugir-app/sikarugir", "https://github.com/Sikarugir-App/homebrew-sikarugir", trusted: true
@@ -329,6 +330,8 @@ cask "lecodeski/maple-font/font-maple-mini", trusted: true
 cask "font-symbols-only-nerd-font"
 cask "font-ubuntu"
 cask "font-victor-mono"
+# Pure-GPU-rendered, professional Git client
+cask "cmzy/tap/geetree", trusted: true
 # Free and open-source image editor
 cask "gimp"
 # Vector graphics editor
