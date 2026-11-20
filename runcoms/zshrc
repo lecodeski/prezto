@@ -320,7 +320,7 @@ if (( $+commands[mococli] )); then
     echo "--date $(datestamp "$@")"
   }
 
-  z() {
+  zd() {
     mococli list $(_moco_datestamp "$@")
   }
 
@@ -691,6 +691,10 @@ wat() {
         return "$code"
     fi
 } && compdef xb=broot
+
+(( $+commands[zed] )) && z() {
+  zed ${1:-.}
+} && compdef z=zed
 
 # Keep mistyped commands out of history: reject a line whose head word
 # resolves to nothing, certify whatever it cannot judge — zsh then keeps a
