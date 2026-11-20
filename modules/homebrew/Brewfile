@@ -391,8 +391,6 @@ mas "Telegram", id: 747648890
 mas "WhatsApp", id: 310633997
 mas "WireGuard", id: 1451685025
 mas "Xcode", id: 497799835
-go "github.com/fiatjaf/jiq/cmd/jiq"
-go "github.com/nats-io/nats-top"
 go "github.com/CtrlSpice/otel-desktop-viewer"
 cargo "abtop"
 cargo "cargo-update"
