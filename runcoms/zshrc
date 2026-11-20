@@ -45,8 +45,6 @@ _gen_completion() {  # $1 command, $@ its generator command line — each genera
 (( $+commands[rustup] )) && _gen_completion rustup completions zsh
 unfunction _gen_completion
 
-(( $+commands[prettyping] )) && compdef prettyping=ping
-
 # Test & Prefer the richer zsh-bundled _git over the one shipped by Homebrew's git formula
 # without touching fpath (which would let _sccs shadow git-delta's _delta).
 # see https://github.com/orgs/Homebrew/discussions/2797.
@@ -257,7 +255,7 @@ alias ncdu='_ ncdu --extended --color dark'
 [ $commands[npm] ] && alias n='BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium npm'
 
 [ $commands[bat] ] && alias p=bat
-[ $commands[prettyping] ] && alias ping=prettyping
+(( $+commands[prettyping] )) && alias ping=prettyping && compdef prettyping=ping
 [ $commands[pstorm] ] && alias piff='pstorm diff'
 alias psd='c ${(Q)"$(pst)"}'
 alias py=python3
