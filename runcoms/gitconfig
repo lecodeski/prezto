@@ -29,11 +29,11 @@
 
 [diff]
 	tool = icdiff
-	guitool = intellij
+	guitool = lenz
 
 [merge]
 	tool = vimdiff
-	guitool = intellij
+	guitool = lenz
 
 # unset GIT_*: on cold start IDEA's Settings Sync (JGit) honors GIT_DIR/GIT_WORK_TREE
 # exported by git difftool/mergetool and checks its settings repo out into YOUR repo,
@@ -48,6 +48,13 @@
 
 [mergetool "intellij"]
 	cmd = "unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE && '/Applications/IntelliJ IDEA.app/Contents/MacOS/idea' merge \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\" >/dev/null 2>&1"
+	trustExitCode = true
+
+[difftool "lenz"]
+	cmd = lenz diff --name \"$MERGED\" \"$LOCAL\" \"$REMOTE\"
+
+[mergetool "lenz"]
+	cmd = lenz diff merge \"$BASE\" \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
 	trustExitCode = true
 
 [mergetool]

@@ -1,3 +1,4 @@
+tap "aantoniadis/lenz"
 tap "airbytehq/tap", trusted: true
 tap "artginzburg/tap", "https://github.com/artginzburg/homebrew-tap.git"
 tap "bellicose100xp/tap"
@@ -291,6 +292,8 @@ brew "yq"
 brew "yt-dlp"
 # UNIX shell (command interpreter)
 brew "zsh"
+# Code editor, diff viewer, Git client and merge tool with GUI and terminal frontends
+brew "aantoniadis/lenz/lenz", trusted: true
 # Airbyte's command-line tool for running Airbyte locally
 brew "airbytehq/tap/abctl", trusted: true
 # Hide unwanted icons from your menu bar

@@ -241,6 +241,7 @@ alias gw='git-open'
 [ -x ~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh ] && alias kkc=~/Projekte/Perl/SandBox/krazy-kase-clipboard.sh
 
 alias l='locate -i'
+(( $+commands[lenz] )) && alias liff='lenz diff'
 alias ln="${aliases[ln]:-ln} --verbose"
 alias lz='git -C ${ZDOTDIR:-$HOME}/.zprezto l'
 alias lzp='git -C ${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k l'
