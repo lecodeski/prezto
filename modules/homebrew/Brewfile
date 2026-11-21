@@ -393,7 +393,6 @@ mas "WireGuard", id: 1451685025
 mas "Xcode", id: 497799835
 go "github.com/CtrlSpice/otel-desktop-viewer"
 cargo "abtop"
-cargo "cargo-update"
 cargo "evcxr_repl"
 cargo "mococli"
 npm "decktape"
