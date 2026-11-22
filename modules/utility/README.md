@@ -209,23 +209,9 @@ The module's _`bin`_ directory is appended to `PATH`, making the following
 standalone commands available:
 
 - `cm` generates a commit message for the staged diff via Claude and commits
-  it (stages all changes if nothing is staged). The direct API call needs
-  `curl` and `jq` (`setup_Brewfile`) — without them `cm` uses `claude -p`.
-  - `cm --help` lists the options and the git config keys.
-  - `cm -t` prints the time of each step.
-  - `cm <type>` (e.g. `cm feat`) fixes the commit type — any lowercase word,
-    in `cm.type` or not. It wins over `cm.type` and `cm.prefix false`.
-  - `git config --add cm.type "<name> = <meaning>"`, once per type, sets the
-    commit types — the subject then must start with `<name>(<scope>):` from that list,
-    or `<name>(<scope>)!:` for a breaking change.
-  - the types apply in an own repo — no remote, or a remote URL that contains a
-    `cm.remoteOwner` name (`git config --add cm.remoteOwner lecodeski`, any
-    case) — over SSH, HTTPS, and `ssh://`. Other repos follow their history.
-  - `git config --local --add cm.type …` gives one repo its own types — they
-    replace the global types, also in a foreign repo.
-  - `git config cm.prefix true` forces the types, `false` turns prefixes off —
-    per repo.
-  - review verdicts: [ADJUDICATIONS.md](../../ADJUDICATIONS.md#cm-modulesutilitybincm)
+  it (stages all changes if nothing is staged). Options and git config keys:
+  `cm --help` — the direct API call needs `curl` and `jq`, else `claude -p`.
+  Review verdicts: [ADJUDICATIONS.md](../../ADJUDICATIONS.md#cm-modulesutilitybincm).
 - `cpy` copies stdin to the clipboard (`pbcopy`, `xsel` or `ncat` over SSH).
 - `pst` pastes the clipboard to stdout (`pbpaste`, `xsel` or `ncat` over SSH).
 

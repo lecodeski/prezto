@@ -164,10 +164,15 @@ reason — evidence.
   `git commit`, goes through `die`, which appends `aborting`. The rejection
   text comes from `rejection()`, with the suffix `falling back to claude -p` or
   `aborting`
-- **`jq -b` on every read of a reply** — required for Windows/Git Bash. A
-  native `jq.exe` writes LF as CRLF otherwise (jq manual) — `end_turn\r` would
-  send every run to the fallback. Not tested on Windows. Python needed
-  `PYTHONIOENCODING=utf-8` there instead — an emoji raised `UnicodeEncodeError`
+- **CR stripped from the message, no `jq -b`** — required for Windows/Git
+  Bash. A native `jq.exe` writes LF as CRLF (jq manual). `-j` writes no line
+  end, so the OAuth token and `stop_reason` stay clean — only the message
+  carries inner newlines, and `${msg//$'\r'}` strips them without a fork.
+  `jq -b` was rejected: jq 1.6 (Debian 12, Ubuntu 22.04) has no such option
+  (`src/main.c` of the 1.6 tag), exits 2, and every reply counted as
+  malformed (review 2026-11-17). jq 1.6 itself not run here. Not tested on
+  Windows. Python needed `PYTHONIOENCODING=utf-8` there instead — an emoji
+  raised `UnicodeEncodeError`
 - **Abort after `cm`'s own `git add -A` leaves the index staged** — kept,
   decided by the user
 - **30 s `curl --max-time` with Haiku 5.5 thinking** — open. Measure with `cm -t`
@@ -257,8 +262,8 @@ reason — evidence.
 - **Scope on every prefix** — chosen by the user, the Conventional Commits
   `type(scope):` form. Without `cm.type`, bash decides whether the history
   uses prefixes at all — a subject that starts with `word:` or `word(scope):`.
-  No prefix in the window → the prompt says "Use no commit-type prefix" and
-  names no scope. Unambiguous, unlike the old taxonomy regex — it asks only
+  No prefix in the window → the prompt gets `plain_format`,
+  `{description} {emoji}`, and names no scope. Unambiguous, unlike the old taxonomy regex — it asks only
   "prefix or not", never "which taxonomy"
 - **One prefixed subject in the window switches on prefix mode** — kept,
   decided by the user. A tool-made `chore(release): 1.2.0` in a plain repo
@@ -432,7 +437,7 @@ reason — evidence.
   into the `💥` line. Stripping only CR left the LF case open. The strip sits at the end of
   `find_key` and right after the prompt's `read`, before the emptiness checks —
   one strip after the auth decision let a whitespace-only key choose the
-  API-key path with `x-api-key: ''`. The OAuth token comes from `jq -bj`,
+  API-key path with `x-api-key: ''`. The OAuth token comes from `jq -j`,
   which writes no line end — Python's `print` left a CR on Windows (review
   2026-11-15)
 - **`claude -p` fallback runs `--safe-mode --tools ""`** — required. With the
@@ -465,9 +470,10 @@ reason — evidence.
   there
 - **OAuth line says "no usable API key"** — required. After "keychain locked",
   "no API key" contradicted it — the key exists, it is unreachable
-- **`error.message` passed through `str()`** — required. A proxy body
-  `{"error":{"message":null}}` made `cause[:200]` raise outside the `try` —
-  a bare traceback instead of the `💥` line
+- **`error.message // empty` with `jq -e`** — required. A proxy body
+  `{"error":{"message":null}}` or a body without `error.message` printed
+  `null` — now the raw body shows, cut at 200 characters.
+  Python once raised a bare traceback here (`str()` entry, gone with Python)
 - **Comment above `find_key` stays** — kept, decided by the user
 - **Orphan `anthropic-api-key.XXXXXX` after a failed write or `mv`** — kept.
   Only on a full disk or a write error — removing it costs more syntax than the
@@ -484,8 +490,9 @@ reason — evidence.
   `/usr/bin/python3` needs the Command Line Tools, and `setup_Brewfile`
   installs `jq`. Without `jq`, `cm` falls back to `claude -p`. The exit codes
   0/1/3 gave way to one rule: an Anthropic reply proves the key
-- **Names `choice_rule`, `scope_rule`, `has_security`** — required. `pick` and
-  `scope` held prompt sentences, `kc` meant "`security` exists"
+- **Names `choice_rule`, `prefixed_format`, `plain_format`, `has_security`** —
+  required. `pick` and `scope` held prompt sentences, `kc` meant "`security`
+  exists". `scope_rule` became the two format variables with the format lines
 - **`2>&1` dropped on `command -v`** — required. `command -v` prints nothing to
   stderr when the name is missing
 - **Tabs in the `[cm]` section of `runcoms/gitconfig`** — rejected as a finding. Git writes config
@@ -580,6 +587,24 @@ reason — evidence.
   cannot set the calling shell's environment
 - **`cm -- feat` rejected as an unknown option** — YAGNI, decided by the user.
   No caller puts `--` before a commit type
+- **README `## Commands` keeps one line per command** — decided by the user
+  (review 2026-11-20). Options, git config keys, and the type rules live in
+  `cm --help` — 16 lines repeated them in an upstream file. No `--global` or
+  `--local` examples — git basics
+- **Header and `--help` do not explain local vs global `cm.type`** — decided
+  by the user (review 2026-11-20). Config levels are git basics
+- **Rejection note sits after `<output>` on the `claude -p` path** — accepted,
+  decided by the user (review 2026-11-20). Only after a rejected API draft —
+  the 5/10 meta-text measurement had the rule first, not one note after it
+- **"{emoji}: … only there" next to an emoji per body line** — non-problem,
+  decided by the user (review 2026-11-20). The rule sits in `<subject>` — in
+  10 large-diff runs every body line opened with an emoji
+- **`msg` parsed before the `stop_reason` check** — YAGNI, decided by the user
+  (review 2026-11-20). One extra `jq` call and one `msg=''`, only when the
+  model stopped early
+- **New `_cm` hidden by prezto's 20-hour `compinit -C` cache** — accepted,
+  decided by the user (review 2026-11-20). Once per new completion file —
+  delete `${XDG_CACHE_HOME:-~/.cache}/prezto/zcompdump`
 
 ### Measurement method
 

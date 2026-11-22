@@ -91,7 +91,7 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
   asks for one and stores it once the API accepts it — in the Keychain where
   `security` exists, else in that file. Commit types come from the `[cm]`
   section in `runcoms/gitconfig` — `cm` uses them in own repos, per
-  [README](modules/utility/README.md#commands)
+  `cm --help`
 - two wrapper layers cover the command names. First ~570 aliases. Then prezto's
   `gnu-utility` functions, which exec the homebrew `g*` GNU binaries — 103 names
   are live, among them `ls rm cp mv sed awk find date stat head tail wc sort

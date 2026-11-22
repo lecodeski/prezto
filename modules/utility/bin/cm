@@ -252,7 +252,7 @@ if [[ -n $has_api ]]; then
     [[ -z $creds && -r $creds_file ]] && creds=$(<"$creds_file")
 
     if [[ -n $creds ]]; then
-      secret=$(jq -bj '.claudeAiOauth | select(.expiresAt == null or .expiresAt / 1000 > now) | .accessToken // empty' \
+      secret=$(jq -j '.claudeAiOauth | select(.expiresAt == null or .expiresAt / 1000 > now) | .accessToken // empty' \
         <<<"$creds" 2>/dev/null)
       [[ -n $secret ]] && auth_mode=oauth
     fi
@@ -292,17 +292,18 @@ if [[ -n $auth_mode ]]; then
 
   code=$? http=${reply##*$'\n'} reply=${reply%$'\n'*} state=failed
 
-  # jq -b: a native Windows jq writes LF as CRLF otherwise
   if (( code )); then
     fall "API call failed (${reply%%$'\n'*})"
   elif [[ $http != 200 ]]; then
-    fall "API call failed (HTTP $http: $(jq -bej '.error.message // empty' <<<"$reply" 2>/dev/null || printf '%s' "${reply:0:200}"))"
-  elif ! stop=$(jq -bej '.stop_reason' <<<"$reply" 2>/dev/null); then
+    fall "API call failed (HTTP $http: $(jq -ej '.error.message // empty' <<<"$reply" 2>/dev/null || printf '%s' "${reply:0:200}"))"
+  elif ! stop=$(jq -ej '.stop_reason' <<<"$reply" 2>/dev/null); then
     fall 'API reply malformed'
   else
     # an Anthropic reply proves the key, usable or not
     [[ -n $new_key ]] && store_key "$secret"
-    msg=$(jq -bj '[.content[]? | select(.type == "text").text] | add // "" | gsub("^\\s+|\\s+$"; "")' <<<"$reply")
+    msg=$(jq -j '[.content[]? | select(.type == "text").text] | add // "" | gsub("^\\s+|\\s+$"; "")' <<<"$reply")
+    # a native Windows jq writes LF as CRLF; -j adds no line end, so only the message needs this
+    msg=${msg//$'\r'}
     if [[ $stop != end_turn ]]; then
       fall "API call stopped ($stop)"
       msg=''
