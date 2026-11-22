@@ -22,13 +22,20 @@ me=${0##*/}
 
 # EPOCHREALTIME needs bash >= 5; fall back to whole seconds elsewhere
 now() {
-  if [[ -n ${EPOCHREALTIME:-} ]]; then printf '%s' "$EPOCHREALTIME"; else date +%s; fi
+  if [[ -n ${EPOCHREALTIME:-} ]]; then printf '%s' "${EPOCHREALTIME/,/.}"; else date +%s; fi
 }
 elapsed() { awk -v a="$1" -v b="$2" 'BEGIN { printf "%.2f", b - a }'; }
 warn() { echo "💥 $me: $*" >&2; }
 die() { warn "$* — aborting"; exit 1; }
 fall() { warn "$* — falling back to claude -p"; }
 usage_error() { printf "%s: %s\nTry '%s --help' for more information.\n" "$me" "$1" "$me" >&2; exit 1; }
+
+keep_msg() {
+  local editmsg
+  editmsg=$(git rev-parse --git-path COMMIT_EDITMSG)
+  printf '%s\n' "$msg" > "$editmsg"
+  die "$1 (message kept, retry: git commit $2 $(printf '%q' "$editmsg"))"
+}
 
 is_own_repo() {
   local remotes
@@ -286,7 +293,7 @@ if [[ -n $auth_mode ]]; then
       '{$model, max_tokens: 16000, messages: [{role: "user", content: .}]}
       + if $effort == "" then {} else {output_config: {$effort}} end' |
 
-    curl -sS --max-time 30 -w '\n%{http_code}' --data-binary @- \
+    curl -q -sS --max-time 30 -w '\n%{http_code}' --data-binary @- \
       -H @<(printf '%s\n' 'anthropic-version: 2023-06-01' 'content-type: application/json' "$auth") \
       https://api.anthropic.com/v1/messages 2>&1)
 
@@ -338,7 +345,7 @@ if [[ -z $msg ]]; then
   (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
     "$me" "$model" "$(elapsed "$t0" "$(now)")" >&2
 
-  why=$(rejection "$msg") && die "$why"
+  why=$(rejection "$msg") && keep_msg "$why" '-e -F'
 fi
 
 # wrap the body only — a folded subject would spill into the body
@@ -347,9 +354,5 @@ fi
 #   ${msg#*$'\n'}   body: all after the first newline
 [[ $msg == *$'\n'* ]] && msg=${msg%%$'\n'*}$'\n'$(fold -s -w 72 <<<"${msg#*$'\n'}")
 
-if ! git commit -qm "$msg"; then
-  editmsg=$(git rev-parse --git-path COMMIT_EDITMSG)
-  printf '%s\n' "$msg" > "$editmsg"
-  die "git commit failed (message kept, retry: git commit -F $(printf '%q' "$editmsg"))"
-fi
+git commit -qm "$msg" || keep_msg 'git commit failed' -F
 git -P log -1 --stat --summary --pretty=format:'%D [%h] %an%n%n%C(bold)%s%C(reset)%n%+b'

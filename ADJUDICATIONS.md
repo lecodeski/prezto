@@ -581,10 +581,14 @@ reason — evidence.
   --expand-header` works (verified live on macOS) but needs `curl` 8.3 —
   Debian 12 and Ubuntu 22.04 ship 7.x. A temp file holds the secret on disk.
   Decided by the user (2026-11-17): no change
-- **Message lost when the `claude -p` reply also fails `rejection()`** —
-  accepted, decided by the user. Rare — both drafts must break `cm.type`. An
-  env var instead of `COMMIT_EDITMSG` cannot work: `cm` is a child process and
-  cannot set the calling shell's environment
+- **A rejected `claude -p` reply goes to `COMMIT_EDITMSG`** — required by the
+  user (review 2026-11-23). First accepted as rare — "both drafts must break
+  `cm.type`" — but without `jq`/`curl` or a key, or after a timeout, 429, or
+  5xx, `claude -p` writes the only draft, and one rejection lost it. `keep_msg`
+  serves this abort and a failed `git commit` — the hint says `git commit -e
+  -F` after a rejection, `-F` after a failed commit. An env var cannot carry
+  the message: `cm` is a child process and cannot set the calling shell's
+  environment
 - **`cm -- feat` rejected as an unknown option** — YAGNI, decided by the user.
   No caller puts `--` before a commit type
 - **README `## Commands` keeps one line per command** — decided by the user
@@ -605,6 +609,22 @@ reason — evidence.
 - **New `_cm` hidden by prezto's 20-hour `compinit -C` cache** — accepted,
   decided by the user (review 2026-11-20). Once per new completion file —
   delete `${XDG_CACHE_HOME:-~/.cache}/prezto/zcompdump`
+- **`curl -q` ignores `~/.curlrc`** — required (review 2026-11-23). A user
+  `-i`, `--fail`, or `-v` there broke the reply parse, hid `error.message`, or
+  put `x-api-key` into the `💥` line. Verified: `-i` in a curlrc added headers,
+  `-q` dropped them. `-q` works only as the first argument
+- **`EPOCHREALTIME` with `,` turned into `.`** — required (review 2026-11-23).
+  bash 5 writes the locale's decimal separator — `de_DE` gave
+  `1795387118,097015`, and `awk` read only the whole seconds. Now `cm -t`
+  measures right, `awk` prints the result with the locale's comma
+- **Example `fix(greet): …` in `<content>` also in repos without prefixes** —
+  non-problem, decided by the user (review 2026-11-23). A plain history gave
+  no prefix in 18/18 runs — a new example needs a new measurement
+- **`git rev-parse --git-dir` lets `cm` start inside `.git/` or a bare repo** —
+  YAGNI, decided by the user (review 2026-11-23). `cm` still aborts there,
+  only with a vaguer message
+- **Grouped short options `cm -th` rejected** — YAGNI, decided by the user
+  (review 2026-11-23). Two options, and `-h` exits anyway
 
 ### Measurement method
 
