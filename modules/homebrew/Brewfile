@@ -130,8 +130,6 @@ brew "libde265"
 brew "libheif"
 # Graph visualization software from AT&T and Bell Labs
 brew "graphviz"
-# Interpreted, interactive, object-oriented programming language
-brew "python@3.14"
 # Colorize logfiles and command output
 brew "grc"
 # Like cURL, but for gRPC
@@ -142,6 +140,8 @@ brew "icdiff"
 brew "imessage-exporter"
 # Official CLI for the IPinfo IP Address API
 brew "ipinfo-cli"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.14"
 # CLI wrapper for basic network utilities on macOS - ip command
 brew "iproute2mac"
 # JQ clone focussed on correctness, speed, and simplicity
