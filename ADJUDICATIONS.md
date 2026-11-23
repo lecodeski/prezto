@@ -596,6 +596,19 @@ reason — evidence.
   `COMMIT_EDITMSG` with a blank line and still said "message kept". A failed
   write said it too. Tested: lost draft kept, older file untouched, read-only
   file → plain abort
+- **`keep_msg` falls back to `draft` when `msg` is empty** — required (review
+  2026-11-23). `claude -p` can exit 0 with no text — the rejected API draft
+  was lost there. `${msg:-$draft}` covers every path that arrives empty.
+  Tested: an empty reply after a rejected API draft keeps the draft
+- **`/commit` reads local `cm.type` first, like `cm`** — required (review
+  2026-11-23). A context line lists the local types, and a rule makes them
+  replace the merged list in any repo — `--get-all` alone merges all levels
+- **`_cm` offers type names that the `cm` argument check rejects** — YAGNI,
+  decided by the user (review 2026-11-23). No `cm.type` name holds a digit or
+  `-`. A name like `i18n` needs `^[a-z][a-z0-9-]*$` in the check
+- **Comment above `cmpu`** — kept, decided by the user (review 2026-11-23). It
+  stops a reader from simplifying to `cm && git push` — that `cm --help`
+  exits 0 is not visible at the line
 - **`cm -- feat` rejected as an unknown option** — YAGNI, decided by the user.
   No caller puts `--` before a commit type
 - **README `## Commands` keeps one line per command** — decided by the user

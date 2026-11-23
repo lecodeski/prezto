@@ -32,6 +32,7 @@ usage_error() { printf "%s: %s\nTry '%s --help' for more information.\n" "$me" "
 
 keep_msg() {
   local editmsg
+  msg=${msg:-$draft}
   [[ -n $msg ]] || die "$1"
   editmsg=$(git rev-parse --git-path COMMIT_EDITMSG)
   printf '%s\n' "$msg" > "$editmsg" || die "$1"
