@@ -208,6 +208,14 @@ In addition, the following aliases have been added:
 The module's _`bin`_ directory is appended to `PATH`, making the following
 standalone commands available:
 
+- `check-signing-config` rejects a commit or merge commit whose signing
+  config would sign it wrong — `[hook "signing"]` in
+  [`runcoms/gitconfig`](../../runcoms/gitconfig) runs it in every repo, next
+  to the repo's own hooks. It requires `commit.gpgSign` on, a set
+  `user.signingkey` that names exactly one key, and a committer email that a
+  valid uid of that key carries.
+  With `gpg.format=ssh`, `gpg.ssh.allowedSignersFile` must map that email to
+  the key — an ssh key carries no email.
 - `cm` generates a commit message for the staged diff via Claude and commits
   it (stages all changes if nothing is staged).
 - `cpy` copies stdin to the clipboard (`pbcopy`, `xsel` or `ncat` over SSH).

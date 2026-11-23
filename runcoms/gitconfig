@@ -86,6 +86,11 @@
 [commit]
 	gpgSign = true
 
+[hook "signing"]
+	event = pre-commit
+	event = pre-merge-commit
+	command = check-signing-config
+
 [init]
 	defaultBranch = main
 [fetch]

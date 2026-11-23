@@ -46,14 +46,15 @@ Load order: `runcoms/zshenv` → `zprofile` → `zshrc` (sources `init.zsh`) →
 
 - `init.zsh` — loader. Reads `zstyle ':prezto:load' pmodule` from `runcoms/zpreztorc` and sources each `modules/<name>/init.zsh` **in listed order** (order matters: `syntax-highlighting` before `history-substring-search`, `completion` before `autosuggestions`, `prompt` late). Also defines the fork's `zprezto-update` + `zprezto-restart`.
 - `runcoms/zpreztorc` — the switchboard: module list plus every `zstyle ':prezto:*'` setting (including the vendored-completion URLs). A module reads its own settings; it does not read the list.
-- `modules/<name>/` — `init.zsh` plus optional `functions/` (autoloaded, `_*`/`README*` skipped), `bin/` (module puts it on PATH itself — only `utility` does), and `external/` (git submodules of third-party plugins). Fork additions: `fzf` module (fzf-tab, fzf-git), `vendored-completions` module, `utility/bin/` (`cm`, `cpy`, `pst`).
+- `modules/<name>/` — `init.zsh` plus optional `functions/` (autoloaded, `_*`/`README*` skipped), `bin/` (module puts it on PATH itself — only `utility` does), and `external/` (git submodules of third-party plugins). Fork additions: `fzf` module (fzf-tab, fzf-git), `vendored-completions` module, `utility/bin/` (`check-signing-config`, `cm`, `cpy`, `pst`).
 - `runcoms/` — zsh startup files plus non-zsh dotfiles symlinked too (`gitconfig`, `vimrc`, `batrc`, `ripgreprc`, `p10k.zsh`, `p10k-intellij.zsh`). Bulk of personal aliases/keybindings: `runcoms/zshrc` (~500 added lines vs upstream), grouped by `###` section headers.
 - `setup_homebrew_prezto.sh` / `setup_prezto.zsh` — one-time machine bootstrap; rarely touched.
 
 ## Fork policies & gotchas
 
 - design rationale — decisions, rejected alternatives, accepted costs, verified
-  non-problems — lives in docs, never inline.
+  non-problems — lives in docs, never inline. Settled decisions go to
+  [ADJUDICATIONS.md](ADJUDICATIONS.md).
   Its contents are settled — reviews re-flag them only with new verified facts
 - repo prose is Simplified Technical English with dash-chained telegraphese.
   Dash-joined clauses count as separate sentence units, so the 25-word cap and

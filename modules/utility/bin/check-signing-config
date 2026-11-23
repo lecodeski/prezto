@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# pre-commit & pre-merge-commit hook
+reject() { echo "💥 commit rejected — $1" >&2; exit 1; }
+
+ident=$(git var GIT_COMMITTER_IDENT) || exit
+email=${ident#*<}
+email=${email%%>*}
+key=$(git config --type=path user.signingkey)
+
+[[ $(git config --bool commit.gpgSign) == true ]] || reject 'commit.gpgSign is off in this repo'
+[[ $key ]] || reject 'user.signingkey is unset'
+
+if [[ $(git config gpg.format) == ssh ]]; then
+  signers=$(git config --type=path gpg.ssh.allowedSignersFile) || reject 'gpg.ssh.allowedSignersFile is unset — only it maps an email to an ssh key'
+  pub=$key
+  [[ $pub == *' '* ]] || pub=$(<"${pub%.pub}.pub")
+  read -r _ blob _ <<< "${pub#key::}"
+  while read -r principals rest || [[ $principals ]]; do
+    [[ ,$principals, == *,"$email",* && " $rest " == *" $blob "* ]] && exit 0
+  done < "$signers"
+  reject "$signers maps $email not to user.signingkey $key"
+fi
+
+gpg=$(git config gpg.openpgp.program || git config gpg.program)
+keys=$("${gpg:-gpg}" --with-colons --list-keys "$key") || reject "${gpg:-gpg} cannot list user.signingkey $key"
+while IFS=: read -r type validity _ _ _ _ _ _ _ uid _ caps _; do
+  case $type in
+    pub)
+      [[ $seen ]] && reject "user.signingkey $key matches several keys — set a key id"
+      seen=1
+      [[ $validity != [deinr] && $caps == *S* ]] || reject "user.signingkey $key is revoked, expired or cannot sign" ;;
+    uid) [[ $validity != [deinr] && $uid == *"<$email>" ]] && valid=1 ;;
+  esac
+done <<< "$keys"
+[[ $valid ]] || reject "user.email $email is no valid uid of user.signingkey $key"

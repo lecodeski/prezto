@@ -10,8 +10,7 @@
 # Load dependencies.
 pmodload 'helper' 'spectrum'
 
-# Include module's bin directory in PATH env
-export PATH="${PATH}:${HOME}"/.zprezto/modules/utility/bin""
+path+=(${0:h}/bin)
 
 # Correct commands.
 if zstyle -T ':prezto:module:utility' correct; then
