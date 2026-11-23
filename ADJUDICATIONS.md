@@ -614,6 +614,14 @@ reason — evidence.
   the subject — verified by the reviewer in a temp repo. `rejection()` checks
   only line 1. The split strips one leading newline from the body and puts
   `$'\n\n'` back. Tested: body on line 2, one blank, two blanks, subject only
+- **A "- " before a body line's emoji is stripped, not rejected** — decided
+  by the user (2026-11-23). 4 of 35 bodies on this branch had it, against
+  the prompt's "an emoji in place of the - marker". A rejection goes straight
+  to `claude -p` — no second API try — so 3–15 s more for about every ninth
+  body, and an abort when `claude -p` does it too. The split drops `- ` at
+  every body line start — the content is right, only the marker is wrong.
+  Tested in bash 5 and 3.2: dashed lines, a dashed line 2, plain lines, and
+  inner ` - ` kept
 - **Code fence or preamble passes in repos without prefixes** — YAGNI, decided
   by the user (review 2026-11-23). Not seen — `<output>` forbids both, 0/10
   meta-text after it moved last. A rejection costs the fallback and can abort

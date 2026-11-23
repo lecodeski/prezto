@@ -356,11 +356,12 @@ fi
 #   *$'\n'*         the message has a body
 #   ${msg%%$'\n'*}  subject: all before the first newline
 #   ${msg#*$'\n'}   body: all after the first newline
-#   ${body#$'\n'}   body without its blank first line — $'\n\n' puts exactly one back,
-#                   git merges a non-blank line 2 into the subject
+#   $'\n'${body#$'\n'}       exactly one blank line first — git merges a non-blank line 2 into the subject
+#   ${body//$'\n- '/$'\n'}   drop a "- " bullet marker — the prompt puts the emoji there
 if [[ $msg == *$'\n'* ]]; then
   body=${msg#*$'\n'}
-  msg=${msg%%$'\n'*}$'\n\n'$(fold -s -w 72 <<<"${body#$'\n'}")
+  body=$'\n'${body#$'\n'}
+  msg=${msg%%$'\n'*}$'\n'$(fold -s -w 72 <<<"${body//$'\n- '/$'\n'}")
 fi
 
 git commit -qm "$msg" || keep_msg 'git commit failed' -F
