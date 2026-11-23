@@ -589,6 +589,13 @@ reason — evidence.
   -F` after a rejection, `-F` after a failed commit. An env var cannot carry
   the message: `cm` is a child process and cannot set the calling shell's
   environment
+- **`keep_msg` also saves a rejected API draft when `claude -p` fails, never
+  writes an empty message, and checks its write** — required (review
+  2026-11-23). The API draft sat in `msg=''` — a missing `claude` or a quota
+  error lost it. Now `draft` holds it. An empty `msg` overwrote an older
+  `COMMIT_EDITMSG` with a blank line and still said "message kept". A failed
+  write said it too. Tested: lost draft kept, older file untouched, read-only
+  file → plain abort
 - **`cm -- feat` rejected as an unknown option** — YAGNI, decided by the user.
   No caller puts `--` before a commit type
 - **README `## Commands` keeps one line per command** — decided by the user
@@ -625,6 +632,14 @@ reason — evidence.
   only with a vaguer message
 - **Grouped short options `cm -th` rejected** — YAGNI, decided by the user
   (review 2026-11-23). Two options, and `-h` exits anyway
+- **`git config --type=bool` needs git 2.18** — YAGNI, decided by the user
+  (review 2026-11-23). git 2.18 is from 2018, `--bool` is the older form
+- **Function order in `runcoms/zshrc` changed without a simpler result** —
+  rejected as a finding, decided by the user (review 2026-11-23). The user's
+  own commit `ed29f9d6` — the simpler-or-shorter rule covers agent edits
+- **Prompt comment in `cm` names its tuning** — kept, decided by the user
+  (review 2026-11-23). It guards the prompt order, the backtick trap, and the
+  sync with `/commit`
 
 ### Measurement method
 

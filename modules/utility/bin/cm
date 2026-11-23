@@ -32,8 +32,9 @@ usage_error() { printf "%s: %s\nTry '%s --help' for more information.\n" "$me" "
 
 keep_msg() {
   local editmsg
+  [[ -n $msg ]] || die "$1"
   editmsg=$(git rev-parse --git-path COMMIT_EDITMSG)
-  printf '%s\n' "$msg" > "$editmsg"
+  printf '%s\n' "$msg" > "$editmsg" || die "$1"
   die "$1 (message kept, retry: git commit $2 $(printf '%q' "$editmsg"))"
 }
 
@@ -280,7 +281,7 @@ if [[ $auth_mode == oauth ]]; then
   warn "no usable API key — falling back to $api_model via the Claude Code OAuth token"
 fi
 
-msg='' t0=''
+msg='' draft='' t0=''
 if [[ -n $auth_mode ]]; then
   (( timing )) && t0=$(now)
   auth="x-api-key: $secret"
@@ -318,7 +319,7 @@ if [[ -n $auth_mode ]]; then
       fall 'API reply had no text'
     elif why=$(rejection "$msg"); then
       fall "$why"
-      msg='' state=rejected
+      draft=$msg msg='' state=rejected
       request+=$'\n\n'"A previous draft was rejected: $why. Fix that."
     else
       state=ok
@@ -335,7 +336,7 @@ if [[ -z $msg ]]; then
   # --setting-sources user: skip workspace settings — untrusted dirs warn otherwise, --safe-mode included
   msg=$(printf '%s\n' "$request" | claude -p --model "$model" --effort "$effort" --no-session-persistence \
     --safe-mode --setting-sources user --tools "" | tr -d '\r') \
-    || die 'claude -p failed'
+    || { msg=$draft; keep_msg 'claude -p failed' '-e -F'; }
 
   # trim leading whitespace
   #   ${msg%%[![:space:]]*}   the whitespace run: cut from the first non-space char to the end
