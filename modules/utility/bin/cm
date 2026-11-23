@@ -115,6 +115,7 @@ types=$(
     git config --local --get-all cm.type ||
     { [[ $prefix == true ]] || is_own_repo && git config --get-all cm.type; }
 )
+[[ $prefix == true && -z $types ]] && die 'cm.prefix=true but no cm.type set'
 # type names joined by | — IFS cuts "name = meaning" at the first space or =, ${prefixes:+|} skips the first |
 prefixes=''
 while IFS=' =' read -r name _; do prefixes+=${prefixes:+|}$name; done <<<"$types"
@@ -336,25 +337,31 @@ if [[ -z $msg ]]; then
   # request via stdin: --tools is variadic and would swallow a trailing arg
   # --setting-sources user: skip workspace settings — untrusted dirs warn otherwise, --safe-mode included
   msg=$(printf '%s\n' "$request" | claude -p --model "$model" --effort "$effort" --no-session-persistence \
-    --safe-mode --setting-sources user --tools "" | tr -d '\r') \
-    || { msg=$draft; keep_msg 'claude -p failed' '-e -F'; }
+    --safe-mode --setting-sources user --tools "" | tr -d '\r')
+  claude_rc=$?
+
+  (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
+    "$me" "$model" "$(elapsed "$t0" "$(now)")" >&2
+  (( claude_rc )) && { msg=$draft; keep_msg 'claude -p failed' '-e --cleanup=whitespace -F'; }
 
   # trim leading whitespace
   #   ${msg%%[![:space:]]*}   the whitespace run: cut from the first non-space char to the end
   #   ${msg#"…"}              cut that run off the front — quoted, so it matches literally
   msg=${msg#"${msg%%[![:space:]]*}"}
 
-  (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
-    "$me" "$model" "$(elapsed "$t0" "$(now)")" >&2
-
-  why=$(rejection "$msg") && keep_msg "$why" '-e -F'
+  why=$(rejection "$msg") && keep_msg "$why" '-e --cleanup=whitespace -F'
 fi
 
 # wrap the body only — a folded subject would spill into the body
 #   *$'\n'*         the message has a body
 #   ${msg%%$'\n'*}  subject: all before the first newline
 #   ${msg#*$'\n'}   body: all after the first newline
-[[ $msg == *$'\n'* ]] && msg=${msg%%$'\n'*}$'\n'$(fold -s -w 72 <<<"${msg#*$'\n'}")
+#   ${body#$'\n'}   body without its blank first line — $'\n\n' puts exactly one back,
+#                   git merges a non-blank line 2 into the subject
+if [[ $msg == *$'\n'* ]]; then
+  body=${msg#*$'\n'}
+  msg=${msg%%$'\n'*}$'\n\n'$(fold -s -w 72 <<<"${body#$'\n'}")
+fi
 
 git commit -qm "$msg" || keep_msg 'git commit failed' -F
 git -P log -1 --stat --summary --pretty=format:'%D [%h] %an%n%n%C(bold)%s%C(reset)%n%+b'

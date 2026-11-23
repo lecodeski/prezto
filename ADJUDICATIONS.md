@@ -609,6 +609,28 @@ reason — evidence.
 - **Comment above `cmpu`** — kept, decided by the user (review 2026-11-23). It
   stops a reader from simplifying to `cm && git push` — that `cm --help`
   exits 0 is not visible at the line
+- **Subject and body always split by one blank line** — required (review
+  2026-11-23). A body on line 2 without a blank line made git merge it into
+  the subject — verified by the reviewer in a temp repo. `rejection()` checks
+  only line 1. The split strips one leading newline from the body and puts
+  `$'\n\n'` back. Tested: body on line 2, one blank, two blanks, subject only
+- **Code fence or preamble passes in repos without prefixes** — YAGNI, decided
+  by the user (review 2026-11-23). Not seen — `<output>` forbids both, 0/10
+  meta-text after it moved last. A rejection costs the fallback and can abort
+- **Scope class `[^\)]` differs between bash 3.2 and 5 on a backslash** —
+  YAGNI, decided by the user (review 2026-11-23). A scope is one short word.
+  The suggested `[^)]` is a syntax error inside `[[ … =~ … ]]` in both bash
+  versions (tested) — a real fix needs the regex in a variable
+- **Retry hint uses `git commit -e --cleanup=whitespace -F`** — required
+  (review 2026-11-23). `-e` turns on `cleanup=strip`, which drops lines that
+  start with `#` — `whitespace` keeps them (git docs, not run here: a hook
+  blocked the unsigned test commit)
+- **`cm.prefix=true` without any `cm.type` aborts** — required (review
+  2026-11-23). It fell back to the history in silence, against `--help`.
+  Tested: `cm.prefix=true but no cm.type set — aborting`
+- **`cm -t` times a failed `claude -p` too** — required (review 2026-11-23).
+  The exit code waits in `claude_rc` until the timing line is out. Tested:
+  the timing line comes before the `💥` line
 - **`cm -- feat` rejected as an unknown option** — YAGNI, decided by the user.
   No caller puts `--` before a commit type
 - **README `## Commands` keeps one line per command** — decided by the user
