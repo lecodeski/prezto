@@ -622,6 +622,14 @@ reason — evidence.
   every body line start — the content is right, only the marker is wrong.
   Tested in bash 5 and 3.2: dashed lines, a dashed line 2, plain lines, and
   inner ` - ` kept
+- **Text blocks joined without a separator** — kept, decided by the user
+  (review 2026-11-23). The Python version joined them the same way
+  (`"".join(…)` in `b39721a7^`) — the reviewer's "took only the first" was
+  wrong. The API can split one text across blocks mid-sentence
+- **Comments on `--get-all` and "an Anthropic reply proves the key"** — kept,
+  decided by the user (review 2026-11-23). They stop a reader from collapsing
+  the type chain into one `--get-all` and from moving `store_key` into the
+  `ok` branch
 - **Code fence or preamble passes in repos without prefixes** — YAGNI, decided
   by the user (review 2026-11-23). Not seen — `<output>` forbids both, 0/10
   meta-text after it moved last. A rejection costs the fallback and can abort
@@ -629,13 +637,16 @@ reason — evidence.
   YAGNI, decided by the user (review 2026-11-23). A scope is one short word.
   The suggested `[^)]` is a syntax error inside `[[ … =~ … ]]` in both bash
   versions (tested) — a real fix needs the regex in a variable
-- **Retry hint uses `git commit -e --cleanup=whitespace -F`** — required
-  (review 2026-11-23). `-e` turns on `cleanup=strip`, which drops lines that
-  start with `#` — `whitespace` keeps them (git docs, not run here: a hook
-  blocked the unsigned test commit)
+- **Retry hint uses `git commit -e --cleanup=scissors -F`** — required
+  (reviews 2026-11-23). `-e` turns on `cleanup=strip`, which drops lines that
+  start with `#`. `whitespace` keeps them, but also git's own help and status
+  block from the editor buffer. `scissors` keeps the message's `#` lines and
+  cuts git's block. Tested in a scratch repo (`--no-verify`, unsigned):
+  `#123 keep me` stayed with both, the help block only with `whitespace`
 - **`cm.prefix=true` without any `cm.type` aborts** — required (review
   2026-11-23). It fell back to the history in silence, against `--help`.
-  Tested: `cm.prefix=true but no cm.type set — aborting`
+  Tested: `cm.prefix=true but no cm.type set — aborting`. A TYPE argument
+  skips the check — `cm feat` needs no list (review 2026-11-23, tested)
 - **`cm -t` times a failed `claude -p` too** — required (review 2026-11-23).
   The exit code waits in `claude_rc` until the timing line is out. Tested:
   the timing line comes before the `💥` line

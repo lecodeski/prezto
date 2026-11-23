@@ -115,7 +115,7 @@ types=$(
     git config --local --get-all cm.type ||
     { [[ $prefix == true ]] || is_own_repo && git config --get-all cm.type; }
 )
-[[ $prefix == true && -z $types ]] && die 'cm.prefix=true but no cm.type set'
+[[ $prefix == true && -z $types && -z $type_arg ]] && die 'cm.prefix=true but no cm.type set'
 # type names joined by | — IFS cuts "name = meaning" at the first space or =, ${prefixes:+|} skips the first |
 prefixes=''
 while IFS=' =' read -r name _; do prefixes+=${prefixes:+|}$name; done <<<"$types"
@@ -342,14 +342,14 @@ if [[ -z $msg ]]; then
 
   (( timing )) && printf '%s: claude -p fallback (%s): %ss\n' \
     "$me" "$model" "$(elapsed "$t0" "$(now)")" >&2
-  (( claude_rc )) && { msg=$draft; keep_msg 'claude -p failed' '-e --cleanup=whitespace -F'; }
+  (( claude_rc )) && { msg=$draft; keep_msg 'claude -p failed' '-e --cleanup=scissors -F'; }
 
   # trim leading whitespace
   #   ${msg%%[![:space:]]*}   the whitespace run: cut from the first non-space char to the end
   #   ${msg#"…"}              cut that run off the front — quoted, so it matches literally
   msg=${msg#"${msg%%[![:space:]]*}"}
 
-  why=$(rejection "$msg") && keep_msg "$why" '-e --cleanup=whitespace -F'
+  why=$(rejection "$msg") && keep_msg "$why" '-e --cleanup=scissors -F'
 fi
 
 # wrap the body only — a folded subject would spill into the body
