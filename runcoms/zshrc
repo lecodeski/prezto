@@ -338,17 +338,17 @@ if (( $+commands[mococli] )); then
   # Edit/remove a day's entries, then re-list that day.
   ze() {
     mococli edit $(_moco_datestamp "$@")
-    echo && z "$@"
+    echo && zd "$@"
   }
 
   zl() {
     mococli rm $(_moco_datestamp "$@")
-    echo && z "$@"
+    echo && zd "$@"
   }
 
   zll() {
     mococli rm $(_moco_datestamp "$@") --loop
-    echo && z "$@"
+    echo && zd "$@"
   }
 
   zb() {
@@ -362,7 +362,7 @@ if (( $+commands[mococli] )); then
     done
 
     mococli new --hours ${${1:-0}/,/.} $(_moco_datestamp "$2" "$3" "$4") --description="$5" ${6:+--project=$6} ${7:+--task=$7}
-    echo && z "$2" "$3" "$4"
+    echo && zd "$2" "$3" "$4"
   }
 
   # specific tasks: _zb reorders args, moving <project> <task> ids to trailing positions
