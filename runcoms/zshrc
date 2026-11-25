@@ -684,7 +684,7 @@ wat() {
 } && compdef xb=broot
 
 (( $+commands[zed] )) && z() {
-  zed ${1:-.}
+  zed ${@:-.}
 } && compdef z=zed
 
 # Keep mistyped commands out of history: reject a line whose head word
