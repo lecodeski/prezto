@@ -198,6 +198,7 @@ alias gd='git diff --stat --patch'
 alias gdg='git difftool --gui'
 alias gds='git diff --staged'
 alias gl='git l'
+alias gla="${aliases[gl]} --all"
 alias gmg="${aliases[g]} mergetool --gui"
 alias gms="${aliases[gm]} --squash"
 alias gp='git pull --rebase'
