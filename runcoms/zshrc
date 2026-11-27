@@ -400,8 +400,8 @@ if (( $+commands[claude] )); then
   else
     ci() { CLAUDE_CODE_ENTRYPOINT=ci claude --print --permission-mode=auto "$@" }
   fi
-  cih() { ci --model=Haiku --effort=medium "$@" }
-  cis() { ci --model=Sonnet --effort=low "$@" }
+  cih() { ci --model=Haiku --effort=low "$@" }
+  cis() { ci --model=Sonnet --effort=medium "$@" }
 
   ca() {
     if [[ $1 == -- ]]; then
